@@ -1,0 +1,44 @@
+.bssizes {
+    position: absolute;
+    background-color: #8fc72c;
+    padding: 5px 10px;
+    bottom: 0;
+}
+
+.sub-green {
+    color: green !important;
+}
+
+.sub-red {
+    color: red !important;
+}
+
+.sub-blue {
+    color: blue !important;
+}
+
+.sub-orange {
+    color: orange !important;
+}
+
+a.nav-link.active {
+    background-color: #e7e7e7 !important;
+}
+
+a.boxlink {
+    display: block;
+}
+
+.boxlink:hover .statistic__item {
+    background-color: #a3a3a3;
+}
+
+a.boxlink,
+a.boxlink .number,
+a.boxlink .desc {
+    color: white;
+}
+
+button.btn.btn-link.dcc-btnlink {
+    padding: 0px;
+}
