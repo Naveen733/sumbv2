@@ -1671,3 +1671,104 @@
   }
 
 })(jQuery);
+
+
+(function ($) {
+  
+  // Dashboard Assigned Accountants
+  try {
+
+    $('#slideRight').click(function() {
+      $('#sumb--sliderContainer').animate({scrollLeft: '+='+150}, 'easeInOutQuint');
+    });
+
+    $('#slideLeft').click(function() {
+      $('#sumb--sliderContainer').animate({scrollLeft: '-='+150}, 'easeInOutQuint');
+    });
+
+  } catch (error) { 
+    console.log(error);
+  }
+
+})(jQuery);
+
+
+(function ($) {
+
+  try {
+
+    if ($('.sumb--accountant')[0]){
+      const ele = document.getElementById('sumb--sliderContainer');
+      ele.style.cursor = 'grab';
+    
+      let pos = { top: 0, left: 0, x: 0, y: 0 };
+    
+      const mouseDownHandler = function (e) {
+          ele.style.cursor = 'grabbing';
+          ele.style.userSelect = 'none';
+    
+          pos = {
+              left: ele.scrollLeft,
+              top: ele.scrollTop,
+              // Get the current mouse position
+              x: e.clientX,
+              y: e.clientY,
+          };
+    
+          document.addEventListener('mousemove', mouseMoveHandler);
+          document.addEventListener('mouseup', mouseUpHandler);
+      };
+    
+      const mouseMoveHandler = function (e) {
+          // How far the mouse has been moved
+          const dx = e.clientX - pos.x;
+          const dy = e.clientY - pos.y;
+    
+          // Scroll the element
+          ele.scrollTop = pos.top - dy;
+          ele.scrollLeft = pos.left - dx;
+      };
+    
+      const mouseUpHandler = function () {
+          ele.style.cursor = 'grab';
+          ele.style.removeProperty('user-select');
+    
+          document.removeEventListener('mousemove', mouseMoveHandler);
+          document.removeEventListener('mouseup', mouseUpHandler);
+      };
+    
+      // Attach the handler
+      ele.addEventListener('mousedown', mouseDownHandler);   
+    }
+
+  } catch (error) { 
+    console.log(error);
+  }
+
+
+})(jQuery);
+
+
+
+(function ($) {
+  
+  // Radio button opac not selected
+  try {
+   $("input[name=abn_category]").change(function() {
+
+    $(".abn--category").addClass('abn--category_usxd');
+    $(".abn--category").toggleClass('active',false);
+
+    if($("input[name=abn_category]").is(':checked')){
+      $(this).next(".abn--category").toggleClass('active',true);
+    } 
+
+   });
+      
+  } catch (error) { 
+    console.log(error);
+  }
+
+})(jQuery);
+
+
