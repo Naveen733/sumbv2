@@ -40,25 +40,16 @@
     
     <!-- Main CSS-->
     <link href="css/theme.css?v=1" rel="stylesheet" media="all">
-    <link href="css/sumb.css?v=1" rel="stylesheet" media="all">
+    <link href="css/sumb.css?v=1.1" rel="stylesheet" media="all">
+    <link href="css/system.css?v=1.11" rel="stylesheet" media="all">
     
     <style>
-        @media only screen and (max-width: 768px){
-            html,
-            body{
-            width:100%;
-            overflow-x:hidden;
-            }
-        }
-        html,
-        body{
-        width:100%;
-        overflow-x:hidden;
-        }
     </style>
 </head>
 
-<body class="animsition <?php if(strpos($_SERVER['REQUEST_URI'], "acct")) {echo 'sumb--accountant';} ?>" onload="javascript: document.body.style.backgroundColor = 'black';">
+<body class="<?php if(strpos($_SERVER['REQUEST_URI'], "acct")) {echo 'sumb--accountant';} ?>" >
+
+<div id="thispage" class="animsition">
 
 
     

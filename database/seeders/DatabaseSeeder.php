@@ -17,5 +17,10 @@ class DatabaseSeeder extends Seeder
         $this->call(SumbUsersTableSeeder::class);
         $this->call(SumbInvoiceSettingsTableSeeder::class);
         $this->call(SumbTransactionsTableSeeder::class);
+        $this->call(SumbClientsTableSeeder::class);
+        $this->call(SumbExpensesClientsTableSeeder::class);
+        $this->call(SumbInvoiceDetailsTableSeeder::class);
+        $this->call(SumbInvoiceParticularsTableSeeder::class);
+        $this->call(SumbInvoiceParticularsTempTableSeeder::class);
     }
 }

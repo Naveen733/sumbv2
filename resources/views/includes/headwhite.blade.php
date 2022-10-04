@@ -44,7 +44,7 @@
 
 </head>
 
-<body class="animsition <?php if(strpos($_SERVER['REQUEST_URI'], "acct")) {echo 'sumb--accountant';} ?>">
+<body class="<?php if(strpos($_SERVER['REQUEST_URI'], "acct")) {echo 'sumb--accountant';} ?>">
 
 
     

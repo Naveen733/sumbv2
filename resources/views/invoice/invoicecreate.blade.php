@@ -25,6 +25,15 @@
             <div class="row">
                 <div class="col-lg-12">
                 <form action="/invoice-create-save" method="post" enctype="multipart/form-data" class="form-horizontal">    
+                @isset($err) 
+                <div class="sumb-alert alert alert-{{ $errors[$err][1] }}" role="alert">
+                    {{ $errors[$err][0] }}
+                </div>
+                @endisset
+                <!--<pre>
+                    {{ print_r($invdet_list) }}
+                </pre>-->
+                
                 <div class="card">
                         <div class="card-header">
                             <strong>Invoice</strong> Form
@@ -44,13 +53,13 @@
                                     <label for="invoice_date" class=" form-control-label">Transaction Date (mm/dd/yyyy)</label>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <input type="text" id="invoice_date" name="invoice_date" placeholder="{{ date("m/d/Y") }}" class="form-control" readonly value="{{ date("m/d/Y") }}">
+                                    <input type="text" id="invoice_date" name="invoice_date" placeholder="{{ !empty($form['invoice_date']) ? $form['invoice_date'] : date("m/d/Y") }}" class="form-control" readonly value="{{ !empty($form['invoice_date']) ? $form['invoice_date'] : date("m/d/Y") }}">
                                 </div>
                                 <div class="col col-md-3">
                                     <label for="invoice_duedate" class=" form-control-label">Due Date (optional)</label>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <input type="text" id="invoice_duedate" name="invoice_duedate" placeholder="" class="form-control" readonly value="">
+                                    <input type="text" id="invoice_duedate" name="invoice_duedate" placeholder="Due Date" class="form-control" readonly value="{{ !empty($form['invoice_duedate']) ? $form['invoice_duedate'] : '' }}">
                                 </div>
                             </div>
                             <div class="row">
@@ -62,7 +71,7 @@
                                 </div>
                                 <div class="col-12 col-md-9">
                                     <div class="input-group mb-3">
-                                        <input type="text" id="client_name" name="client_name" class="form-control" placeholder="Client Name" aria-label="Client Name" aria-describedby="button-addon2" required>
+                                        <input type="text" id="client_name" name="client_name" class="form-control" placeholder="Client Name" aria-label="Client Name" aria-describedby="button-addon2" required value="{{ !empty($form['client_name']) ? $form['client_name'] : '' }}">
                                         <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button" id="button-addon2" data-toggle="modal" data-target="#staticBackdrop">Select Active Clients</button>
                                         </div>
@@ -74,14 +83,14 @@
                                     <label for="client_email" class=" form-control-label">Client Email</label>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <input type="email" id="client_email" name="client_email" placeholder="Client Email Address" class="form-control">
+                                    <input type="email" id="client_email" name="client_email" placeholder="Client Email Address" class="form-control" value="{{ !empty($form['client_email']) ? $form['client_email'] : '' }}">
                                 </div>
                             
                                 <div class="col col-md-3">
                                     <label for="client_phone" class=" form-control-label">Client Phone</label>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <input type="text" id="client_phone" name="client_phone" placeholder="Client Contact Number" class="form-control">
+                                    <input type="text" id="client_phone" name="client_phone" placeholder="Client Contact Number" class="form-control" value="{{ !empty($form['client_phone']) ? $form['client_phone'] : '' }}">
                                 </div>
                             </div>
                             <div class="row form-group">
@@ -89,15 +98,15 @@
                                     <label for="client_address" class=" form-control-label">Client Address (optional)</label>
                                 </div>
                                 <div class="col-12 col-md-9">
-                                    <textarea name="client_address" id="client_address" rows="5" placeholder="Client Address" class="form-control"></textarea>
+                                    <textarea name="client_address" id="client_address" rows="5" placeholder="Client Address" class="form-control">{{ !empty($form['client_address']) ? $form['client_address'] : '' }}</textarea>
                                 </div>
                             </div>
                             <div class="row form-group">
                                 <div class="col col-md-3">
-                                    <label for="invoice_details" class=" form-control-label">Client Description (optional)</label>
+                                    <label for="invoice_details" class=" form-control-label">Client Description (optional)<br> <small>Note: not displayed on invoice.</small></label>
                                 </div>
                                 <div class="col-12 col-md-9">
-                                    <textarea name="invoice_details" id="invoice_details" rows="5" placeholder="Client Description" class="form-control"></textarea>
+                                    <textarea name="invoice_details" id="invoice_details" rows="5" placeholder="Client Description" class="form-control">{{ !empty($form['invoice_details']) ? $form['invoice_details'] : '' }}</textarea>
                                 </div>
                             </div>
                             <div class="row form-group">
@@ -107,22 +116,23 @@
                                 <div class="col col-md-9">
                                     <div class="form-check">
                                         <div class="checkbox">
-                                            <label for="checkbox1" class="form-check-label ">
-                                                <input type="checkbox" id="checkbox1" name="checkbox1" value="option1" class="form-check-input" checked>Do you want to save this client to an active client?
+                                            <label for="save_client" class="form-check-label ">
+                                                <input type="checkbox" id="save_client" name="save_client" value="yes" class="form-check-input" {{ !empty($form['save_client']) ? 'checked' : '' }}>Do you want to save this client to an active client?<br>
+                                                <small>Note: when the name is existing it will overide the old one.</small>
                                             </label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="row form-group" style="margin-top:30px; margin-bottom:30;">
+                            <div class="row form-group" style="margin-top:75px; margin-bottom:50;">
                                 <div class="col-md-6"><h4>Particulars</h4></div>
                                 <div class="col-md-6" style="text-align: right;">
                                     <button class="btn btn-primary btn-sm" type="button" id="addnewpart" data-toggle="modal" data-target="#particulars">Add New</button> 
                                     <button class="btn btn-primary btn-sm" type="button" id="clearallpart" data-toggle="modal" data-target="#particulars">Clear All</button> 
                                 </div>
                                 <div class="col col-md-12" style="margin-top:20px;">
-                                    <div class="table-responsive">
+                                    <div class="table-responsive" style="margin-bottom:75px;">
                                         <table class="table" id="partstable">
                                             <thead>
                                                 <tr>
@@ -135,7 +145,7 @@
                                             </thead>
                                             <tbody>
                                                 @if (empty($particulars))
-                                                <tr>
+                                                <tr id="tnoparts">
                                                     <td id="noparts" colspan="5" style="padding:20px;text-align:center;">You do not have any particulars at this time.</td>
                                                 </tr>
                                                 @else
@@ -174,7 +184,10 @@
                                         </div>
                                         <div class="col-12 col-md-9">
                                             <div class="input-group mb-3">
-                                                <input type="text" id="invoice_name" name="invoice_name" class="form-control" placeholder="Invoice Name" aria-label="Invoice Name" aria-describedby="button-addon2" required>
+                                                @php
+                                                $inv_name = ''; if (!empty($form['invoice_name'])) { $inv_name = $form['invoice_name']; } elseif (!empty($invdet_list[0]['invoice_name'])) { $inv_name = $invdet_list[0]['invoice_name']; }
+                                                @endphp
+                                                <input type="text" id="invoice_name" name="invoice_name" class="form-control" placeholder="Invoice Name" aria-label="Invoice Name" aria-describedby="button-addon2" required value="{{$inv_name}}">
                                                 <div class="input-group-append">
                                                     <button class="btn btn-outline-secondary" type="button" id="invoice_name_addon2" data-toggle="modal" data-target="#staticBackdrop">Select Active Invoice Info</button>
                                                 </div>
@@ -186,13 +199,13 @@
                                             <label for="invoice_email" class=" form-control-label">Invoice Email</label>
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <input type="text" id="invoice_email" name="invoice_email" placeholder="Invoice Email" class="form-control">
+                                            <input type="email" id="invoice_email" name="invoice_email" placeholder="Invoice Email" class="form-control" required value="{{ !empty($form['invoice_email']) ? $form['invoice_email'] : ( (!empty($invdet_list[0]['invoice_email'])) ? $invdet_list[0]['invoice_email'] : '' ) }}">
                                         </div>
                                         <div class="col col-md-3">
                                             <label for="invoice_phone" class=" form-control-label">Invoice Phone (optional)</label>
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <input type="text" id="invoice_phone" name="invoice_phone" placeholder="Invoice Phone" class="form-control">
+                                            <input type="text" id="invoice_phone" name="invoice_phone" placeholder="Invoice Phone" class="form-control" value="{{ !empty($form['invoice_phone']) ? $form['invoice_phone'] : ( (!empty($invdet_list[0]['invoice_phone'])) ? $invdet_list[0]['invoice_phone'] : '' ) }}">
                                         </div>
                                     </div>
                                     <div class="row form-group">
@@ -200,7 +213,7 @@
                                             <label for="invoice_terms" class=" form-control-label">Footer / Terms and Condition (optional)</label>
                                         </div>
                                         <div class="col-12 col-md-9">
-                                            <textarea name="invoice_terms" id="invoice_terms" rows="5" placeholder="Footer / Terms and Condition" class="form-control"></textarea>
+                                            <textarea name="invoice_terms" id="invoice_terms" rows="5" placeholder="Footer / Terms and Condition" class="form-control">{{ !empty($form['invoice_terms']) ? $form['invoice_terms'] : ( (!empty($invdet_list[0]['invoice_desc'])) ? $invdet_list[0]['invoice_desc'] : '' ) }}</textarea>
                                         </div>
                                     </div>
                                     <div class="row form-group">
@@ -209,16 +222,16 @@
                                             <button class="btn btn-primary btn-sm" type="button" id="change logo" data-toggle="modal" data-target="#logoModal">Change Logo</button> 
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <img src="/img/nologo.png" style="max-height:100px;">
-                                            <input type="hidden" name="invoice_logo" id="invoice_logo" value="">
+                                            <div id="logoimagehtml"><img id="logoimage" data-logofile="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : (isset($invoice_logo) ? $invoice_logo : ( (!empty($invdet_list[0]['invoice_logo'])) ? $invdet_list[0]['invoice_logo'] : '' )) }}" src="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : ( (!empty($invdet_list[0]['invoice_logo'])) ? $invdet_list[0]['invoice_logo'] : '/img/nologo.png' ) }}" style="max-height:150px;"></div>
+                                            <input type="hidden" name="invoice_logo" id="invoice_logo" value="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : '' }}">
                                         </div>
                                         <div class="col col-md-3">
                                             <label for="client_email" class=" form-control-label">Template:</label><br>
                                             <button class="btn btn-primary btn-sm" type="button" id="change logo">Change Template</button> 
                                         </div>
                                         <div class="col-12 col-md-3">
-                                            <a href="/img/format001.pdf" target="_blank"><img src="/img/format001.jpg" style="max-height:100px;border:1px solid #000;"></a>
-                                            <input type="hidden" name="invoice_format" id="invoice_format" value="format001">
+                                            <a href="/img/format001.pdf" target="_blank"><img src="/img/{{ !empty($form['invoice_format']) ? $form['invoice_format'] : ( (!empty($invdet_list[0]['invoice_format'])) ? $invdet_list[0]['invoice_format'] : 'format001' ) }}.jpg" style="max-height:100px;border:1px solid #000;"></a>
+                                            <input type="hidden" name="invoice_format" id="invoice_format" value="{{ !empty($form['invoice_format']) ? $form['invoice_format'] : 'format001' }}">
                                         </div>
                                     </div>
                                     <div class="row form-group">
@@ -229,7 +242,8 @@
                                             <div class="form-check">
                                                 <div class="checkbox">
                                                     <label for="save_invdet" class="form-check-label ">
-                                                        <input type="checkbox" id="save_invdet" name="save_invdet" value="invdet" class="form-check-input" checked>Do you want to save this details to an active details?
+                                                        <input type="checkbox" id="save_invdet" name="save_invdet" value="yes" class="form-check-input" {{ !empty($form['save_invdet']) ? 'checked' : '' }}>Do you want to save this details to an active details?<br>
+                                                        <small>Note: when the name is existing it will overide the old one.</small>
                                                     </label>
                                                 </div>
                                             </div>
@@ -285,7 +299,8 @@
                         <thead>
                             <tr>
                                 <th scope="col">Name</th>
-                                <th scope="col">Description</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Address</th>
                                 <th scope="col">Options</th>
     
                             </tr>
@@ -301,8 +316,63 @@
                             @php $counter ++; @endphp
                             <tr>
                                 <th scope="row" id="data_name_{{ $counter }}">{{ $ec['client_name'] }}</th>
-                                <td id="data_desc_{{ $counter }}">{{ $ec['client_description'] }}</td>
+                                <td id="data_email_{{ $counter }}">{{ $ec['client_email'] }}</td>
+                                <td id="data_address_{{ $counter }}">{{ $ec['client_address'] }}</td>
                                 <td><button type="button" class="btn btn-primary btn-sm dcc_click" data-dismiss="modal" data-myid="{{ $counter }}">Use This</button></td>
+                            </tr>
+                            @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="invDetails" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="invDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="invDetailsLabel">Saved Invoice Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="replist" style="overflow-x: auto; max-height:600px;">
+                    
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Address</th>
+                                <th scope="col">Options</th>
+    
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (empty($exp_clients))
+                            <tr>
+                                <td colspan="3">You dont have any clients at this time</td>
+                            </tr>
+                            @else
+                            @php $counter = 0; @endphp
+                            @foreach ($exp_clients as $ec)
+                            @php $counter ++; @endphp
+                            <tr>
+                                <th scope="row" id="data_name_{{ $counter }}">{{ $ec['client_name'] }}</th>
+                                <td id="data_email_{{ $counter }}">{{ $ec['client_email'] }}</td>
+                                <td id="data_address_{{ $counter }}">{{ $ec['client_address'] }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-primary btn-sm dcc_click" data-dismiss="modal" data-myid="{{ $counter }}">Use This</button>
+                                    <input id="data_phone_{{ $counter }}" type="hidden" name="data_phone_{{ $counter }}" value="{{$ec['client_phone']}}"/>
+                                    <input id="data_details_{{ $counter }}" type="hidden" name="data_details_{{ $counter }}" value="{{$ec['client_details']}}"/>
+                                </td>
                             </tr>
                             @endforeach
                             @endif
@@ -429,6 +499,7 @@
     }
     $(function() {
         $( "#invoice_date" ).datepicker();
+        $( "#invoice_duedate" ).datepicker();
       
         $('#part_save_button').on('click', function () {
 
@@ -453,9 +524,10 @@
                             if(rparse.chk == 'success') {
                                 var myhtml = '<tr id="part_'+rparse.id+'" data-type="'+rparse.type+'"><td scope="row" id="part_qty_'+rparse.id+'">'+rparse.qty+'</td><td id="part_desc_'+rparse.id+'">'+rparse.desc+'</td><td style="text-align: right;" id="part_uprice_'+rparse.id+'" data-amt="'+rparse.upriceno+'">'+rparse.uprice+'</td><td style="text-align: right;" id="part_amount_'+rparse.id+'" data-amt="'+rparse.amountno+'">'+rparse.amount+'</td><td style="text-align: right;"><button class="btn btn-primary btn-sm editpart" type="button" data-partid="'+rparse.id+'" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> <button class="btn btn-primary btn-sm delepart" type="button" data-partid="'+rparse.id+'"><i class="fa-solid fa-trash"></i></button></td></tr>';
                                 $("#grandtotal").html('$'+rparse.grand_total);
-                                $("#gtotal").html(rparse.grand_total);
+                                $("#gtotal").val(rparse.grand_total);
                                 $('#partstable tr:last').prev().after(myhtml);
                                 $('#particulars').modal('toggle');
+                                $('#tnoparts').hide();
                             }
                         }
                     });
@@ -473,9 +545,10 @@
                             if(rparse.chk == 'success') {
                                 var myhtml = '<td scope="row" id="part_qty_'+rparse.id+'">'+rparse.qty+'</td><td id="part_desc_'+rparse.id+'">'+rparse.desc+'</td><td style="text-align: right;" id="part_uprice_'+rparse.id+'" data-amt="'+rparse.upriceno+'">'+rparse.uprice+'</td><td style="text-align: right;" id="part_amount_'+rparse.id+'" data-amt="'+rparse.amountno+'">'+rparse.amount+'</td><td style="text-align: right;"><button class="btn btn-primary btn-sm editpart" type="button" data-partid="'+rparse.id+'" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> <button class="btn btn-primary btn-sm delepart" type="button" data-partid="'+rparse.id+'"><i class="fa-solid fa-trash"></i></button></td>';
                                 $("#grandtotal").html('$'+rparse.grand_total);
-                                $("#gtotal").html(rparse.grand_total);
+                                $("#gtotal").val(rparse.grand_total);
                                 $('#part_'+rparse.id).html(myhtml);
                                 $('#particulars').modal('toggle');
+                                $('#tnoparts').hide();
                             }
                         }
                     });
@@ -543,11 +616,28 @@
                             console.log('delete now!');
                             $("#part_"+rparse.partid).remove();
                             $("#grandtotal").html('$'+rparse.gtotal);
-                            $("#gtotal").html(rparse.grand_total);
+                            $("#gtotal").val(rparse.grand_total);
+                            if( !$("#gtotal").val() ) {
+                                $('#tnoparts').show();
+                            }
                         }
                     }
                 });
             }
+        });
+        
+        $('.dcc_click').on('click', function () {
+            //console.log('clicked!');
+            //console.log( $(this).data('myid') );
+            var clientid = $(this).data('myid');
+            var clientname = $("#data_name_"+clientid).html();
+            var clientdesc = $("#data_desc_"+clientid).html();
+            //console.log(clientdesc);
+            $('#client_name').val( $("#data_name_"+clientid).html() );
+            $('#client_email').val( $("#data_email_"+clientid).html() );
+            $('#client_phone').val( $("#data_phone_"+clientid).val() );
+            $('#client_address').val( $("#data_address_"+clientid).html() );
+            $('#invoice_details').val( $("#data_details_"+clientid).val() );
         });
     });
     

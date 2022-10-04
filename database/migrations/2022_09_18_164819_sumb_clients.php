@@ -17,10 +17,11 @@ class SumbClients extends Migration
             $table->increments('id');
             $table->foreignId('user_id')->nullable()->index();
             $table->string('client_name');
-            $table->string('client_contact_person')->nullable();
-            $table->string('client_contact_number')->nullable();
+            $table->string('client_email')->nullable();
+            $table->string('client_phone')->nullable();
             $table->text('client_address')->nullable();
-            $table->text('client_comments')->nullable();
+            $table->text('client_details')->nullable();
+            $table->string('default_client')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

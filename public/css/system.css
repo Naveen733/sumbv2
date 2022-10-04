@@ -1,0 +1,28 @@
+body.modal-open {
+    height: 100vh; 
+    /* overflow-y: hidden;*/
+}
+  
+
+html,
+body{
+    width:100%;
+    overflow-x:hidden;
+    background: #28282a url('../img/random-grey-variations.png');
+}
+
+.animsition-overlay-slide {
+/*    z-index: 100000;*/
+    /*background-color:black;*/
+}
+
+.page-loader {
+    background: #28282a url('../img/random-grey-variations.png');
+}
+
+.paid {
+    color: blue !important;
+}
+.void {
+    color: red !important;
+}

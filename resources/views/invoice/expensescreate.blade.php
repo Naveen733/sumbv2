@@ -81,7 +81,8 @@
                                         <div class="form-check">
                                             <div class="checkbox">
                                                 <label for="savethisrep" class="form-check-label ">
-                                                    <input type="checkbox" id="savethisrep" name="savethisrep" value="1" class="form-check-input" checked>Do you want to save this recipient to an active recipient?
+                                                    <input type="checkbox" id="savethisrep" name="savethisrep" value="1" class="form-check-input" checked>Do you want to save this recipient to an active recipient?<br>
+                                                    <small>Note: when the name is existing it will overide the old one.</small>
                                                 </label>
                                             </div>
                                             

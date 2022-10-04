@@ -1,3 +1,5 @@
+</div>
+
 <!-- Jquery JS-->
 <script src="vendor/jquery-3.2.1.min.js"></script>
 <!-- Bootstrap JS-->
@@ -23,7 +25,7 @@
 <script src="vendor/fullcalendar-3.10.0/fullcalendar.js"></script>
     
 <!-- Main JS-->
-<script src="js/main.js?v1.0.3"></script>
+<script src="js/main.js?v1.0.11"></script>
 
 <script type="text/javascript">
 $(function() {
@@ -67,7 +69,9 @@ $(function() {
     },
     events: events.concat(trivia_nights)
   });
-      
+  
+  
+  
 });
     
 </script>

@@ -21,6 +21,7 @@ class SumbInvoiceDetails extends Migration
             $table->string('invoice_phone')->nullable();
             $table->text('invoice_desc')->nullable();
             $table->text('invoice_logo')->nullable();
+            $table->text('invoice_format')->nullable();
             $table->integer('deault')->default(0);
             $table->timestamps();
         });
