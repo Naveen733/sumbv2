@@ -223,7 +223,7 @@
                                         </div>
                                         <div class="col-12 col-md-3">
                                             <div id="logoimagehtml"><img id="logoimage" data-logofile="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : (isset($invoice_logo) ? $invoice_logo : ( (!empty($invdet_list[0]['invoice_logo'])) ? $invdet_list[0]['invoice_logo'] : '' )) }}" src="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : ( (!empty($invdet_list[0]['invoice_logo'])) ? $invdet_list[0]['invoice_logo'] : '/img/nologo.png' ) }}" style="max-height:150px;"></div>
-                                            <input type="hidden" name="invoice_logo" id="invoice_logo" value="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : '' }}">
+                                            <input type="hidden" name="invoice_logo" id="invoice_logo" value="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : (isset($invoice_logo) ? $invoice_logo : ( (!empty($invdet_list[0]['invoice_logo'])) ? $invdet_list[0]['invoice_logo'] : '' )) }}" src="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : ( (!empty($invdet_list[0]['invoice_logo'])) ? $invdet_list[0]['invoice_logo'] : '/img/nologo.png' ) }}">
                                         </div>
                                         <div class="col col-md-3">
                                             <label for="client_email" class=" form-control-label">Template:</label><br>

@@ -228,11 +228,17 @@ class InvoiceController extends Controller {
         );
         $pagedata['errors'] = $errors;
         if (!empty($request->input('err'))) { $pagedata['err'] = $request->input('err'); }
-        $pagedata['data'] = $get_settings = SumbInvoiceSettings::where('user_id', $userinfo[0])->orderBy('id')->first()->toArray();
+        $get_settings = SumbInvoiceSettings::where('user_id', $userinfo[0])->orderBy('id')->first();
+        if(!empty($get_settings)) {
+            $pagedata['data'] = $get_settings = $get_settings->toArray();
+        } else {
+            $pagedata['data'] = $get_settings = array();
+        }
+        
         $pagedata['form'] = $request->all();
         $get_expclients = SumbClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
         if (!empty($get_expclients)) {
-            $pagedata['exp_clients'] = $get_expclients->toArray();
+            $pagedata['exp_clients'] = $get_expclients = $get_expclients->toArray();
         }
         //print_r($get_settings); die();
         $get_current_particulars = SumbInvoiceParticularsTemp::where('user_id', $userinfo[0])->where('invoice_number', $get_settings['invoice_count'])->get();
@@ -282,7 +288,7 @@ class InvoiceController extends Controller {
         //}
         
         //SumbInvoiceParticulars::insert($get_invoice_parts);
-        DB::statement('INSERT INTO sumb_invoice_particulars ( SELECT * FROM  sumb_invoice_particulars_temp WHERE user_id = ' . $userinfo[0] . ' AND invoice_number = ' . $get_settings['invoice_count'] . ')');
+        DB::statement('INSERT INTO sumb_invoice_particulars (`user_id`,`invoice_number`,`quantity`,`part_type`,`description`,`unit_price`,`amount`,`created_at`,`updated_at`) ( SELECT `user_id`,`invoice_number`,`quantity`,`part_type`,`description`,`unit_price`,`amount`,`created_at`,`updated_at`  FROM  sumb_invoice_particulars_temp WHERE user_id = ' . $userinfo[0] . ' AND invoice_number = ' . $get_settings['invoice_count'] . ')');
         SumbInvoiceParticularsTemp::where('user_id', $userinfo[0])->where('invoice_number', $get_settings['invoice_count'])->delete();
         //print_r($get_invoice_parts);
         
@@ -401,8 +407,9 @@ class InvoiceController extends Controller {
         SumbInvoiceSettings::where('user_id', $userinfo[0])->update(['invoice_count'=>$nextinvoice]);
         
         //==== Prepare PDF
-        $logoimagetype = 
-        $logoimg = base64_encode(file_get_contents(url($request->invoice_logo)));
+        $logoimagetype = '';
+        
+        $logoimg = base64_encode(file_get_contents(env('APP_PUBLIC_DIRECTORY') . $request->invoice_logo));
         $invpdf['inv'] = [
             "logo" => $request->invoice_logo,
             'transaction_id' => $get_settings['invoice_count'],
