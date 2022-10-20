@@ -427,7 +427,7 @@ class InvoiceController extends Controller {
             'invoice_date' => $carbon_invdate,
             'inv_parts' => $get_invoice_parts
         ];
-        $invpdf['inv']['logoimgdet'] = getimagesize(url($request->invoice_logo));
+        $invpdf['inv']['logoimgdet'] = getimagesize(env('APP_PUBLIC_DIRECTORY') . $request->invoice_logo);
         $invpdf['inv']['logobase64'] = 'data:'.$invpdf['inv']['logoimgdet']['mime'].';charset=utf-8;base64,' . $logoimg;
         $inv_filename = 'inv'.date('YmdHis')."-".$get_settings['invoice_count']."-".md5(date('YmdHis')).".pdf";
         
