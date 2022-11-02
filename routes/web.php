@@ -50,7 +50,13 @@ Route::middleware('sumbauth')->group(function() {
         Route::get('/status-change', [App\Http\Controllers\InvoiceController::class, 'status_change'])->name('status-change');
     
         Route::get('/invoice-particulars-add', [App\Http\Controllers\InvoiceController::class, 'invoice_particulars_add'])->name('invoice-particulars-add2');
-    
+
+        //File upload
+        Route::get('/doc-upload', [App\Http\Controllers\DocumentUploadController::class, 'index'])->name('doc-upload');
+        Route::post('/store', [App\Http\Controllers\DocumentUploadController::class, 'store'])->name('store');
+        Route::get('/doc-edit', [App\Http\Controllers\DocumentUploadController::class, 'docedit'])->name('doc-edit');
+        Route::post('/doc-edit-process/{id}', [App\Http\Controllers\DocumentUploadController::class, 'doceditprocess'])->name('DocumentUploadController.doc-edit-process');       
+
     //testing
     Route::get('/testing', [App\Http\Controllers\InvoiceController::class, 'testing'])->name('testing');
     Route::get('/testpdf', [App\Http\Controllers\InvoiceController::class, 'testpdf'])->name('testpdf');
