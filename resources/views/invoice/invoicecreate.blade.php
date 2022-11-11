@@ -6,280 +6,261 @@
 
     @include('includes.user-top')
     
-<!-- MAIN CONTENT-->
-<div class="main-content">
-    <div class="section__content section__content--p30">
-        <div class="container-fluid">
-            
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="overview-wrap" style="margin-bottom: 30px;">
-                        <h2 class="title-1">Invoice</h2>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <p style="margin-bottom:20px;"><a href="/dashboard">Dashboard</a> | <a href="/invoice">Transactions</a> | <b>Create An Invoice</b></p>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-lg-12">
-                <form action="/invoice-create-save" method="post" enctype="multipart/form-data" class="form-horizontal">    
-                @isset($err) 
-                <div class="sumb-alert alert alert-{{ $errors[$err][1] }}" role="alert">
-                    {{ $errors[$err][0] }}
-                </div>
-                @endisset
-                <!--<pre>
-                    {{ print_r($invdet_list) }}
-                </pre>-->
-                
-                <div class="card">
-                        <div class="card-header">
-                            <strong>Invoice</strong> Form
+    <!-- MAIN CONTENT-->
+    <div class="main-content">
+        <div class="section__content section__content--p30">
+            <div class="container-fluid">
+
+                <section>
+                    <h3 class="sumb--title">Create an Invoice</h3>
+                </section>
+
+                <section>
+
+                    <form action="/invoice-create-save" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+                        @isset($err)
+                        <div class="alert alert-{{ $errors[$err][1] }}" role="alert">
+                            {{ $errors[$err][0] }}
                         </div>
-                        <div class="card-body card-block">
-                            @csrf
-                            <div class="row form-group">
-                                <div class="col col-md-3">
-                                    <label class=" form-control-label">Invoice Number</label>
-                                </div>
-                                <div class="col-12 col-md-9">
-                                    <p class="form-control-static">{{ str_pad($data['invoice_count'], 10, '0', STR_PAD_LEFT); }}</p>
-                                </div>
-                            </div>
-                            <div class="row form-group">
-                                <div class="col col-md-3">
-                                    <label for="invoice_date" class=" form-control-label">Transaction Date (mm/dd/yyyy)</label>
-                                </div>
-                                <div class="col-12 col-md-3">
-                                    <input type="text" id="invoice_date" name="invoice_date" placeholder="{{ !empty($form['invoice_date']) ? $form['invoice_date'] : date("m/d/Y") }}" class="form-control" readonly value="{{ !empty($form['invoice_date']) ? $form['invoice_date'] : date("m/d/Y") }}">
-                                </div>
-                                <div class="col col-md-3">
-                                    <label for="invoice_duedate" class=" form-control-label">Due Date (optional)</label>
-                                </div>
-                                <div class="col-12 col-md-3">
-                                    <input type="text" id="invoice_duedate" name="invoice_duedate" placeholder="Due Date" class="form-control" readonly value="{{ !empty($form['invoice_duedate']) ? $form['invoice_duedate'] : '' }}">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12" style="margin-bottom:20px;"><p><h4>Client Info</h4></p></div>
-                            </div>
-                            <div class="row form-group">
-                                <div class="col col-md-3">
-                                    <label for="client_name" class="form-control-label">Client Name</label>
-                                </div>
-                                <div class="col-12 col-md-9">
-                                    <div class="input-group mb-3">
-                                        <input type="text" id="client_name" name="client_name" class="form-control" placeholder="Client Name" aria-label="Client Name" aria-describedby="button-addon2" required value="{{ !empty($form['client_name']) ? $form['client_name'] : '' }}">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-outline-secondary" type="button" id="button-addon2" data-toggle="modal" data-target="#staticBackdrop">Select Active Clients</button>
+                        @endisset
+
+
+                        @csrf
+
+                        <hr class="form-cutter">
+
+                        <h4 class="form-header--title">Which client is this Invoice for?</h4>
+
+                        <div class="row">
+
+                            <div class="col-xl-4">
+                                <div class="form-input--wrap">
+                                    <label for="client_name" class="form-input--question">
+                                        Client Name
+                                    </label>
+                                    <div class="form--inputbox recentsearch--input row">
+                                        <div class="searchRecords col-12">
+                                            <input type="text" id="client_name" name="client_name" class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" required value="{{ !empty($form['client_name']) ? $form['client_name'] : '' }}">
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row form-group">
-                                <div class="col col-md-3">
-                                    <label for="client_email" class=" form-control-label">Client Email</label>
-                                </div>
-                                <div class="col-12 col-md-3">
-                                    <input type="email" id="client_email" name="client_email" placeholder="Client Email Address" class="form-control" value="{{ !empty($form['client_email']) ? $form['client_email'] : '' }}">
-                                </div>
-                            
-                                <div class="col col-md-3">
-                                    <label for="client_phone" class=" form-control-label">Client Phone</label>
-                                </div>
-                                <div class="col-12 col-md-3">
-                                    <input type="text" id="client_phone" name="client_phone" placeholder="Client Contact Number" class="form-control" value="{{ !empty($form['client_phone']) ? $form['client_phone'] : '' }}">
-                                </div>
-                            </div>
-                            <div class="row form-group">
-                                <div class="col col-md-3">
-                                    <label for="client_address" class=" form-control-label">Client Address (optional)</label>
-                                </div>
-                                <div class="col-12 col-md-9">
-                                    <textarea name="client_address" id="client_address" rows="5" placeholder="Client Address" class="form-control">{{ !empty($form['client_address']) ? $form['client_address'] : '' }}</textarea>
-                                </div>
-                            </div>
-                            <div class="row form-group">
-                                <div class="col col-md-3">
-                                    <label for="invoice_details" class=" form-control-label">Client Description (optional)<br> <small>Note: not displayed on invoice.</small></label>
-                                </div>
-                                <div class="col-12 col-md-9">
-                                    <textarea name="invoice_details" id="invoice_details" rows="5" placeholder="Client Description" class="form-control">{{ !empty($form['invoice_details']) ? $form['invoice_details'] : '' }}</textarea>
-                                </div>
-                            </div>
-                            <div class="row form-group">
-                                <div class="col col-md-3">
-                                    <label class=" form-control-label">Save</label>
-                                </div>
-                                <div class="col col-md-9">
-                                    <div class="form-check">
-                                        <div class="checkbox">
-                                            <label for="save_client" class="form-check-label ">
-                                                <input type="checkbox" id="save_client" name="save_client" value="yes" class="form-check-input" {{ !empty($form['save_client']) ? 'checked' : '' }}>Do you want to save this client to an active client?<br>
-                                                <small>Note: when the name is existing it will overide the old one.</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="row form-group" style="margin-top:75px; margin-bottom:50;">
-                                <div class="col-md-6"><h4>Particulars</h4></div>
-                                <div class="col-md-6" style="text-align: right;">
-                                    <button class="btn btn-primary btn-sm" type="button" id="addnewpart" data-toggle="modal" data-target="#particulars">Add New</button> 
-                                    <button class="btn btn-primary btn-sm" type="button" id="clearallpart" data-toggle="modal" data-target="#particulars">Clear All</button> 
-                                </div>
-                                <div class="col col-md-12" style="margin-top:20px;">
-                                    <div class="table-responsive" style="margin-bottom:75px;">
-                                        <table class="table" id="partstable">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col" style="width:75px; min-width:75px;">QTY</th>
-                                                    <th scope="col">Description</th>
-                                                    <th scope="col" style="width:150px; min-width:150px;">Unit Price</th>
-                                                    <th scope="col" style="width:150px; min-width:150px;">Amount</th>
-                                                    <th scope="col" style="text-align: right; width:150px; min-width:150px;">Options</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @if (empty($particulars))
-                                                <tr id="tnoparts">
-                                                    <td id="noparts" colspan="5" style="padding:20px;text-align:center;">You do not have any particulars at this time.</td>
-                                                </tr>
-                                                @else
-                                                    @foreach ($particulars as $prts)
-                                                    <tr id="part_{{ $prts['id'] }}" data-type="{{ $prts['part_type'] }}">
-                                                        <td scope="row" id="part_qty_{{ $prts['id'] }}">{{ ($prts['unit_price']<1 ? '-' : $prts['unit_price']) }}</td>
-                                                        <td id="part_desc_{{ $prts['id'] }}">{{nl2br($prts['description'])}}</td>
-                                                        <td style="text-align: right;" id="part_uprice_{{ $prts['id'] }}" data-amt="{{ $prts['unit_price'] }}">{{($prts['unit_price']<1 ? '-' : '$'.number_format($prts['unit_price'], 2, ".", ","))}}</td>
-                                                        <td style="text-align: right;" id="part_amount_{{ $prts['id'] }}" data-amt="{{ $prts['amount'] }}">{{'$'.number_format($prts['amount'], 2, ".", ",")}}</td>
-                                                        <td style="text-align: right;">
-                                                            <button class="btn btn-primary btn-sm editpart" type="button" data-partid="{{ $prts['id'] }}" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> 
-                                                            <button class="btn btn-primary btn-sm delepart" type="button" data-partid="{{ $prts['id'] }}"><i class="fa-solid fa-trash"></i></button>
-                                                        </td>
-                                                    </tr>
-                                                
-                                                    @endforeach
-                                                @endif
-                                                <tr>
-                                                    <td colspan="3" style="text-align: right;"><strong>Total Amount</strong></td>
-                                                    <td style="text-align: right;">
-                                                    <strong id="grandtotal">${{number_format($gtotal, 2, ".", ",")}}</strong>
-                                                    <input type="hidden" name="gtotal" id="gtotal" value="{{ $gtotal }}">
-                                                    </td>
-                                                    <td>&nbsp;</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-12" style="margin-bottom:20px;"><p><h4>Your Invoice Details</h4></p></div>
-                                    </div>
-                                    <div class="row form-group">
-                                        <div class="col col-md-3">
-                                            <label for="invoice_name" class=" form-control-label">Invoice Name From</label>
-                                        </div>
-                                        <div class="col-12 col-md-9">
-                                            <div class="input-group mb-3">
-                                                @php
-                                                $inv_name = ''; if (!empty($form['invoice_name'])) { $inv_name = $form['invoice_name']; } elseif (!empty($invdet_list[0]['invoice_name'])) { $inv_name = $invdet_list[0]['invoice_name']; }
-                                                @endphp
-                                                <input type="text" id="invoice_name" name="invoice_name" class="form-control" placeholder="Invoice Name" aria-label="Invoice Name" aria-describedby="button-addon2" required value="{{$inv_name}}">
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-outline-secondary" type="button" id="invoice_name_addon2" data-toggle="modal" data-target="#staticBackdrop">Select Active Invoice Info</button>
-                                                </div>
+                                    <div class="form--recentsearch clientname row">
+                                        <div class="col-12">
+                                            
+                                            <div class="form--recentsearch__result">
+                                                <ul>
+                                                    @if (empty($exp_clients))
+                                                        <li>You dont have any clients at this time</li>
+                                                    @else
+                                                        @php $counter = 0; @endphp
+                                                        @foreach ($exp_clients as $ec)
+                                                            @php $counter ++; @endphp
+                                                            <li>
+                                                                <button type="button" class="dcc_click" data-myid="{{ $counter }}">
+                                                                    <span id="data_name_{{ $counter }}">{{ $ec['client_name'] }}</span>
+                                                                </button>
+                                                            </li>
+                                                        @endforeach
+                                                    @endif
+
+                                                    <li class="add--newactclnt">
+                                                        <label for="save_client">
+                                                            <input type="checkbox" id="save_client" name="save_client" value="yes" class="form-check-input" {{ !empty($form['save_client']) ? 'checked' : '' }}>
+                                                            <div class="option--title">
+                                                                Add as a new active client?
+                                                                <span>Note: When the name is existing it will overide the old one.</span>
+                                                            </div>
+                                                        </label>
+                                                    </li>
+                                                </ul>
+
                                             </div>
+
                                         </div>
                                     </div>
-                                    <div class="row form-group">
-                                        <div class="col col-md-3">
-                                            <label for="invoice_email" class=" form-control-label">Invoice Email</label>
-                                        </div>
-                                        <div class="col-12 col-md-3">
-                                            <input type="email" id="invoice_email" name="invoice_email" placeholder="Invoice Email" class="form-control" required value="{{ !empty($form['invoice_email']) ? $form['invoice_email'] : ( (!empty($invdet_list[0]['invoice_email'])) ? $invdet_list[0]['invoice_email'] : '' ) }}">
-                                        </div>
-                                        <div class="col col-md-3">
-                                            <label for="invoice_phone" class=" form-control-label">Invoice Phone (optional)</label>
-                                        </div>
-                                        <div class="col-12 col-md-3">
-                                            <input type="text" id="invoice_phone" name="invoice_phone" placeholder="Invoice Phone" class="form-control" value="{{ !empty($form['invoice_phone']) ? $form['invoice_phone'] : ( (!empty($invdet_list[0]['invoice_phone'])) ? $invdet_list[0]['invoice_phone'] : '' ) }}">
-                                        </div>
-                                    </div>
-                                    <div class="row form-group">
-                                        <div class="col col-md-3">
-                                            <label for="invoice_terms" class=" form-control-label">Footer / Terms and Condition (optional)</label>
-                                        </div>
-                                        <div class="col-12 col-md-9">
-                                            <textarea name="invoice_terms" id="invoice_terms" rows="5" placeholder="Footer / Terms and Condition" class="form-control">{{ !empty($form['invoice_terms']) ? $form['invoice_terms'] : ( (!empty($invdet_list[0]['invoice_desc'])) ? $invdet_list[0]['invoice_desc'] : '' ) }}</textarea>
+                                </div>
+                                
+                            </div>
+
+
+                            <div class="col-xl-4">
+                                <div class="form-input--wrap">
+                                    <label for="client_email" class="form-input--question">
+                                        Client Email
+                                    </label>
+                                    <div class="form--inputbox row">
+                                        <div class="col-12">
+                                            <input type="email" id="client_email" name="client_email" placeholder="Client Email Address" class="form-control" value="{{ !empty($form['client_email']) ? $form['client_email'] : '' }}">
                                         </div>
                                     </div>
-                                    <div class="row form-group">
-                                        <div class="col col-md-3">
-                                            <label for="client_email" class=" form-control-label">Default Logo:</label><br>
-                                            <button class="btn btn-primary btn-sm" type="button" id="change logo" data-toggle="modal" data-target="#logoModal">Change Logo</button> 
-                                        </div>
-                                        <div class="col-12 col-md-3">
-                                            <div id="logoimagehtml"><img id="logoimage" data-logofile="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : (isset($invoice_logo) ? $invoice_logo : ( (!empty($invdet_list[0]['invoice_logo'])) ? $invdet_list[0]['invoice_logo'] : '' )) }}" src="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : ( (!empty($invdet_list[0]['invoice_logo'])) ? $invdet_list[0]['invoice_logo'] : '/img/nologo.png' ) }}" style="max-height:150px;"></div>
-                                            <input type="hidden" name="invoice_logo" id="invoice_logo" value="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : (isset($invoice_logo) ? $invoice_logo : ( (!empty($invdet_list[0]['invoice_logo'])) ? $invdet_list[0]['invoice_logo'] : '' )) }}" src="{{ !empty($form['invoice_logo']) ? $form['invoice_logo'] : ( (!empty($invdet_list[0]['invoice_logo'])) ? $invdet_list[0]['invoice_logo'] : '/img/nologo.png' ) }}">
-                                        </div>
-                                        <div class="col col-md-3">
-                                            <label for="client_email" class=" form-control-label">Template:</label><br>
-                                            <button class="btn btn-primary btn-sm" type="button" id="change logo">Change Template</button> 
-                                        </div>
-                                        <div class="col-12 col-md-3">
-                                            <a href="/img/format001.pdf" target="_blank"><img src="/img/{{ !empty($form['invoice_format']) ? $form['invoice_format'] : ( (!empty($invdet_list[0]['invoice_format'])) ? $invdet_list[0]['invoice_format'] : 'format001' ) }}.jpg" style="max-height:100px;border:1px solid #000;"></a>
-                                            <input type="hidden" name="invoice_format" id="invoice_format" value="{{ !empty($form['invoice_format']) ? $form['invoice_format'] : 'format001' }}">
-                                        </div>
-                                    </div>
-                                    <div class="row form-group">
-                                        <div class="col col-md-3">
-                                            <label class=" form-control-label">Save</label>
-                                        </div>
-                                        <div class="col col-md-9">
-                                            <div class="form-check">
-                                                <div class="checkbox">
-                                                    <label for="save_invdet" class="form-check-label ">
-                                                        <input type="checkbox" id="save_invdet" name="save_invdet" value="yes" class="form-check-input" {{ !empty($form['save_invdet']) ? 'checked' : '' }}>Do you want to save this details to an active details?<br>
-                                                        <small>Note: when the name is existing it will overide the old one.</small>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    
                                 </div>
                             </div>
-                            
-                            
+
+                            <div class="col-xl-4">
+                                <div class="form-input--wrap">
+                                    <label for="client_phone" class="form-input--question">
+                                        Client Contact Number
+                                    </label>
+                                    <div class="form--inputbox row">
+                                        <div class="col-12">
+                                            <input type="text" id="client_phone" name="client_phone" placeholder="Client Contact Number" class="form-control" value="{{ !empty($form['client_phone']) ? $form['client_phone'] : '' }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-dot-circle-o"></i> Save</button>
-                            <button type="reset" class="btn btn-danger btn-sm"><i class="fa fa-ban"></i> Reset</button>
-                            <a href="/invoice" class="btn btn-warning btn-sm"><i class="fa-solid fa-circle-left"></i> Back</a>
+
+                        <hr class="form-cutter">
+
+                        <h4 class="form-header--title">Your Invoice Details</h4>
+
+                        <div class="row">
+
+                            <div class="col-xl-4">
+                                <div class="form-input--wrap">
+                                    <label class="form-input--question" for="invoice_date">Date Issued <span>MM/DD/YYYY</span></label>
+                                    <div class="date--picker row">
+                                        <div class="col-12">
+                                            <input type="text" id="invoice_date" name="invoice_date" placeholder="{{ !empty($form['invoice_date']) ? $form['invoice_date'] : date('m/d/Y') }}"  readonly value="{{ !empty($form['invoice_date']) ? $form['invoice_date'] : date('m/d/Y') }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4">
+                                <div class="form-input--wrap">
+                                    <label class="form-input--question" for="invoice_date">Due Date <span>Optional</span></label>
+                                    <div class="date--picker row">
+                                        <div class="col-12">
+                                            <input type="text" id="invoice_duedate" name="invoice_duedate" placeholder="Due Date" readonly value="{{ !empty($form['invoice_duedate']) ? $form['invoice_duedate'] : '' }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4">
+                                <div class="form-input--wrap">
+                                    <label class="form-input--question">Invoice Number <span>Read-Only</span></label>
+                                    <div class="form--inputbox readOnly row">
+                                        <div class="col-12">
+                                            <input type="text" readonly="" value="{{ str_pad($data['invoice_count'], 10, '0', STR_PAD_LEFT); }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
-                    </div>
+                                
+                        <hr class="form-cutter">
+
+                        
+                        <div class="table-responsive">
+                            <table id="partstable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width:100px; min-width:100px;">QTY</th>
+                                        <th scope="col" style="width:320px; min-width:320px;">Description</th>
+                                        <th scope="col" style="width:120px; min-width:120px;">Unit Price</th>
+                                        <th scope="col" style="width:120px; min-width:120px;">Amount</th>
+                                        <th scope="col" style="width:20px; min-width:20px;">&nbsp;</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (empty($particulars))
+                                        <tr>
+                                            <td>
+                                                <input id="part_qty" type="number">
+                                            </td>
+                                            <td>
+                                                <textarea class="autoresizing"></textarea>
+                                            </td>
+                                            <td>
+                                                <input id="part_uprice" type="number">
+                                            </td>
+                                            <td>
+                                                <input id="part_amount" type="number">
+                                            </td>
+                                            <td class="tableOptions">
+                                                <button class="btn sumb--btn delepart" type="button" ><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    @else
+                                        @foreach ($particulars as $prts)
+                                        <tr id="part_{{ $prts['id'] }}" data-type="{{ $prts['part_type'] }}">
+                                            <td scope="row" id="part_qty_{{ $prts['id'] }}">{{ ($prts['unit_price']<1 ? '-' : $prts['unit_price']) }}</td>
+                                            <td id="part_desc_{{ $prts['id'] }}" style="text-align: left">{{nl2br($prts['description'])}}</td>
+                                            <td id="part_uprice_{{ $prts['id'] }}" data-amt="{{ $prts['unit_price'] }}">{{($prts['unit_price']<1 ? '-' : '$'.number_format($prts['unit_price'], 2, ".", ","))}}</td>
+                                            <td id="part_amount_{{ $prts['id'] }}" data-amt="{{ $prts['amount'] }}">{{'$'.number_format($prts['amount'], 2, ".", ",")}}</td>
+                                            <td>
+                                                <button class="btn sumb--btn editpart" type="button" data-partid="{{ $prts['id'] }}" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> 
+                                                <button class="btn sumb--btn delepart" type="button" data-partid="{{ $prts['id'] }}"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    
+                                        @endforeach
+                                    @endif
+                                    
+                                    <tr class="add--new-line">
+                                        <td colspan="5">
+                                            <button class="btn sumb--btn" type="button" id="addnewline"><i class="fa-solid fa-circle-plus"></i>Add New Line</button> 
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="invoice-separator">
+                                        <td colspan="5">hs</td>
+                                    </tr>
+
+                                    <tr class="invoice-total--subamount">
+                                        <td colspan="2" rowspan="3"></td>
+                                        <td>Subtotal (excl GST)</td>
+                                        <td colspan="2">
+                                            $0
+                                        </td>
+                                    </tr>
+
+                                    <tr class="invoice-total--gst">
+                                        <td>Total GST</td>
+                                        <td colspan="2">
+                                            $0
+                                        </td>
+                                    </tr>
+
+                                    <tr class="invoice-total--amountdue">
+                                        <td><strong>Amount Due</strong></td>
+                                        <td colspan="2">
+                                            <strong id="grandtotal">${{number_format($gtotal, 2, ".", ",")}}</strong>
+                                            <input type="hidden" name="gtotal" id="gtotal" value="{{ $gtotal }}">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                        
+
+                        <div class="form-navigation">
+                            <div class="form-navigation--btns row">
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 col-12">
+                                    <a href="/invoice" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i> Back</a>
+                                </div> 
+                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 col-12">
+                                    <button type="reset" class="btn sumb--btn reset--btn"><i class="fa fa-ban"></i> Clear Invioce</button>
+                                    <button type="submit" class="btn sumb--btn preview--btn"><i class="fa-solid fa-eye"></i> Preview</button>
+                                    <button type="submit" class="btn sumb--btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        
                     </form>
-                </div>
+                        
+                </section>
                 
-            </div>
-            
-            
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="copyright">
-                        <p>Copyright © 2022 SUM[B]. All rights reserved.</p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-</div>
-</div>
-
 </div>
 
 <!-- Modal -->
@@ -356,6 +337,7 @@
                             </tr>
                         </thead>
                         <tbody>
+
                             @if (empty($exp_clients))
                             <tr>
                                 <td colspan="3">You dont have any clients at this time</td>
@@ -483,7 +465,6 @@
         </div>
     </div>
 </div>
-<!-- END PAGE CONTAINER-->
 
 
 @include('includes.footer')
@@ -522,7 +503,7 @@
                         success: function(result){
                             var rparse = JSON.parse(result);
                             if(rparse.chk == 'success') {
-                                var myhtml = '<tr id="part_'+rparse.id+'" data-type="'+rparse.type+'"><td scope="row" id="part_qty_'+rparse.id+'">'+rparse.qty+'</td><td id="part_desc_'+rparse.id+'">'+rparse.desc+'</td><td style="text-align: right;" id="part_uprice_'+rparse.id+'" data-amt="'+rparse.upriceno+'">'+rparse.uprice+'</td><td style="text-align: right;" id="part_amount_'+rparse.id+'" data-amt="'+rparse.amountno+'">'+rparse.amount+'</td><td style="text-align: right;"><button class="btn btn-primary btn-sm editpart" type="button" data-partid="'+rparse.id+'" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> <button class="btn btn-primary btn-sm delepart" type="button" data-partid="'+rparse.id+'"><i class="fa-solid fa-trash"></i></button></td></tr>';
+                                var myhtml = '<tr id="part_'+rparse.id+'" data-type="'+rparse.type+'"><td scope="row" id="part_qty_'+rparse.id+'">'+rparse.qty+'</td><td id="part_desc_'+rparse.id+'" style="text-align: left;">'+rparse.desc+'</td><td id="part_uprice_'+rparse.id+'" data-amt="'+rparse.upriceno+'">'+rparse.uprice+'</td><td id="part_amount_'+rparse.id+'" data-amt="'+rparse.amountno+'">'+rparse.amount+'</td><td><button class="btn sumb--btn editpart" type="button" data-partid="'+rparse.id+'" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> <button class="btn sumb--btn delepart" type="button" data-partid="'+rparse.id+'"><i class="fa-solid fa-trash"></i></button></td></tr>';
                                 $("#grandtotal").html('$'+rparse.grand_total);
                                 $("#gtotal").val(rparse.grand_total);
                                 $('#partstable tr:last').prev().after(myhtml);
@@ -543,7 +524,7 @@
                         success: function(result){
                             var rparse = JSON.parse(result);
                             if(rparse.chk == 'success') {
-                                var myhtml = '<td scope="row" id="part_qty_'+rparse.id+'">'+rparse.qty+'</td><td id="part_desc_'+rparse.id+'">'+rparse.desc+'</td><td style="text-align: right;" id="part_uprice_'+rparse.id+'" data-amt="'+rparse.upriceno+'">'+rparse.uprice+'</td><td style="text-align: right;" id="part_amount_'+rparse.id+'" data-amt="'+rparse.amountno+'">'+rparse.amount+'</td><td style="text-align: right;"><button class="btn btn-primary btn-sm editpart" type="button" data-partid="'+rparse.id+'" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> <button class="btn btn-primary btn-sm delepart" type="button" data-partid="'+rparse.id+'"><i class="fa-solid fa-trash"></i></button></td>';
+                                var myhtml = '<td scope="row" id="part_qty_'+rparse.id+'">'+rparse.qty+'</td><td id="part_desc_'+rparse.id+'" style="text-align: left;">'+rparse.desc+'</td><td id="part_uprice_'+rparse.id+'" data-amt="'+rparse.upriceno+'">'+rparse.uprice+'</td><td id="part_amount_'+rparse.id+'" data-amt="'+rparse.amountno+'">'+rparse.amount+'</td><td ><button class="btn sumb--btn editpart" type="button" data-partid="'+rparse.id+'" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> <button class="btn sumb--btn delepart" type="button" data-partid="'+rparse.id+'"><i class="fa-solid fa-trash"></i></button></td>';
                                 $("#grandtotal").html('$'+rparse.grand_total);
                                 $("#gtotal").val(rparse.grand_total);
                                 $('#part_'+rparse.id).html(myhtml);
@@ -617,7 +598,7 @@
                             $("#part_"+rparse.partid).remove();
                             $("#grandtotal").html('$'+rparse.gtotal);
                             $("#gtotal").val(rparse.grand_total);
-                            if( !$("#gtotal").val() ) {
+                            if(!$("#gtotal").val()) {
                                 $('#tnoparts').show();
                             }
                         }
@@ -638,8 +619,109 @@
             $('#client_phone').val( $("#data_phone_"+clientid).val() );
             $('#client_address').val( $("#data_address_"+clientid).html() );
             $('#invoice_details').val( $("#data_details_"+clientid).val() );
+            $('.form--recentsearch').hide();
         });
+
+        
+
+        //hide search by default
+
+        $('.form--recentsearch').hide();
+        $('li.add--newactclnt').hide();
+
+        //Client Name Search
+
+        $('#client_name').on('keyup', function() {
+
+            $('.form--recentsearch.clientname').show();
+            var value = $(this).val().toLowerCase();
+            var clientList = $(".clientname .form--recentsearch__result li button");
+            var matchedItems = $(".clientname .form--recentsearch__result li button").filter(function() {
+                return $(this).text().toLowerCase().indexOf(value) > -1;              
+            });
+            
+            if(value == ''){
+                $('.form--recentsearch.clientname').hide();
+                $('.clientname li.add--newactclnt input').prop('checked',false);
+                $('#client_name').removeClass('saveNewRecord');
+
+            } else if($('#client_name').hasClass('saveNewRecord')) {
+
+                if(matchedItems.length !=0) {
+                    $('.clientname li.add--newactclnt').hide();
+                    $('.clientname li.add--newactclnt input').prop('checked',false);
+                    $('#client_name').removeClass('saveNewRecord');
+                    matchedItems.toggle(true);
+                } else {
+                    $('.form--recentsearch.clientname').hide();
+                }
+                
+            } else {
+                clientList.toggle(false);
+                matchedItems.toggle(true);
+
+                if (matchedItems.length == 0) {
+                    $('.clientname li.add--newactclnt').show();
+                } else {
+                    $('.clientname li.add--newactclnt input').prop('checked',false);
+                    $('.clientname li.add--newactclnt').hide();
+                }
+            }
+
+            
+        });
+
+        //New Record -- Add New Icon
+
+        $('li.add--newactclnt input').on('click', function () {
+
+            if(this.id == 'save_client') {
+                if($('#save_client').is(':checked')){
+                    $('#client_name').addClass('saveNewRecord');
+                } else {
+                    $('#client_name').removeClass('saveNewRecord');
+                }
+                $('.form--recentsearch.clientname').hide();
+
+            } else {
+                if($('#save_invdet').is(':checked')){
+                    $('#invoice_name').addClass('saveNewRecord');
+                } else {
+                    $('#invoice_name').removeClass('saveNewRecord');
+                }
+                $('.form--recentsearch.invoicedeets').hide();
+            }
+
+        });
+
+
+        //Add new row on Table Particulars
+
+        $('#addnewline').on('click', function(){
+            $('#partstable tr.add--new-line').before('<tr><td><input type=\"number\"></td><td><textarea class=\"autoresizing\"></textarea></td><td><input type=\"number\"></td><td><input type=\"number\"></td><td class=\"tableOptions\"><button class=\"btn sumb--btn delepart\" type=\"button\" ><i class=\"fa-solid fa-trash\"></i></button></td></tr>');
+        });
+
+        $('#partstable').on('input', '.autoresizing', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        //Auto compute Amount per line
+
+        $('#partstable').on('keyup','#part_uprice', function(){
+            var totalAmount = $("#part_qty").val()*$(this).val();
+            $("#part_amount").val(totalAmount);
+        });
+
+        $('#partstable').on('keyup','#part_qty', function(){
+            var totalAmount = $("#part_uprice").val()*$(this).val();
+            $("#part_amount").val(totalAmount);
+        });
+
+
+
     });
+
     
 </script>
 </body>
