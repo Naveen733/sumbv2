@@ -38,7 +38,7 @@
                         <li><a href="#"><i class="fas fa-folder"></i>Employment Docs</a></li>
                         <li><a href="#"><i class="fas fa-calendar-alt"></i>Calendar</a></li>
                         <li><a href="#"><i class="far fa-check-square"></i>Request <span class="badge badge-danger">10</span></a></li>
-                        <li><a href="#"><i class="fas fa-files-o"></i>Files</a></li>
+                        <li><a href="/fileupload"><i class="fas fa-files-o"></i>Files</a></li>
                         <li><a href="/logout" onclick="return confirm('Are you sure you want to log out?')"><i class="zmdi zmdi-power"></i>Logout</a></li>
                     </ul>
 
@@ -81,7 +81,7 @@
                 <li><a href="#"><i class="fas fa-folder"></i>Employment Docs</a></li>
                 <li><a href="#"><i class="fas fa-calendar-alt"></i>Calendar</a></li>
                 <li><a href="#"><i class="far fa-check-square"></i>Request <span class="badge badge-danger">10</span></a></li>
-                <li><a href="#"><i class="fas fa-files-o"></i>Files</a></li>
+                <li><a href="/doc-upload"><i class="fas fa-files-o"></i>Files</a></li>
                 <li><a href="/logout" onclick="return confirm('Are you sure you want to log out?')"><i class="zmdi zmdi-power"></i>Logout</a></li>
             </ul>
         </nav>
