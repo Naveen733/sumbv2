@@ -5,7 +5,6 @@ body, html {
     background: #28282a url('../img/random-grey-variations.png');
 }
 
-
 a {
     color: #175bfd;
 }
@@ -245,6 +244,10 @@ ul.social-button li a.google {
 
 
 /** Main Page Start **/
+
+.page-container {
+    background: #fafafa;
+}
 
 /** Sidebar Menu Start **/
 
@@ -569,6 +572,16 @@ ul.social-button li a.google {
     transition: all 0.3s ease;
 }
 
+.sumb-statistic__item.invoce-expenses__stats span:nth-child(2) {
+    border-bottom: 1px dotted #fafafa;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.sumb-statistic__item.invoce-expenses__stats span {
+    margin-bottom: 5px;
+}
+
 /** Calendar style on Dashboard ONLY start **/
 
 .sumb--dashboardCal .fc-center {
@@ -719,8 +732,9 @@ tr.sumb--recentlogdements__pagination td {
     text-align: center;
 }
 
-tr.sumb--recentlogdements__pagination td .btn-group a {
-    color: #28282a;
+tr.sumb--recentlogdements__pagination td .btn-group a,
+tr.sumb--recentlogdements__pagination a.dropdown-item {
+    color: #28282a !important;
 }
 
 tr.sumb--recentlogdements__pagination td .btn {
@@ -732,14 +746,12 @@ tr.sumb--recentlogdements__pagination td .btn {
 
 tr.sumb--recentlogdements__pagination .dropdown-menu,
 .addnewSvc .dropdown-menu,
-.sumb--fileAddbtn .dropdown-menu {
+.sumb--fileAddbtn .dropdown-menu,
+.sumb--dashboardDropdown .dropdown-menu.show a.dropdown-item {
     font-size: 13px;
 }
 
-tr.sumb--recentlogdements__pagination .dropdown-menu.show {
-    position: absolute !important;
-    transform: translate3d(0px, -168px, 0px) !important;
-}
+
 
 .sumb--dashboardAnn ul,
 .sumb--dashboardRequest ul {
@@ -812,6 +824,49 @@ tr.sumb--recentlogdements__pagination .dropdown-menu.show {
     border-radius: 0px 4px 4px 0px;
     color: #28282a;
 }
+
+/** Dashboard Dropdown **/
+
+.sumb--dashboardDropdown {
+    width: 100%;
+    position: relative;
+    border: 1px solid #e5e5e5;
+    border-radius: 7px;
+    padding: 9px 15px;
+    transition: all 0.3s ease;
+}
+
+.sumb--dashboardDropdown button {
+    width: 100%;
+    display: block;
+    text-align: left;
+    font-weight: 500;
+    color: #666;
+}
+
+.sumb--dashboardDropdown.show {
+    background: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.sumb--dashboardDropdown.show,
+.sumb--dashboardDropdown.show button {
+    color: #fafafa;
+    transition: all 0.3s ease;
+}
+
+
+.sumb--dashboardDropdown::after {
+    font-family: FontAwesome;
+    content: '\f063';
+}
+
+.sumb--dashboardDropdown .dropdown-menu.show {
+    left: -15px !important;
+    top: 10px !important;
+    width: 100% !important;
+}
+
 
 .addNewEmpDoc a,
 .sumb--accountant .addNewUser {
@@ -1381,8 +1436,7 @@ li.tree--branch.active::after{
     border: 0px;
     border-style: none;
     color: #28282a;
-    padding: 10px 10px;
-    text-align: center;
+    padding: 10px 17px;
     border-radius: 7px;
     font-weight: 500;
 }
@@ -1400,10 +1454,13 @@ li.tree--branch.active::after{
     color: #fafafa;
 }
 
-
 .sumb--fileAddbtn .fileAddbtn i {
     font-size: 14px;
     margin-right: 7px;
+}
+
+.sumb--fileAddbtn .dropdown-menu {
+    width: 100%;
 }
 
 .sumb--fileSharebtn {
@@ -1606,6 +1663,714 @@ li.tree--branch.active::after{
     color: #979797;
 }
 
+
+
+/**  Form Skin (separate from main css) **/
+
+input[class="yes--btn"],
+input[class="no--btn"],
+.form--radiobutton label input,
+.form--genderoption label input,
+.form--cxboxbutton label input,
+.form--cxbox_seacrch label input,
+li.add--newactclnt label input {
+    display: none;
+}
+
+hr.form-cutter {
+    margin: 25px 0px 20px 0px;
+    border-top: 1px dotted #666;
+}
+
+.form-header--wseparator {
+    font-weight: 600;
+    color: #666;
+    padding-bottom: 10px;
+    border-bottom: 1px dotted #666;
+    margin: 10px 0px 15px 0px;
+}
+
+.form-header--title {
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.form-header--h5 {
+    font-weight: 600;
+    color: #666;
+}
+
+.form-input--wrap {
+    margin-bottom: 10px;
+}
+
+.form-input--wrap label.form-input--question {
+    display: block;
+    font-weight: 600;
+    margin: 7px 0px 12px 0px;
+    font-size: 14px;
+    line-height: 120%;
+}
+
+.form-input--wrap label.form-input--question a {
+    color: #666;
+    font-size: 15px;
+}
+
+.form-input--wrap label.form-input--question span {
+    color: #8c8c8c;
+    font-weight: 400;
+    font-size: 12px;
+    margin-left: 2px;
+}
+
+.form-input--wrap label.form-input--question span::before {
+    content: "(";
+    padding-right: 2px;
+}
+
+.form-input--wrap label.form-input--question span::after {
+    content: ")";
+    padding-left: 2px;
+}
+
+.form-input--wrap label.form-input--question small {
+    display: block;
+    font-weight: 500;
+}
+
+input[class="yes--btn"] + span::before,
+input[class="no--btn"] + span::before,
+.sumb--btn {
+    cursor: pointer;
+    display: inline-block;
+    background: #f5c85b;
+    padding: 5px 15px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 14px;
+    min-width: 60px;
+    text-align: center;
+    outline: none;
+}
+
+.sumb--btn {
+    color: #28282a;
+    border: 0px;
+}
+
+input[class="yes--btn"] + span::before {
+    content: "Yes";
+    margin-right: 7px;
+}
+
+input[class="no--btn"] + span::before {
+    content: "No";
+}
+
+input[class="yes--btn"] + span:hover::before,
+input[class="yes--btn"]:checked + span::before,
+input[class="no--btn"] + span:hover::before,
+input[class="no--btn"]:checked + span::before,
+.sumb--btn:hover {
+    background: #666;
+    color: #fafafa;
+    transition: all 0.3s ease;
+}
+
+select[class="form-input--dropdown"] {
+    padding: 8px 50px 8px 12px;
+    border-radius: 5px;
+    border-color: #666;
+    cursor: pointer;
+    -moz-appearance: none; /* Firefox */
+    -webkit-appearance: none; /* Safari and Chrome */
+    appearance: none;
+    outline: none;
+    font-size: 13px;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat, repeat;
+    background-position: right 0.9em top 50%, 0 0;
+    background-size: 0.8em auto, 100%;
+    color: #28282a;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.date--picker,
+.form--inputbox,
+.form--textarea {
+    margin-bottom: 17px;
+}
+
+.date--picker input,
+.form--inputbox input,
+.form--textarea textarea,
+.form--dropimg .img--box__input_wrap,
+.form--recentsearch .form--recentsearch__result {
+    position: relative;
+    padding: 8px 12px 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #666;
+    font-size: 13px;
+    color: #28282a;
+    width: 100%;
+}
+
+.form--inputbox .with--prepend {
+    position: relative;
+}
+
+.form--inputbox .with--prepend .prepend--text {
+    position: absolute;
+    z-index: 2;
+    background: #f2f2f2;
+    padding: 7px 11px 7.5px;
+    top: 0px;
+    left: 0px;
+    border: 1px solid #666;
+    font-size: 13px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    font-weight: 600;
+}
+
+.form--inputbox .with--prepend input {
+    padding-left: 40px;
+    z-index: 1;
+}
+
+.form--dropimg .img--box__input_wrap {
+    padding: 12px;
+}
+
+.form--inputbox.readOnly input {
+    background: #f2f2f2;
+    cursor: default;
+}
+
+.form--inputbox.recentsearch--input input {
+    z-index: 2;
+}
+
+.form--recentsearch {
+    position: absolute;
+    width: 100%;
+}
+
+.form--recentsearch .form--recentsearch__result {
+    z-index: 1;
+    margin-top: -20px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-color: #ccc;
+    padding-right: 12px;
+    background: #fff;
+}
+
+.form--recentsearch__result ul {
+    list-style: none;
+    width: 100%;
+}
+
+.form--recentsearch__result ul li button,
+.form--recentsearch__result ul li.noactive--list {
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin: 6px 0px;
+    padding: 5px 10px;
+    border: 1px solid #d5d5d5;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.form--recentsearch__result ul li button::after {
+    content: "Use This";
+    position: absolute;
+    right: 12px;
+    top: 7.5px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.form--recentsearch__result ul li button:hover {
+    background: #f5c85b;
+    transition: all 0.3s ease;
+}
+
+.form--recentsearch__result ul li button:hover::after {
+    color: #28282a;
+    transition: all 0.3s ease;
+}
+
+.form--recentsearch__result ul li.add--newactclnt {
+    margin: 3px 0px;
+}
+
+.form--recentsearch__result ul li.add--newactclnt label {
+    margin-bottom: 0px;
+    width: 100%;
+}
+
+.form--recentsearch__result ul li.add--newactclnt .option--title {
+    position: relative;
+    display: block;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0px 6px 26px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-radius: 3px;
+    border: 1px solid #d5d5d5;
+}
+
+.form--recentsearch__result ul li.add--newactclnt .option--title:hover {
+    background: #e5e5e5;
+}
+
+.form--recentsearch__result ul li.add--newactclnt .option--title::before {
+    font-family: Material-Design-Iconic-Font;
+    content: "\f279";
+    font-weight: 500;
+    position: absolute;
+    left: 8px;
+}
+
+.form--recentsearch__result ul li.add--newactclnt input:checked + .option--title {
+    background: #f5c85b;
+    transition: all 0.3s ease;
+}
+
+.form--recentsearch__result ul li.add--newactclnt input:checked + .option--title::before {
+    content: "\f26a";
+}
+
+.saveNewRecord {
+    background-image: url('../img/forms/saveNewRecord-icon.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: 100%;
+}
+
+
+.form--inputbox input.saveNewRecord {
+    padding-right: 55px;
+}
+
+.date--picker input {
+    cursor: pointer;
+    background-image: url('../img/forms/calendar-icon.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: 100%;
+}
+
+.form--dropimg .img--box__input {
+    text-align: center;
+    min-height: 230px;
+    display: table;
+    text-align: center;
+    width: 100%;
+    background: #e6eaeb;
+    border-radius: 4px;
+    border: 1px dashed #bac5c8;
+}
+
+.img--box__input .img--box_label {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 150%;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.img--box__input .img--box_label i {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 40px;
+    color: #bac5c8;
+}
+
+.img--box__input .img--box_label a {
+    margin-bottom: 10px;
+}
+
+.img--box__input .img--box_label small {
+    display: block;
+    font-size: 8pt;
+    color: #666;
+}
+
+.img--box__input_wrap.imgisuploaded .img--box__input {
+    background: #fff;
+}
+
+.img--box__input_wrap.imgisuploaded .img--box__input #logoimagehtml {
+    display: block;
+    padding: 20px;
+    width: 100%;
+}
+
+.img--box__input_wrap.imgisuploaded .img--box__input .img--box_label {
+    background: #e6eaeb;
+    display: block;
+    padding: 10px;
+    margin: 0px 20px 20px;
+    border-radius: 4px;
+    line-height: 120%;
+    font-size: 12px;
+}
+
+.img--box__input_wrap.imgisuploaded .img--box__input .img--box_label a {
+    margin-bottom: 0px;
+}
+
+
+.form--radiobutton label,
+.form--cxboxbutton label {
+    width: 100%;
+}
+
+.form--radiobutton .option--title,
+.form--cxboxbutton .option--title {
+    position: relative;
+    display: block;
+    font-size: 14px;
+    cursor: pointer;
+    background: #fff;
+    padding: 10px 15px 12px 35px;
+    border-radius: 5px;
+    border: 1px solid #666;
+    font-weight: 500;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+}
+
+.form--radiobutton .option--title span,
+.form--cxboxbutton .option--title span,
+.form--recentsearch__result ul li.add--newactclnt .option--title span {
+    display: block;
+    font-weight: 400;
+    line-height: 130%;
+    font-size: 12px;
+}
+
+.form--genderoption label .option--title {
+    position: relative;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0px 15px 0px 20px;
+    font-weight: 500;
+}
+
+.form--radiobutton label input:hover + .option--title,
+.form--radiobutton label input:checked + .option--title,
+.form--cxboxbutton label input:hover + .option--title,
+.form--cxboxbutton label input:checked + .option--title {
+    background: #f5c85b;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.form--radiobutton .option--title::before,
+.form--genderoption label .option--title::before {
+    font-family: Material-Design-Iconic-Font;
+    content: "\f26c";
+    font-weight: 500;
+    position: absolute;
+    left: 14px;
+}
+
+.form--genderoption label .option--title::before {
+    left: 0px;
+}
+
+.form--radiobutton label input:checked + .option--title::before,
+.form--genderoption label input:checked + .option--title::before {
+    content: "\f26f";
+}
+
+.form--cxboxbutton .option--title::before {
+    font-family: Material-Design-Iconic-Font;
+    content: "\f279";
+    font-weight: 500;
+    position: absolute;
+    left: 15px;
+}
+
+.form--cxboxbutton label input:checked + .option--title::before {
+    content: "\f26a";
+}
+
+.form--cxboxbutton .option--title img {
+    max-width: 120px;
+    display: block;
+    margin-bottom: 7px;
+}
+
+
+#errorMsg {
+    position: relative;
+    background: #f9dddf;
+    border: 1px solid #f3bbc1;
+    margin: -4px 0px 15px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 13px;
+    color: #666;
+    line-height: 130%;
+    overflow: hidden;
+}
+
+#errorMsg::after {
+    font-family: FontAwesome;
+    content: "\f071";
+    opacity: 0.07;
+    position: absolute;
+    bottom: .20em;
+    right: 2px;
+    font-size: 50px;
+    color: #666;
+}
+
+#errorMsg h5 {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #666;
+}
+
+.form-input--helpwrap {
+    position: relative;
+    background: #fff;
+    font-size: 13px;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border: 1px solid #e5e5e5;
+    line-height: 130%;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.form-input--helpwrap::after {
+    font-family: FontAwesome;
+    content: "\f059";
+    opacity: 0.07;
+    position: absolute;
+    bottom: .20em;
+    right: 2px;
+    font-size: 50px;
+    color: #666;
+}
+
+/** Summary/Payment Table Skin **/
+
+.table--form_wrap {
+    position: relative;
+    width: 100%;
+    border: 1px solid #666;
+    border-radius: 7px;
+    margin: 20px 0px 15px;
+    padding: 10px;
+}
+
+.table--form {
+    position: relative;
+    width: 100%;
+}
+
+.table--form thead th {
+    background: #e5e5e5;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 15px;
+    border: 0px;
+    text-align: center;
+}
+
+.table--form thead th:first-child {
+    border-top-left-radius: 4px;
+}
+
+.table--form thead th:last-child {
+    border-top-right-radius: 4px;
+}
+
+.table--form tbody td {
+    font-size: 13px;
+    padding: 10px 10px;
+    text-align: center;
+}
+
+.table--form tbody tr:nth-child(even) td {
+    background: #fff;
+}
+
+.table--form tbody td.no--items {
+    padding: 20px;
+    text-align: center;
+}
+
+.table--form tbody tr.invoice-total--amount td {
+    font-size: 15px;
+    background: #e5e5e5;
+}
+
+.table--form tbody tr.invoice-total--amount td:first-child {
+    border-bottom-left-radius: 4px;
+}
+
+.table--form tbody tr.invoice-total--amount td:last-child {
+    border-bottom-right-radius: 4px;
+}
+
+/** Invoice Table Skin **/
+
+#partstable {
+    position: relative;
+    width: 100%;
+}
+
+#partstable tbody td input,
+#partstable tbody td textarea {
+    width: 100%;
+    font-size: 13px;
+    border-bottom: 1px solid #fff;
+    transition: all 0.3s ease;
+}
+
+#partstable tbody td input:focus,
+#partstable tbody td textarea:focus,
+#partstable tbody td:hover textarea,
+#partstable tbody td:hover input {
+    border-bottom: 1px solid #f9ab30;
+    transition: all 0.3s ease;
+}
+
+#partstable thead th {
+    font-size: 13px;
+    background: #dbdbdb;
+    padding: 10px 15px;
+    border: 1px solid #e5e5e5;
+}
+
+#partstable tbody td {
+    vertical-align: top;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    padding: 17px 10px 5px;
+}
+
+#partstable tbody td.tableOptions {
+    vertical-align: middle;
+    text-align: center;
+    padding: 0px 10px;
+}
+
+#partstable tbody td input {
+    margin-top: 8px;
+    text-align: center;
+    padding-bottom: 18px;
+}
+
+#partstable tbody td .autoresizing {
+    margin-top: 7px;
+    display: block;
+    overflow: hidden;
+    resize: none;
+    height: 42px;
+    padding: 0px 10px;
+}
+
+#partstable tbody td input[type=number]::-webkit-inner-spin-button,
+#partstable tbody td input[type=number]::-webkit-outer-spin-button {
+    appearance: none !important;
+}
+
+#partstable tbody tr.add--new-line td {
+    padding: 14px 0px;
+    text-align: center;
+}
+
+#partstable tbody tr.invoice-total--amount td {
+    padding: 7px 10px;
+}
+
+#addnewline i {
+    position: relative;
+    margin-right: 7px;
+    font-size: 12px;
+    top: -0.9px;
+}
+
+#partstable tbody tr.invoice-separator td {
+    height: 20px;
+    padding: 0px;
+    font-size: 1px;
+    background: #fafafa;
+    border: 0px;
+}
+
+#partstable tbody tr.invoice-total--subamount td:first-child {
+    background: #fafafa;
+    border: 0px;
+}
+
+#partstable tbody tr.invoice-total--subamount td,
+#partstable tbody tr.invoice-total--gst td {    
+    font-size: 13px;
+    padding: 7px 10px;
+    text-align: right;
+}
+
+#partstable tbody tr.invoice-total--amountdue td {
+    font-size: 15px;
+    padding: 7px 10px;
+    text-align: right;
+}
+
+
+
+/** Form Navigation **/
+
+.form-navigation {
+    padding: 30px 0px 40px;
+}
+
+.form-navigation .form-navigation--btns [class*="col-"]:nth-child(2) {
+    text-align: right;
+}
+
+.reset--btn {
+    background: #fff;
+    color: #666;
+}
+
+.reset--btn:hover {
+    background: #dbdbdb;
+    color: #28282a;
+}
+
+.preview--btn {
+    background: #fafafa;
+    border: 1px solid #dbdbdb;
+    margin: 0px 10px;
+}
+
+.preview--btn:hover {
+    background: #bac5c8;
+    border: 1px solid #bac5c8;
+    color: #28282a;
+}
+
+
+
 /** X-Large devices (large desktops, less than 1400px) **/
 @media (max-width: 1399.98px) {
     .sumb--statistics [class*="col-"] {
@@ -1753,8 +2518,26 @@ li.tree--branch.active::after{
     .sumb--statistics [class*="col-"] {
         margin: 10px 0px;
     }
-    .sumb--fileAddbtn .dropdown-menu {
+
+    .form-navigation .form-navigation--btns.row,
+    .form-navigation .form-navigation--btns.row [class*="col-"]:nth-child(2) {
+        display: flex;
+        flex-flow: column-reverse;
+    }
+
+    .form-navigation .form-navigation--btns.row [class*="col-"]:nth-child(1) a,
+    .form-navigation .form-navigation--btns.row [class*="col-"]:nth-child(2) button {
+        display: block;
         width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .form-navigation .form-navigation--btns.row [class*="col-"]:nth-child(1) a {
+        margin-bottom: 0px;
+    }
+
+    .preview--btn {
+        margin: 0px;
     }
 
 }
@@ -1807,12 +2590,4 @@ li.tree--branch.active::after{
     }
 
 
-}
-
-
-.bssizes {
-    position: absolute;
-    background-color: #8fc72c;
-    padding: 5px 10px;
-    bottom: 0;
 }
