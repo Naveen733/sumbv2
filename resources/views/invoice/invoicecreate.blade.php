@@ -41,7 +41,7 @@
                                     </label>
                                     <div class="form--inputbox recentsearch--input row">
                                         <div class="searchRecords col-12">
-                                            <input type="text" id="client_name" name="client_name" class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" required value="{{ !empty($form['client_name']) ? $form['client_name'] : '' }}">
+                                            <input type="text" id="client_name" name="client_name" class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" autocomplete="off" required value="{{ !empty($form['client_name']) ? $form['client_name'] : '' }}">
                                         </div>
                                     </div>
                                     <div class="form--recentsearch clientname row">
