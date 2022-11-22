@@ -12,13 +12,13 @@
             <div class="section__content section__content--p30">
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <section>
                                 <h3 class="sumb--title">File</h3>
                             </section>
                 
-                            <div class="container mt-4">
-                                <h3 class="text-center mb-5">Edit File</h3>
+                            <div class="container md-8">
+                                <h3 class="text-center mb-8">Edit File</h3>
                             </div>
 
                             <div class="card push-top">
@@ -30,7 +30,7 @@
                                     <form method="post" action="{{ route('DocumentUploadController.doc-edit-process', $data->id)}}" enctype="multipart/form-data">
                                         <div class="form-group">
                                             @csrf
-                                            @method('POST')
+                                            @method('PATCH')
                                             <label for="name">Name</label>                                            
                                             <input type="hidden" class="form-control" name="id" value="{{$data->id}}"/>
                                             <input type="text" class="form-control" name="name" value="{{$data->name}}"/>
