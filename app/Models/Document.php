@@ -10,6 +10,8 @@ class Document extends Model
     use HasFactory;
     protected $fillable = [
         'name',
-        'path'
+        'originalname',
+        'encryptname',
+        'extensionname'
     ];
 }

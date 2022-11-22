@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+// use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -13,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Models\SumbUsers;
 use App\Models\SumbClients;
-use App\Models\File;
+
 
 class DocumentUploadController extends Controller
 {
@@ -32,22 +34,35 @@ class DocumentUploadController extends Controller
     }
  
     public function store(Request $request)
-    {
-         
-        $request->validate([
-            'doc' => 'required|mimes:csv,txt,xlx,xls,pdf|max:2048'
+    {         
+            $request->validate([
+                'file' => 'required|mimes:csv,txt,xlx,xls,xlsx,pdf|max:2048'
             ]);
-            $docModel = new Document;
-            if($request->doc()) {
-                $docName = time().'_'.$request->file->getClientOriginalName();
-                $docPath = $request->file('doc')->storeAs('Docs', $docName, 'public');
-                $docModel->name = time().'_'.$request->file->getClientOriginalName();
-                $docModel->path = '/storage/' . $docPath;
+            if(!empty($request->file))
+            {
+                $docpath = $request->file('file')->store('avatars');
+                $docModel = new Document;
+                $originalname = $request->file->getClientOriginalName();
+                $extensionname = $request->file->extension();
+                $docModel->name = $originalname;
+                $docModel->originalname = $originalname;
+                $docModel->extensionname = $extensionname;
+                $docModel->encryptname = $docpath;      
                 $docModel->save();
+        
                 return redirect()->back()
-                ->with('success','Document has been uploaded.')
-                ->with('file', $docName);
+                        ->with('success','Document has been uploaded.')
+                        ->with('file', $docpath); 
             }
+    }
+
+
+    public function downloadfile(Request $request)
+    {
+        $document = Document::where('id', $request->id)->first();
+        $name = $document->name;
+        $newname = $name;   
+        return Storage::download($document->encryptname, $newname);
     }
 
     public function show($docid)
@@ -75,26 +90,17 @@ class DocumentUploadController extends Controller
         $updateData = $request->validate([
             'name' => 'required|max:255',
         ]);
-        $newdoc = Document::whereId($docid)->update($updateData);
-        
-        if ($request->hasFile('newdoc'))
-        {
-            Storage::move(public_path('docs'), $request);
-        }
-
-        
-        return redirect('/doc-upload')->with('completed', 'Document name has been updated');
+        $newdoc = Document::whereId($docid)->update($updateData);               
+        return redirect()->route('doc-upload')->with('success', 'Document has been updated');        
     }
 
-    public function destroy($id)
-    {
-        
-    }
-
-    public function moveImage(Request $request)
-    {
-        Document::move(public_path('exist/test.png'), public_path('move/test_move.png'));
-   
-        dd('dont copy file.');
+    public function destroy(Request $request)
+    {          
+        $docid = $request->id;
+        if (isset($docid)) {             
+            $document = Document::findOrFail($docid);
+            $document->delete();
+        } 
+        return redirect()->route('doc-upload')->with('success', 'Document has been deleted');   
     }
 }
