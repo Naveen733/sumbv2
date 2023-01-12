@@ -137,6 +137,11 @@ class InvoiceController extends Controller {
     //*
     //***********************************************
     public function create_expenses_new(Request $request) {
+        var_dump($request->expense_description);
+        var_dump($request->client_name);
+        var_dump($request->expense_tax);
+        var_dump($request->expense_amount);
+        die();
         $userinfo = $request->get('userinfo');
         $pagedata = array('userinfo'=>$userinfo);
         echo "<pre>";
