@@ -2697,3 +2697,147 @@ a.ui-datepicker-next:hover::after {
 
 
 }
+
+/* File Upload Div in Expense Form */
+.xec-expense-detail--drop-receipt-container {
+    height: 100%;
+    width: 100%;
+}
+.xec-expense-detail--drop-receipt-container {
+    background-image: url(../images/organic-tiles.webp);
+}
+.xec-expense-detail--dropzone {
+    height: 100%;
+}
+.xui-u-flex-justify-center {
+    justify-content: center;
+}
+.xui-u-flex-column {
+    flex-direction: column;
+}
+.xui-u-flex-align-center {
+    align-items: center;
+}
+.xui-u-flex {
+    display: flex;
+}
+.xui-padding-small {
+    padding: 12px;
+}
+.xui-text-align-center {
+    text-align: center;
+}
+.xui-padding-vertical {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+.xui-heading-medium {
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 24px;
+}
+.xui-textcolor-muted {
+    color: rgba(0,10,30,.75);
+}
+input[type="file" i] {
+    appearance: none;
+    background-color: initial;
+    cursor: default;
+    align-items: baseline;
+    color: inherit;
+    text-overflow: ellipsis;
+    white-space: pre;
+    text-align: start !important;
+    padding: initial;
+    border: initial;
+    overflow: hidden !important;
+}
+input {
+    writing-mode: horizontal-tb !important;
+    text-rendering: auto;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+   -webkit-rtl-ordering: logical;
+    margin: 0em;
+}
+.xec-chosen-receipt-container {
+    margin-bottom: 50px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url(../images/organic-tiles.webp);
+    border: 1px solid #ccced2;
+    border-top: none;
+    overflow: hidden;
+}
+.xui-u-hidden {
+    display: none!important;
+    visibility: hidden!important;
+}
+.xec-expense-detail--receipt-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    box-shadow: 0 0 0 1px rgb(0 10 30 / 20%), 0 3px 6px 0 rgb(0 10 30 / 20%);
+}
+.xec-button-group--corners {
+    border-radius: 3px;
+}
+.xui-margin {
+    margin: 16px;
+}
+.xui-button:not(.xui-button-icon) {
+    min-width: 40px;
+}
+.xui-button-small {
+    font-size: 13px;
+    line-height: 20px;
+    min-height: 32px;
+    padding: 5px 12px;
+}
+.xui-button-standard {
+    background-color: #fff;
+    border: 1px solid #a6a9b0;
+    border-radius: 3px;
+    color: #0078c8;
+    font-weight: 700;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    transition-duration: .1s;
+    transition-property: color,background,box-shadow;
+    transition-timing-function: ease;
+}
+.xui-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: 0 0;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    display: inline-block;
+    font-family: inherit;
+    font-size: inherit;
+    margin: 0;
+    outline: 0;
+    padding: 0;
+    text-decoration: none;
+    text-align: center;
+}
+
+iframe {
+    overflow-clip-margin: content-box !important;
+    border-width: 2px;
+    border-style: inset;
+    border-color: initial;
+    border-image: initial;
+    overflow: clip !important;
+}

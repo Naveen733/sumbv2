@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\SignupMail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use DB;
 use URL;
 
@@ -137,35 +138,110 @@ class InvoiceController extends Controller {
     //*
     //***********************************************
     public function create_expenses_new(Request $request) {
-        var_dump($request->expense_description);
-        var_dump($request->client_name);
-        var_dump($request->expense_tax);
-        var_dump($request->expense_amount);
-        die();
+        // var_dump($request->client_name);
+        // var_dump($request->expense_date);
+        // var_dump($request->expense_due_date);
+        // var_dump($request->expense_description);
+        // var_dump($request->item_quantity);
+        // var_dump($request->item_unit_price);
+        // var_dump($request->expense_tax);
+        // var_dump($request->expense_amount);
+        
         $userinfo = $request->get('userinfo');
-        $pagedata = array('userinfo'=>$userinfo);
-        echo "<pre>";
-        print_r($request->all());
+        $pagedata = array(
+            'userinfo'=>$userinfo,
+            'pagetitle' => 'Create Expense'
+        );
+
+        //validation
+    //     $validator = Validator::make($request->all(),[
+    //         'expense_date' => 'bail|required|date',
+    //         'expense_due_date' => 'bail|required|date',
+    //         'client_name' => 'bail|required|max:100',
+    //         'expense_description.*' => 'bail|required',
+    //         'item_quantity.*' => 'bail|required|numeric|gt:0',
+    //         'item_unit_price.*' => 'bail|required|numeric|gt:0',
+    //         'expense_tax.*' => 'bail|required|gt:-1',
+    //         'expense_amount.*' => 'bail|required|gt:0',
+    //         'expense_total_amount.*' => 'bail|required|numeric|gt:0',
+    //         'total_gst.*' => 'bail|required|numeric',
+    //         'total_amount.*' => 'bail|required|numeric'
+    //     ],
+    //     [
+    //        'expense_date.required' => 'Date is Required',
+    //        'expense_date.date' => 'Enter proper date format',
+    //        'expense_due_date.required' => 'Due Date is Required',
+    //        'expense_due_date.date' => 'Enter proper Due date format',
+    //        'client_name.required' => 'Recepient Name is Required',
+    //        'client_name.max' => 'Recepient Name must to exceed 100 characters',
+    //        'expense_description.*.required' => 'Item Description is Required',
+    //        'item_quantity.*.required' => 'Item Quantity is Required',
+    //        'item_quantity.*.gt' => 'Item Quantity must be greater than 0',
+    //        'item_quantity.*.numeric' => 'Item Quantity must be a numeric value',
+    //        'item_unit_price.*.required' => 'Item Unit Price is Required',
+    //        'item_unit_price.*.gt' => 'Item Unit Price must be greater than 0',
+    //        'item_unit_price.*.numeric' => 'Item Unit Price must be a numeric value',
+    //        'expense_tax.*.required' => 'Tax rate is Required',
+    //        'expense_tax.*.gt' => 'Tax rate must be selected',
+    //     ]
+    // );
+
+        
+       
+       
+        $expense_details = [];
+        $parts = [];
+        $expense_details = array(
+            "user_id" => $userinfo[0],
+            "client_name" => $request->client_name,
+            "expense_date" => $request->expense_date,
+            "expense_due_date" => $request->expense_due_date,
+            "expense_description" => $request->expense_description,
+            "item_quantity" => $request->item_quantity,
+            "item_unit_price" => $request->item_unit_price,
+            "expense_tax" => $request->expense_tax,
+            "expense_amount" => $request->expense_amount,
+            "expense_total_amount" => $request->expense_total_amount,
+            "total_gst" => $request->total_gst,
+            "total_amount" => $request->total_amount,
+        );
+
+        $pagedata['expense_details'] = $expense_details;
+        // if ($validator->fails()) {
+        //     // return response()->json([
+        //     //     'status' => false,
+        //     //     'message' => 'validation error',
+        //     //     'errors' => $validator->errors()
+        //     // ], 401);
+            
+        //     return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
+        // }
+
+        echo "<pre>"; var_dump( $expense_details); echo "</pre>";
+        die();
+      
+        // echo "<pre>";
+        // print_r($request->all());
         
         //check form data
-        if (empty($request->invoice_date) || empty($request->client_name) || empty($request->amount)) {
-            $oriform['err'] = 1;
-            return redirect()->route('expenses-create', $oriform); die();
-        }
+        // if (empty($request->invoice_date) || empty($request->client_name) || empty($request->amount)) {
+        //     $oriform['err'] = 1;
+        //     return redirect()->route('expenses-create', $oriform); die();
+        // }
         
-        $oriform = ['err'=>0, 'invoice_date'=>$request->invoice_date, 'client_name'=>$request->client_name, 'invoice_details'=>$request->invoice_details, 'amount'=>$request->amount];
+        // $oriform = ['err'=>0, 'invoice_date'=>$request->invoice_date, 'client_name'=>$request->client_name, 'invoice_details'=>$request->invoice_details, 'amount'=>$request->amount];
         
-        if (!empty($request->savethisrep)) {
-            $oriform['savethisrep'] = $request->savethisrep;
-        } else {
-            $oriform['savethisrep'] = 0;
-        }
+        // if (!empty($request->savethisrep)) {
+        //     $oriform['savethisrep'] = $request->savethisrep;
+        // } else {
+        //     $oriform['savethisrep'] = 0;
+        // }
         
-        //print_r(is_numeric($request->amount));
-        if (!is_numeric($request->amount)) {
-            $oriform['err'] = 2;
-            return redirect()->route('expenses-create', $oriform); die();
-        }
+        // //print_r(is_numeric($request->amount));
+        // if (!is_numeric($request->amount)) {
+        //     $oriform['err'] = 2;
+        //     return redirect()->route('expenses-create', $oriform); die();
+        // }
         
         //prepare saving data
         $get_settings = SumbInvoiceSettings::where('user_id', $userinfo[0])->first()->toArray();
@@ -176,22 +252,22 @@ class InvoiceController extends Controller {
         //print_r($carbon_invdate);
         $dtnow = Carbon::now();
         
-        $dataprep = array(
-            'user_id'           => $userinfo[0],
-            'transaction_type'  => 'expenses',
-            'transaction_id'    => $get_settings['expenses_count'],
-            'amount'            => $request->amount,
-            'client_name'       => $request->client_name,
-            'invoice_details'   => $request->invoice_details,
-            'invoice_date'      => $carbon_invdate,
-            'status_paid'       => 'paid',
-            'created_at'        => $dtnow,
-            'updated_at'        => $dtnow,
-        );
+        // $dataprep = array(
+        //     'user_id'           => $userinfo[0],
+        //     'transaction_type'  => 'expenses',
+        //     'transaction_id'    => $get_settings['expenses_count'],
+        //     'amount'            => $request->amount,
+        //     'client_name'       => $request->client_name,
+        //     'invoice_details'   => $request->invoice_details,
+        //     'invoice_date'      => $carbon_invdate,
+        //     'status_paid'       => 'paid',
+        //     'created_at'        => $dtnow,
+        //     'updated_at'        => $dtnow,
+        // );
         //print_r($dataprep);
         
         //if save reciepient is on
-        if (!empty($oriform['savethisrep'])) {
+        if (!empty($request->savethisrep)) {
             $getexp_clients = SumbExpensesClients::where(DB::raw('UPPER(client_name)'), strtoupper($request->client_name))
                 ->where('user_id',$userinfo[0])->first();
             print_r($getexp_clients);
