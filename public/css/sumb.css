@@ -2699,44 +2699,44 @@ a.ui-datepicker-next:hover::after {
 }
 
 /* File Upload Div in Expense Form */
-.xec-expense-detail--drop-receipt-container {
+.sumb-expense-upload-container {
     height: 100%;
     width: 100%;
 }
-.xec-expense-detail--drop-receipt-container {
+.sumb-expense-upload-container {
     background-image: url(../images/organic-tiles.webp);
 }
-.xec-expense-detail--dropzone {
+.sumb-expense-dropzone {
     height: 100%;
 }
-.xui-u-flex-justify-center {
+.sumb-flex-justify-center {
     justify-content: center;
 }
-.xui-u-flex-column {
+.sumb-flex-column {
     flex-direction: column;
 }
-.xui-u-flex-align-center {
+.sumb-flex-align-center {
     align-items: center;
 }
-.xui-u-flex {
+.sumb-flex {
     display: flex;
 }
-.xui-padding-small {
+.sumb-padding-small {
     padding: 12px;
 }
-.xui-text-align-center {
+.sumb-text-align-center {
     text-align: center;
 }
-.xui-padding-vertical {
+.sumb-padding-vertical {
     padding-top: 16px;
     padding-bottom: 16px;
 }
-.xui-heading-medium {
+.sumb-heading-medium {
     font-weight: 700;
     font-size: 15px;
     line-height: 24px;
 }
-.xui-textcolor-muted {
+.sumb-textcolor-muted {
     color: rgba(0,10,30,.75);
 }
 input[type="file" i] {
@@ -2764,7 +2764,7 @@ input {
    -webkit-rtl-ordering: logical;
     margin: 0em;
 }
-.xec-chosen-receipt-container {
+.sumb-receipt-container {
     margin-bottom: 50px;
     height: 100%;
     width: 100%;
@@ -2772,37 +2772,33 @@ input {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-image: url(../images/organic-tiles.webp);
+    /* background-image: url(../images/organic-tiles.webp); */
     border: 1px solid #ccced2;
     border-top: none;
     overflow: hidden;
 }
-.xui-u-hidden {
-    display: none!important;
-    visibility: hidden!important;
-}
-.xec-expense-detail--receipt-actions {
+.sumb-expense-receipt-actions {
     position: absolute;
     bottom: 0;
     left: 0;
     box-shadow: 0 0 0 1px rgb(0 10 30 / 20%), 0 3px 6px 0 rgb(0 10 30 / 20%);
 }
-.xec-button-group--corners {
+.sumb-button-group-corners {
     border-radius: 3px;
 }
-.xui-margin {
+.sumb-margin {
     margin: 16px;
 }
-.xui-button:not(.xui-button-icon) {
+.sumb-button:not(.sumb-button-icon) {
     min-width: 40px;
 }
-.xui-button-small {
+.sumb-button-small {
     font-size: 13px;
     line-height: 20px;
     min-height: 32px;
     padding: 5px 12px;
 }
-.xui-button-standard {
+.sumb-button-standard {
     background-color: #fff;
     border: 1px solid #a6a9b0;
     border-radius: 3px;
@@ -2815,7 +2811,7 @@ input {
     transition-property: color,background,box-shadow;
     transition-timing-function: ease;
 }
-.xui-button {
+.sumb-button {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -2833,11 +2829,11 @@ input {
     text-align: center;
 }
 
-iframe {
+/* iframe {
     overflow-clip-margin: content-box !important;
     border-width: 2px;
     border-style: inset;
     border-color: initial;
     border-image: initial;
     overflow: clip !important;
-}
+} */

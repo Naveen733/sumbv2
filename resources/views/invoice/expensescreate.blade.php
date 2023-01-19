@@ -241,46 +241,34 @@
                         </div>
                         
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                            <div class="xec-expense-detail--drop-receipt-container">
-                                <!-- <div class="xui-u-flex xui-u-flex-column xui-u-flex-justify-center xui-u-flex-align-center xec-expense-detail--dropzone">
-                                    <div class="xui-text-align-center xui-padding-small">
+                            <div class="sumb-expense-upload-container">
+                                <div id="sumb-file-upload-container" class="sumb-flex sumb-flex-column sumb-flex-justify-center sumb-flex-align-center sumb-expense-dropzone">
+                                    <div class="sumb-text-align-center sumb-padding-small">
                                         <svg width="60px" height="75px" viewBox="0 0 60 75" version="1.1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                             <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                 <path d="M60,5 L60,75 L52.5,69.0347478 L45,75 L37.5,69.0347478 L30,75 L22.5,69.0347478 L15,75 L7.5,69.0347478 L0,75 L1.61687175e-14,5 L3.46389584e-14,5 C3.55271e-14,2.23857625 2.23857625,2.11046133e-13 5,2.00728323e-13 L55,2.49056418e-14 L55,8.8817842e-15 C57.7614237,1.01660217e-15 60,2.23857625 60,5 L60,5 Z M11.5,43 C10.6715729,43 10,43.6715729 10,44.5 C10,45.3284271 10.6715729,46 11.5,46 L48.5,46 C49.3284271,46 50,45.3284271 50,44.5 C50,43.6715729 49.3284271,43 48.5,43 L11.5,43 Z M11.5,53 C10.6715729,53 10,53.6715729 10,54.5 C10,55.3284271 10.6715729,56 11.5,56 L48.5,56 C49.3284271,56 50,55.3284271 50,54.5 C50,53.6715729 49.3284271,53 48.5,53 L11.5,53 Z M11.5,33 C10.6715729,33 10,33.6715729 10,34.5 C10,35.3284271 10.6715729,36 11.5,36 L48.5,36 C49.3284271,36 50,35.3284271 50,34.5 C50,33.6715729 49.3284271,33 48.5,33 L11.5,33 Z M30,23 C32.7614237,23 35,20.7614237 35,18 C35,15.2385763 32.7614237,13 30,13 C27.2385763,13 25,15.2385763 25,18 C25,20.7614237 27.2385763,23 30,23 Z" id="expense-icon" fill="#98A2AC"></path>
                                             </g>
                                         </svg>
-                                        <div class="xui-padding-vertical xui-heading-medium">Upload an image</div>
-                                        <div class="xui-textcolor-muted">Drag &amp; drop here, or select your file manually</div>
-                                    </div> -->
-                                    <!-- <button class="xui-button xui-margin-top-small xui-button-standard xui-button-small" tabindex="0" type="button" data-automationid="upload-button" fdprocessedid="g5oor">Upload</button> -->
-                                    <!-- <input style="padding-left: 30%;" accept="image/jpg, image/jpeg, image/png, application/pdf" type="file" ">
-                                </div> -->
-                                <div id="xec-chosen-receipt-container" class="xec-chosen-receipt-container xui-u-flex xui-u-flex-align-center">
+                                        <div class="sumb-padding-vertical sumb-padding-vertical">Upload an image</div>
+                                        <div class="sumb-textcolor-muted">Drag &amp; drop here, or select your file manually</div>
+                                    </div>
+                                    <!-- <button class="sumb-button sumb-margin-top-small sumb-button-standard sumb-button-small" tabindex="0" type="button" data-automationid="upload-button" fdprocessedid="g5oor">Upload</button> -->
+                                    <input id="file-upload" name="file-upload" style="padding-left: 30%;" accept="image/jpg, image/jpeg, image/png, application/pdf" type="file" ">
+                                </div>
+                                <div id="sumb-receipt-container" class="sumb-receipt-container sumb-flex sumb-flex-align-center">
                                 <!-- pdf upload  -->
-                                    <iframe id="pdf-preview" class="" type="application/pdf" data-automationid="pdf-of-receipt" src="" style="width: 100%; height: 100%;"></iframe>
-                                    <div class="xec-expense-detail--receipt-actions xui-margin xui-u-flex xec-button-group--corners xec-expense-detail--receipt-actions--pdf">
+                                    <iframe id="pdf-preview" class="" src="" style="width: 100%; height: 100%;"></iframe>
+                                    <div class="sumb-expense-receipt-actions sumb-margin sumb-flex sumb-button-group-corners sumb-expense-receipt-actions--pdf">
                                         <div role="presentation" data-ref="toggled-wrapper">
-                                            <button class="xui-button xec-replace-chosen-receipt--button xui-button-standard xui-button-small" tabindex="0" type="button" fdprocessedid="v8v6lg">
-                                                <svg class="xui-icon" focusable="false" height="13" viewBox="0 0 13 13" width="13">
+                                        <button class="sumb-button sumb-button-standard sumb-button-small btn sumb-del-btn deleFile" type="button" ><i class="fa-solid fa-trash"></i></button>
+                                            <!-- <button class="sumb-button sumb-button-standard sumb-button-small" tabindex="0" type="button" >
+                                                <svg class="sumb-icon" focusable="false" height="13" viewBox="0 0 13 13" width="13">
                                                     <path d="M2.83 13H0v-2.83l8.49-8.49 2.83 2.83L2.83 13zM9.905.265c.354-.353 1.061-.353 1.415 0l1.415 1.415c.353.354.353 1.061 0 1.415l-.708.708-2.83-2.83.708-.708z" role="presentation"></path>
                                                 </svg>
-                                            </button>
+                                            </button> -->
                                         </div>
                                     </div>
                                 </div>
-                                <!-- image -->
-                                <!-- <div id="expense-detail--img-container" class="xec-expense-detail--img-container xui-u-fullheight xui-u-flex xui-u-flex-align-center xui-u-flex-justify-center">
-                                    <canvas id="expense-detail--receipt" class="" role="img" aria-label="Expense receipt" width="" height="" style="cursor: default; transition: transform 0.5s ease-out 0s; position: relative; top: 9.82865px;"></canvas>
-                                    <div class="xec-expense-detail--receipt-actions xui-margin xui-u-flex xec-button-group--corners">
-                                        <div role="presentation" data-ref="toggled-wrapper">
-                                            <button class="xui-button xec-replace-chosen-receipt--button xui-button-standard xui-button-small" tabindex="0" type="button" fdprocessedid="pds7ap">
-                                                <svg class="xui-icon" focusable="false" height="13" viewBox="0 0 13 13" width="13">
-                                                    <path d="M2.83 13H0v-2.83l8.49-8.49 2.83 2.83L2.83 13zM9.905.265c.354-.353 1.061-.353 1.415 0l1.415 1.415c.353.354.353 1.061 0 1.415l-.708.708-2.83-2.83.708-.708z" role="presentation"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -461,225 +449,232 @@
             '<td class=\"tableOptions\">\n'+
                 '<button class=\"btn sumb-del-btn delepart\" type=\"button\" ><i class=\"fa-solid fa-trash\"></i></button>\n'+
             '</td></tr>');
-        });
+    });
         
-        $('#partstable').on('input', '.autoresizing', function () {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
+    $('#partstable').on('input', '.autoresizing', function () {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
 
-        //Add tottal Amount
-        // $(document).ready(function () {
        
-        //     $("#partstable").on('change', '#expense_amount', function () {
-        //         var calculated_total_sum = 0;
-                
-        //         $("#partstable #expense_amount").each(function () {
-        //             var get_textbox_value = $(this).val();
-        //             if ($.isNumeric(get_textbox_value)) {
-        //                 calculated_total_sum += parseFloat(get_textbox_value);
-        //                 }                  
-        //             });
-        //                 $("#expense_total_amount").val(calculated_total_sum);
-        //         });
-        // });
 
-         //row total Amount,form total amoount, total tax
-         $(document).ready(function () {
-       
-            var body = $('#partstable').children('tbody').first();
-            body.on('change', 'input[type="number"]', function() {
-                var cells = $(this).closest('tr').children('td');
-                var value1 = cells.eq(1).find('input').val();
-                var value2 = cells.eq(2).find('input').val();
-                var value3 = cells.eq(4).find('input').val(value1 * value2);
+    //row total Amount,form total amoount, total tax
+    $(document).ready(function () {
+        $('#sumb-receipt-container').hide();
+        //file-upload
+        $('#file-upload').on('change',function() {
+            $('#sumb-file-upload-container').hide();
+            
+            const fileInput = document.getElementById('file-upload');
+            const selectedFile = fileInput.files[0];
+            const url = URL.createObjectURL( selectedFile );
+            
+            $('#pdf-preview').attr("src", url);
+            $('#sumb-receipt-container').show();
+        })
 
-                var calculated_total_sum = 0;
-                var calculated_total_gst_amount = 0;
-                expense_amount_array = [];
-                expense_tax_array = [];
-
-                $('[name="expense_amount[]"]').each(function() {
-                    expense_amount_array.push(Number(this.value));
-                })
-                $('[name="expense_tax[]"]').each(function() {
-                    expense_tax_array.push(Number(this.value));
-                })
-
-                if($("#tax_type").val() == 0)
-                {
-                    $("#partstable #expense_amount").each(function (index) {
+        $('.deleFile').on('click',function(){
+            // alert("s");
+            $('#pdf-preview').attr("src", "");
+            $('#sumb-receipt-container').hide();
+            $('#file-upload').val("");
+            $('#sumb-file-upload-container').show();
+        })
                        
-                    calculated_total_sum += parseFloat(expense_amount_array[index]);
-                    if(expense_tax_array[index] > 0){
-                        var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
-                        var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
-                        calculated_total_gst_amount += parseFloat(taxAmount);
-                    }
-                    });
-                    $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                    $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                    $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                }
-                else if($("#tax_type").val() == 1)
-                {
-                    $("#partstable #expense_amount").each(function (index) {
 
-                        calculated_total_sum += parseFloat(expense_amount_array[index]);
-                        if(expense_tax_array[index] > 0)
-                        {
-                        calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
-                        }   
-                    });
-                        
-                    $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                    $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                    var total_amount = calculated_total_sum + calculated_total_gst_amount;
-                    $("#total_amount").val(Number(total_amount.toFixed(2)));
-                }
-            });
-
-            body.on('change', $("#expense_tax"), function() {
-                var calculated_total_sum = 0;
-                var calculated_total_gst_amount = 0;
-                expense_amount_array = [];
-                expense_tax_array = [];
-
-                $('[name="expense_amount[]"]').each(function() {
-                    expense_amount_array.push(Number(this.value));
-                })
-                $('[name="expense_tax[]"]').each(function() {
-                    expense_tax_array.push(Number(this.value));
-                })
-
-                if($("#tax_type").val() == 0)
-                {
-                    $("#partstable #expense_amount").each(function (index) {
-                       
-                    calculated_total_sum += parseFloat(expense_amount_array[index]);
-                    if(expense_tax_array[index] > 0){
-                        var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
-                        var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
-                        calculated_total_gst_amount += parseFloat(taxAmount);
-                    }
-                    });
-                    $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                    $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                    $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                }
-                else if($("#tax_type").val() == 1)
-                {
-                    $("#partstable #expense_amount").each(function (index) {
-
-                        calculated_total_sum += parseFloat(expense_amount_array[index]);
-                        if(expense_tax_array[index] > 0)
-                        {
-                        calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
-                        }   
-                    });
-                        
-                    $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                    $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                    var total_amount = calculated_total_sum + calculated_total_gst_amount;
-                    $("#total_amount").val(Number(total_amount.toFixed(2)));
-                }
-            });
-
-            body.on('change', $("#tax_type"), function() {
-                var calculated_total_sum = 0;
-                var calculated_total_gst_amount = 0;
-                expense_amount_array = [];
-                expense_tax_array = [];
-
-                $('[name="expense_amount[]"]').each(function() {
-                    expense_amount_array.push(Number(this.value));
-                })
-                $('[name="expense_tax[]"]').each(function() {
-                    expense_tax_array.push(Number(this.value));
-                })
-
-                if($("#tax_type").val() == 0)
-                {
-                    $("#partstable #expense_amount").each(function (index) {
-                       
-                    calculated_total_sum += parseFloat(expense_amount_array[index]);
-                    if(expense_tax_array[index] > 0){
-                        var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
-                        var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
-                        calculated_total_gst_amount += parseFloat(taxAmount);
-                    }
-                    });
-                    $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                    $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                    $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                }
-                else if($("#tax_type").val() == 1)
-                {
-                    $("#partstable #expense_amount").each(function (index) {
-
-                        calculated_total_sum += parseFloat(expense_amount_array[index]);
-                        if(expense_tax_array[index] > 0)
-                        {
-                        calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
-                        }   
-                    });
-                        
-                    $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                    $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                    var total_amount = calculated_total_sum + calculated_total_gst_amount;
-                    $("#total_amount").val(Number(total_amount.toFixed(2)));
-                }
-            });
-
-            body.on('click', '.delepart', function(){ 
-            $(this).parents('tr').remove();
+        var body = $('#partstable').children('tbody').first();
+        body.on('change', 'input[type="number"]', function() {
+            var cells = $(this).closest('tr').children('td');
+            var value1 = cells.eq(1).find('input').val();
+            var value2 = cells.eq(2).find('input').val();
+            var value3 = cells.eq(4).find('input').val(value1 * value2);
 
             var calculated_total_sum = 0;
-                var calculated_total_gst_amount = 0;
-                expense_amount_array = [];
-                expense_tax_array = [];
+            var calculated_total_gst_amount = 0;
+            expense_amount_array = [];
+            expense_tax_array = [];
 
-                $('[name="expense_amount[]"]').each(function() {
-                    expense_amount_array.push(Number(this.value));
-                })
-                $('[name="expense_tax[]"]').each(function() {
-                    expense_tax_array.push(Number(this.value));
-                })
+            $('[name="expense_amount[]"]').each(function() {
+                expense_amount_array.push(Number(this.value));
+            })
+            $('[name="expense_tax[]"]').each(function() {
+                expense_tax_array.push(Number(this.value));
+            })
 
-                if($("#tax_type").val() == 0)
-                {
-                    $("#partstable #expense_amount").each(function (index) {
-                       
+            if($("#tax_type").val() == 0)
+            {
+                $("#partstable #expense_amount").each(function (index) {
+                    
+                calculated_total_sum += parseFloat(expense_amount_array[index]);
+                if(expense_tax_array[index] > 0){
+                    var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
+                    var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
+                    calculated_total_gst_amount += parseFloat(taxAmount);
+                }
+                });
+                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+                $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
+            }
+            else if($("#tax_type").val() == 1)
+            {
+                $("#partstable #expense_amount").each(function (index) {
+
                     calculated_total_sum += parseFloat(expense_amount_array[index]);
-                    if(expense_tax_array[index] > 0){
-                        var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
-                        var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
-                        calculated_total_gst_amount += parseFloat(taxAmount);
-                    }
-                    });
-                    $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                    $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                    $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                }
-                else if($("#tax_type").val() == 1)
-                {
-                    $("#partstable #expense_amount").each(function (index) {
-
-                        calculated_total_sum += parseFloat(expense_amount_array[index]);
-                        if(expense_tax_array[index] > 0)
-                        {
-                        calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
-                        }   
-                    });
-                        
-                    $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                    $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                    var total_amount = calculated_total_sum + calculated_total_gst_amount;
-                    $("#total_amount").val(Number(total_amount.toFixed(2)));
-                }
-            });
-
+                    if(expense_tax_array[index] > 0)
+                    {
+                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                    }   
+                });
+                    
+                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+                var total_amount = calculated_total_sum + calculated_total_gst_amount;
+                $("#total_amount").val(Number(total_amount.toFixed(2)));
+            }
         });
+
+        body.on('change', $("#expense_tax"), function() {
+            var calculated_total_sum = 0;
+            var calculated_total_gst_amount = 0;
+            expense_amount_array = [];
+            expense_tax_array = [];
+
+            $('[name="expense_amount[]"]').each(function() {
+                expense_amount_array.push(Number(this.value));
+            })
+            $('[name="expense_tax[]"]').each(function() {
+                expense_tax_array.push(Number(this.value));
+            })
+
+            if($("#tax_type").val() == 0)
+            {
+                $("#partstable #expense_amount").each(function (index) {
+                    
+                calculated_total_sum += parseFloat(expense_amount_array[index]);
+                if(expense_tax_array[index] > 0){
+                    var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
+                    var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
+                    calculated_total_gst_amount += parseFloat(taxAmount);
+                }
+                });
+                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+                $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
+            }
+            else if($("#tax_type").val() == 1)
+            {
+                $("#partstable #expense_amount").each(function (index) {
+
+                    calculated_total_sum += parseFloat(expense_amount_array[index]);
+                    if(expense_tax_array[index] > 0)
+                    {
+                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                    }   
+                });
+                    
+                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+                var total_amount = calculated_total_sum + calculated_total_gst_amount;
+                $("#total_amount").val(Number(total_amount.toFixed(2)));
+            }
+        });
+
+        body.on('change', $("#tax_type"), function() {
+            var calculated_total_sum = 0;
+            var calculated_total_gst_amount = 0;
+            expense_amount_array = [];
+            expense_tax_array = [];
+
+            $('[name="expense_amount[]"]').each(function() {
+                expense_amount_array.push(Number(this.value));
+            })
+            $('[name="expense_tax[]"]').each(function() {
+                expense_tax_array.push(Number(this.value));
+            })
+
+            if($("#tax_type").val() == 0)
+            {
+                $("#partstable #expense_amount").each(function (index) {
+                    
+                calculated_total_sum += parseFloat(expense_amount_array[index]);
+                if(expense_tax_array[index] > 0){
+                    var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
+                    var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
+                    calculated_total_gst_amount += parseFloat(taxAmount);
+                }
+                });
+                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+                $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
+            }
+            else if($("#tax_type").val() == 1)
+            {
+                $("#partstable #expense_amount").each(function (index) {
+
+                    calculated_total_sum += parseFloat(expense_amount_array[index]);
+                    if(expense_tax_array[index] > 0)
+                    {
+                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                    }   
+                });
+                    
+                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+                var total_amount = calculated_total_sum + calculated_total_gst_amount;
+                $("#total_amount").val(Number(total_amount.toFixed(2)));
+            }
+        });
+
+        body.on('click', '.delepart', function(){ 
+        $(this).parents('tr').remove();
+
+        var calculated_total_sum = 0;
+            var calculated_total_gst_amount = 0;
+            expense_amount_array = [];
+            expense_tax_array = [];
+
+            $('[name="expense_amount[]"]').each(function() {
+                expense_amount_array.push(Number(this.value));
+            })
+            $('[name="expense_tax[]"]').each(function() {
+                expense_tax_array.push(Number(this.value));
+            })
+
+            if($("#tax_type").val() == 0)
+            {
+                $("#partstable #expense_amount").each(function (index) {
+                    
+                calculated_total_sum += parseFloat(expense_amount_array[index]);
+                if(expense_tax_array[index] > 0){
+                    var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
+                    var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
+                    calculated_total_gst_amount += parseFloat(taxAmount);
+                }
+                });
+                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+                $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
+            }
+            else if($("#tax_type").val() == 1)
+            {
+                $("#partstable #expense_amount").each(function (index) {
+
+                    calculated_total_sum += parseFloat(expense_amount_array[index]);
+                    if(expense_tax_array[index] > 0)
+                    {
+                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                    }   
+                });
+                    
+                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+                var total_amount = calculated_total_sum + calculated_total_gst_amount;
+                $("#total_amount").val(Number(total_amount.toFixed(2)));
+            }
+        });
+
+    });
 
         // $("input[name='item_quantity[]']").change(function() {
         //     var arrayOfVar = []
