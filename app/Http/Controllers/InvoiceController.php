@@ -21,6 +21,8 @@ use App\Models\SumbExpensesClients;
 use App\Models\SumbInvoiceParticulars;
 use App\Models\SumbInvoiceParticularsTemp;
 use App\Models\SumbInvoiceDetails;
+use App\Models\SumbInvoiceItems;
+use Illuminate\Support\Facades\Validator;
 
 class InvoiceController extends Controller {
 
@@ -215,7 +217,7 @@ class InvoiceController extends Controller {
     //* Create Invoice Page
     //*
     //***********************************************
-    public function create_invoice(Request $request) {
+    public function create_invoice_copy(Request $request) {
         $userinfo = $request->get('userinfo');
         $pagedata = array(
             'userinfo'=>$userinfo,
@@ -260,7 +262,7 @@ class InvoiceController extends Controller {
     //* Create Invoice Process
     //*
     //***********************************************
-    public function create_invoice_new(Request $request) {
+    public function create_invoice_new_old(Request $request) {
         $userinfo =$request->get('userinfo');
         $pagedata = array(
             'userinfo'=>$userinfo,
@@ -576,10 +578,6 @@ class InvoiceController extends Controller {
             echo json_encode($response, JSON_UNESCAPED_SLASHES);
             die();
         }
-        
-        
-        
-        
     }
     
     //***********************************************
@@ -788,5 +786,306 @@ class InvoiceController extends Controller {
         //print_r($userinfo);
         return view('invoice.particulars', $pagedata);
     }
+
+//---------Invoice new functions starts from here---------------------//
+
+    public function create_invoice(Request $request) {
+
+        $userinfo = $request->get('userinfo');
+        $pagedata = array(
+            'userinfo'=>$userinfo,
+            'pagetitle' => 'Create Invoice'
+        );
+        $pagedata['invoice_details'] = $request->post();
     
+        $get_clients = SumbClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
+        if (!empty($get_clients)) {
+            $pagedata['clients'] = $get_clients = $get_clients->toArray();
+        }
+        $invoice_details = SumbInvoiceDetails::where('user_id', $userinfo[0])->orderBy('invoice_number', 'desc')->first();
+        if (!empty($invoice_details)) {
+            $pagedata['invoice_number'] = $invoice_details->toArray()['invoice_number'];
+            // echo "<pre>"; var_dump($pagedata['invoice_number']); echo "</pre>";die();
+        }
+        $get_items = SumbInvoiceItems::where('user_id', $userinfo[0])->orderBy('invoice_item_name')->get();
+        if (!empty($get_items)) {
+            $pagedata['invoice_items'] = $get_items->toArray();
+            // echo "<pre>"; var_dump($pagedata['invoice_items']); echo "</pre>";die();
+        }
+        
+        return view('invoice.invoicecreate', $pagedata);
+    }
+
+    public function create_invoice_new(Request $request) {
+        $validator = Validator::make($request->all(),[
+            'client_name' => 'bail|required|max:255',
+            'client_email' => 'bail|required|max:255',
+            'invoice_issue_date' => 'bail|required',
+            'invoice_due_date' => 'bail|required',
+            'invoice_number' => 'bail|required|max:255',
+            // 'invoice_parts_unit_price_.*' => 'bail|required|max:255',
+            // 'invoice_parts_description_.' => 'bail|required',
+            // 'invoice_parts_amount_.*' => 'bail|required',
+        ]);
+        
+        $userinfo = $request->get('userinfo');
+        $pagedata = array(
+            'userinfo'=>$userinfo,
+            'pagetitle' => 'Create Invoice'
+        );
+        $invoice_details = [];
+        $parts = [];
+        $invoice_details = array(
+            "user_id" => $userinfo[0],
+            "client_name" => $request->client_name,
+            "client_email" => $request->client_email,
+            "client_phone" => $request->client_phone,
+            "invoice_due_date" => $request->invoice_due_date,
+            "invoice_issue_date" => $request->invoice_issue_date,
+            "invoice_number" => $request->invoice_number,
+            "invoice_default_tax" => $request->invoice_default_tax,
+            "invoice_sub_total" => $request->invoice_sub_total,
+            "invoice_total_gst" => $request->invoice_total_gst,
+            "invoice_total_amount" => $request->invoice_total_amount,
+        );
+        if(count(json_decode(trim($request->invoice_part_total_count), true)) >= 0){
+            $ids = json_decode(trim($request->invoice_part_total_count), true);
+            foreach($ids as $id){
+                $parts[] = array(
+                    'invoice_parts_quantity' => trim($request->input('invoice_parts_quantity_'.$id)),
+                    'invoice_parts_unit_price' => trim($request->input('invoice_parts_unit_price_'.$id)),
+                    'invoice_parts_description' => trim($request->input('invoice_parts_description_'.$id)),
+                    'invoice_parts_amount' => trim($request->input('invoice_parts_amount_'.$id)),
+                    'invoice_parts_tax_rate' => trim($request->input('invoice_parts_tax_rate_'.$id)),
+                    'invoice_parts_code' => $request->input('invoice_parts_code_'.$id),
+                    'invoice_parts_name' => $request->input('invoice_parts_name_'.$id),
+                    'invoice_parts_name_code' => $request->input('invoice_parts_name_code_'.$id),
+                    'invoice_parts_id' => $id
+                );
+                $invoice_details['parts'] = $parts;
+                // $validator = Validator::make($request->all(),[
+                //     // 'client_name' => 'bail|required|max:255',
+                //     // 'client_email' => 'bail|required|max:255',
+                //     // 'invoice_issue_date' => 'bail|required',
+                //     // 'invoice_due_date' => 'bail|required',
+                //     'invoice_parts_quantity_'.$id => 'bail|required|max:255',
+                //     'invoice_parts_unit_price_'.$id => 'bail|required|max:255',
+                //     'invoice_parts_description_'.$id => 'bail|required',
+                //     'invoice_parts_amount_'.$id => 'bail|required',
+                // ]);
+            }
+        }
+        
+        $invoice_details['invoice_part_total_count'] = trim($request->input('invoice_part_total_count'));
+        $pagedata['invoice_details'] = $invoice_details;
+        if ($validator->fails()) {
+            return redirect()->route( 'invoice-create' )->withErrors($validator)->with('form_data',$pagedata);
+        }
+        // 
+        DB::beginTransaction();
+        $client_exists = SumbClients::where('user_id', $userinfo[0])
+                                    ->where('client_name', $request->client_name)
+                                    ->get();
+        if(empty($client_exists->toArray())){
+            SumbClients::create([
+                'user_id' => $userinfo[0],
+                'client_name' => $request->client_name,
+                'client_email' => $request->client_email,
+                'client_phone' => $request->client_phone,
+            ]);
+        }else{
+            SumbClients::where('user_id', $userinfo[0])
+                ->where('client_name', $request->client_name)
+                ->update([
+                'client_name' => $request->client_name,
+                'client_email' => $request->client_email,
+                'client_phone' => $request->client_phone,
+            ]);
+        }
+
+        $invoice_details['invoice_issue_date'] =  Carbon::createFromFormat('m/d/Y', $request->invoice_issue_date)->format('Y-m-d');
+        $invoice_details['invoice_due_date'] =  Carbon::createFromFormat('m/d/Y', $request->invoice_due_date)->format('Y-m-d');
+        
+
+        $particlars = $invoice_details['parts'];
+        // echo "<pre>"; var_dump($particlars); echo "</pre>";die();
+        unset($invoice_details['parts']);
+        unset($invoice_details['invoice_part_total_count']);
+
+        // var_dump($request->invoice_number);die();
+        $invoice = SumbInvoiceDetails::create(
+            [
+                'user_id' => trim($userinfo[0]), 
+                'client_name' => trim($request->client_name),
+                'client_email' => trim($request->client_email),
+                'client_phone' => trim($request->client_phone),
+                'invoice_issue_date' => trim($invoice_details['invoice_issue_date']),
+                'invoice_due_date' => trim($invoice_details['invoice_due_date']),
+                'invoice_number' => trim($invoice_details['invoice_number']),
+                'invoice_default_tax' => trim($invoice_details['invoice_default_tax']),
+                'invoice_sub_total' => trim($request->invoice_sub_total),
+                'invoice_total_gst' => trim($request->invoice_total_gst),
+                'invoice_total_amount' => trim($request->invoice_total_amount),
+            ]);
+        if($invoice->id){
+            foreach($particlars as $key=>$value){
+                SumbInvoiceParticulars::create(
+                [
+                    'user_id' => trim($userinfo[0]), 
+                    'invoice_id' => $invoice->id,
+                    'quantity' => trim($value['invoice_parts_quantity']),
+                    'description' => trim($value['invoice_parts_description']),
+                    'unit_price' => trim($value['invoice_parts_unit_price']),
+                    'amount' => trim($value['invoice_parts_amount']),
+                    'invoice_part_code' => (!empty($value['invoice_parts_code']) ? $value['invoice_parts_code'] : $value['invoice_parts_name_code']),
+                    'invoice_part_name' => trim($value['invoice_parts_name']),
+                    'invoice_part_tax_rate' => trim($value['invoice_parts_tax_rate']),
+                ]);
+            }
+            
+            DB::commit();
+        }
+
+        return redirect()->route('invoice');
+    }
+
+    public function searchInvoiceItem(Request $request)
+    {
+        if ($request->ajax())
+        {
+            $userinfo = $request->get('userinfo');
+            $invoice_item_name = trim($request->invoice_item_name);
+                $invoice_items = SumbInvoiceItems::where('user_id', $userinfo[0])
+                ->where('invoice_item_name', 'like', '%' . $request->invoice_item_name . '%')
+                ->orderBy('invoice_item_name')
+                ->get();
+
+            echo json_encode($invoice_items);
+        }
+        else
+        {
+            $response = [
+                'status' => 'error',
+                'err' => 'Something went wrong',
+                'data' => ''
+            ];
+            echo json_encode($response);
+        }
+    }
+
+    public function InvoiceItemForm(Request $request)
+    {
+        if ($request->ajax())
+        {
+            $userinfo = $request->get('userinfo');
+            $invoice_item_exists = SumbInvoiceItems::where('user_id', $userinfo[0])
+                                            ->where('invoice_item_code', $request->invoice_item_code)
+                                            ->first();
+            if(!empty($invoice_item_exists)){
+                $response = [
+                    'status' => 'error',
+                    'err' => 'Item code already exists',
+                    'data' => ''
+                ];
+                echo json_encode($response);
+            }else{
+                DB::beginTransaction();
+                $item = SumbInvoiceItems::create(
+                    [
+                        'user_id' => trim($userinfo[0]), 
+                        'invoice_item_code' => $request->invoice_item_code,
+                        'invoice_item_name' => trim($request->invoice_item_name),
+                        'invoice_item_unit_price' => trim($request->invoice_item_unit_price),
+                        'invoice_item_tax_rate' => trim($request->invoice_item_tax_rate),
+                        'invoice_item_description' => trim($request->invoice_item_description),
+                    ]);
+                if($item->id){
+                    DB::commit();
+                    $invoice_items = SumbInvoiceItems::where('user_id', $userinfo[0])->get();
+                    if($invoice_items){
+                        $response = [
+                            'status' => 'success',
+                            'err' => '',
+                            'data' => $invoice_items
+                        ];
+
+                        echo json_encode($response);
+                    }
+                } 
+            }
+        }
+    }
+
+    public function InvoiceItemFormList(Request $request)
+    {
+        if ($request->ajax())
+        {
+            $userinfo = $request->get('userinfo');
+            $invoice_item_name = trim($request->invoice_item_name);
+                $invoice_items = SumbInvoiceItems::where('user_id', $userinfo[0])
+                ->orderBy('invoice_item_name')
+                ->get();
+                if($invoice_items){
+                    $response = [
+                        'status' => 'success',
+                        'err' => '',
+                        'data' => $invoice_items
+                    ];
+                    echo json_encode($response);
+                }
+                else{
+                    $response = [
+                        'status' => 'error',
+                        'err' => 'No items found',
+                        'data' => ''
+                    ];
+                    echo json_encode($response);
+                }
+        }
+        else
+        {
+            $response = [
+                'status' => 'error',
+                'err' => 'Something went wrong',
+                'data' => ''
+            ];
+            echo json_encode($response);
+        }
+    }
+
+    public function InvoiceItemFormListById(Request $request, $id)
+    {
+        if ($request->ajax())
+        {
+            $userinfo = $request->get('userinfo');
+                $invoice_item = SumbInvoiceItems::where('user_id', $userinfo[0])
+                                ->where('id', $id)
+                                ->first();
+                if($invoice_item){
+                    $response = [
+                        'status' => 'success',
+                        'err' => '',
+                        'data' => $invoice_item
+                    ];
+                    echo json_encode($response);
+                }
+                else{
+                    $response = [
+                        'status' => 'error',
+                        'err' => 'No item found',
+                        'data' => ''
+                    ];
+                    echo json_encode($response);
+                }
+        }
+        else
+        {
+            $response = [
+                'status' => 'error',
+                'err' => 'Something went wrong',
+                'data' => ''
+            ];
+            echo json_encode($response);
+        }
+    }
 }
