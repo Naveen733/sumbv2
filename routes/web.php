@@ -71,4 +71,11 @@ Route::middleware('sumbauth')->group(function() {
     Route::get('/testformat', [App\Http\Controllers\InvoiceController::class, 'testformat'])->name('testformat');
     
     Route::get('/logout', [App\Http\Controllers\MainController::class, 'logout'])->name('logout');
+
+    Route::post('/search-client', [App\Http\Controllers\InvoiceController::class, 'searchClient'])->name('search-client');
+    Route::post('/search-invoice-item', [App\Http\Controllers\InvoiceController::class, 'searchInvoiceItem'])->name('search-invoice-item');
+    Route::post('/add-invoice-item', [App\Http\Controllers\InvoiceController::class, 'InvoiceItemForm'])->name('add-invoice-item');
+    Route::post('/invoice-items', [App\Http\Controllers\InvoiceController::class, 'InvoiceItemFormList'])->name('invoice-items');
+    Route::get('/invoice-items/{id}', [App\Http\Controllers\InvoiceController::class, 'InvoiceItemFormListById'])->name('invoice-items/{id}');
+
 });
