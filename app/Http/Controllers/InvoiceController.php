@@ -412,6 +412,18 @@ class InvoiceController extends Controller {
 
         // $get_exp_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
 
+        if ($request->hasFile('file_upload')) {
+            // Get the file instance
+            $file = $request->file('file_upload');
+
+            // Store the file in the public directory
+            $path = $file->store('public');
+
+            // Get the file URL
+            $url = Storage::url($path);
+        }
+
+
         $expense_details = array(
             "user_id" => $userinfo[0],
             "expense_number" => $request->expense_number,
@@ -422,8 +434,8 @@ class InvoiceController extends Controller {
             "expense_total_amount" => $request->expense_total_amount,
             "total_gst" => $request->total_gst,
             "total_amount" => $request->total_amount,
-            "file_upload" => (isNull($request->file_upload) ? '' : json_encode($request->file_upload)),
-            "file_upload_format" => (isNull($request->file_upload) ? '' : $request->file_upload->extension()),
+            "file_upload" => (isset($url) ? $url : ''),
+            "file_upload_format" => (isset($file) ? $file->extension() : ''),
             "updated_at" => $dtnow,
             "status_paid" => 'paid'
         );
