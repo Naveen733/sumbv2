@@ -12,12 +12,12 @@
             <div class="container-fluid">
 
                 <section>
-                    <h3 class="sumb--title">Invoice & Expenses</h3>
+                    <h3 class="sumb--title">Expenses</h3>
                 </section>
 
                 <section>
                     <div class="sumb--statistics row">
-                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                        <!-- <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                             <div class="sumb--dashstatbox sumb--putShadowbox statistic__item--blue">
                                 <div class="sumb-statistic__item invoce-expenses__stats">
                                     <h2>
@@ -32,7 +32,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         
 
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -54,7 +54,7 @@
                     </div>
                 </section>
 
-                <section>
+                <!-- <section>
                     <div class="row">
 
 
@@ -69,7 +69,6 @@
                                     <div class="dropdown-menu dropdown-menu-left" aria-labelledby="mainlinkadd">
                                         <a class="dropdown-item" href="/invoice-create">Add an Invoice</a>
                                         <a class="dropdown-item" href="/expenses-create">Add an Expenses</a>
-                                        <!--<a class="dropdown-item" href="#">Add an Adjustment</a>-->
                                     </div>
                                 </div>
                             </div>
@@ -102,12 +101,17 @@
                         </div>
                         
                     </div>
-                </section>
+                </section> -->
 
                 <section>
-
-                    <h4 class="sumb--title2">My Transactions</h4>
-
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <h4 class="sumb--title2">My Expenses</h4>
+                        </div>
+                        <div class="col-xl-6 sumb--fileAddbtn">
+                        <a class="fileAddbtn" href="/expense-create">New Expenses</a>
+                        </div>
+                    </div>
                     <div class="row">
                         
                         <div class="col-xl-12">
@@ -124,13 +128,13 @@
                                         <thead>
                                             
                                             <tr>
-                                                <th style="border-top-left-radius: 7px;">date</th>
+                                                <th style="border-top-left-radius: 7px;">Date</th>
                                                 <th>Number</th>
                                                 <th>Client</th>
-                                                <th>Email</th>
-                                                <th>type</th>
-                                                <th>status</th>
-                                                <th >amount</th>
+                                                <!-- <th>Email</th> -->
+                                                <!-- <th>type</th> -->
+                                                <th>Status</th>
+                                                <th>Amount</th>
                                                 <th class="sumb--recentlogdements__actions" style="border-top-right-radius: 7px;">options</th>
                                             </tr>
                                             
@@ -143,26 +147,27 @@
                                             @else
                                                 @foreach ($invoicedata['data'] as $idat)
                                             <tr>
-                                                <td>{{ date('d-m-Y', strtotime($idat['updated_at'])); }}</td>
-                                                <td>{{ str_pad($idat['transaction_id'], 10, '0', STR_PAD_LEFT); }}</td>
+                                                <td>{{ date('d-m-Y', strtotime($idat['expense_date'])); }}</td>
+                                                <td>{{ str_pad($idat['expense_number'], 10, '0', STR_PAD_LEFT); }}</td>
                                                 <td>{{ $idat['client_name'] }}</td>
-                                                <td>@if (!empty($idat['client_email'])) <a href="mailto:{{ $idat['client_email'] }}">{{ $idat['client_email'] }}</a> @else &nbsp; @endif</td>
-                                                <td>{{ ucwords($idat['transaction_type']); }}</td>
+                                                <!-- <td>@if (!empty($idat['client_email'])) <a href="mailto:{{ $idat['client_email'] }}">{{ $idat['client_email'] }}</a> @else &nbsp; @endif</td> -->
+                                                
                                                 <td class="@if ($idat['status_paid'] == 'void') sumb--recentlogdements__status_rej @elseif ($idat['status_paid'] == 'paid') sumb--recentlogdements__status_acc @else sumb--recentlogdements__status_proc @endif">{{ ucwords($idat['status_paid']) }}</td>
-                                                <td style="text-align:right;">${{ number_format((float)$idat['amount'], 2, '.', ',') }}</td>
+                                                <td style="text-align:right;">${{ number_format((float)$idat['total_amount'], 2, '.', ',') }}</td>
                                                 <td class="sumb--recentlogdements__actions" style="text-align:right;">
-                                                    @if ($idat['transaction_type'] == 'invoice')
-                                                    @if ($idat['status_paid'] == 'unpaid') <a href="/pdf/{{ $idat['invoice_pdf'] }}" target="_blank" title="Send to client" alt="Send to client"><i class="fa-solid fa-envelope-circle-check"></i></a> @endif
-                                                    <a href="/pdf/{{ $idat['invoice_pdf'] }}" target="_blank" title="View PDF" alt="View PDF"><i class="fa-solid fa-file-pdf"></i></a>
-                                                    @endif
+                                                   
+                                                  
                                                     
                                                     <div class="sumb--fileSharebtn dropdown">
+                                                        <a href="{{ url('/expense/'.$idat['transaction_id'].'/edit') }}"><i class="fa-solid fa-edit"></i></a>
                                                         <a class="fileSharebtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear"></i></a>
+                                                        
                                                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="mainlinkadd">
-                                                            @if ($idat['status_paid'] != 'paid') <a class="dropdown-item" href="/status-change/?tno={{ $idat['transaction_id'] }}&type={{ $idat['transaction_type'] }}&to=paid">Flag as PAID</a> @endif
-                                                            @if ($idat['status_paid'] != 'unpaid') <a class="dropdown-item" href="/status-change/?tno={{ $idat['transaction_id'] }}&type={{ $idat['transaction_type'] }}&to=unpaid">Flag as UNPAID</a> @endif
-                                                            @if ($idat['status_paid'] != 'void') <a class="dropdown-item" href="/status-change/?tno={{ $idat['transaction_id'] }}&type={{ $idat['transaction_type'] }}&to=void">Flag as VOID</a> @endif
+                                                            @if($idat['status_paid'] != 'paid') <a class="dropdown-item" href="/status-change/?id={{ $idat['transaction_id'] }}&type=paid">Flag as Paid</a>@endif
+                                                            @if($idat['status_paid'] != 'unpaid') <a class="dropdown-item" href="/status-change/?id={{ $idat['transaction_id'] }}&type=unpaid">Flag as Unpaid</a>@endif
+                                                            @if($idat['status_paid'] != 'void') <a class="dropdown-item" href="/status-change/?id={{ $idat['transaction_id'] }}&type=void">Flag as Void</a>@endif
                                                         </div>
+                                                        
                                                     </div>
                                                     
 

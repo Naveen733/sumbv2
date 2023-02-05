@@ -33,10 +33,11 @@ Route::middleware('sumbauth')->group(function() {
     //Invoice and Expenses
     Route::get('/invoice', [App\Http\Controllers\InvoiceController::class, 'index'])->name('invoice');
     
-        Route::get('/expenses-create', [App\Http\Controllers\InvoiceController::class, 'create_expenses'])->name('expenses-create');
-        Route::post('/expenses-create-save', [App\Http\Controllers\InvoiceController::class, 'create_expenses_new'])->name('expenses-create-save');
-        //Route::get('/expenses-void', [App\Http\Controllers\InvoiceController::class, 'expenses_void'])->name('expenses-void');
-    
+        Route::get('/expense-create', [App\Http\Controllers\InvoiceController::class, 'create_expense'])->name('expense-create');
+        Route::put('/expense/{id}/update', [App\Http\Controllers\InvoiceController::class, 'update_expense'])->name('update-expense');
+        Route::get('/expense/{id}/edit', [App\Http\Controllers\InvoiceController::class, 'edit_expense'])->name('edit-expense');
+        Route::post('/expense-save', [App\Http\Controllers\InvoiceController::class, 'save_expense'])->name('expense-create-save');
+        
         Route::get('/invoice-create', [App\Http\Controllers\InvoiceController::class, 'create_invoice'])->name('invoice-create');
         Route::post('/invoice-create-save', [App\Http\Controllers\InvoiceController::class, 'create_invoice_new'])->name('invoice-create-save');
         
@@ -45,9 +46,9 @@ Route::middleware('sumbauth')->group(function() {
         Route::get('/invoice-logo-upload', [App\Http\Controllers\InvoiceController::class, 'invoice_logo_upload'])->name('invoice-logo-upload');
         Route::post('/invoice-logo-process', [App\Http\Controllers\InvoiceController::class, 'invoice_logo_process'])->name('invoice-logo-process');
         
-        //Route::get('/invoice-void', [App\Http\Controllers\InvoiceController::class, 'invoice_void'])->name('invoice-void');
+        Route::get('/invoice-void', [App\Http\Controllers\InvoiceController::class, 'invoice_void'])->name('invoice-void');
         
-        Route::get('/status-change', [App\Http\Controllers\InvoiceController::class, 'status_change'])->name('status-change');
+        Route::get('/status-change/', [App\Http\Controllers\InvoiceController::class, 'status_change'])->name('status-change');
     
         Route::get('/invoice-particulars-add', [App\Http\Controllers\InvoiceController::class, 'invoice_particulars_add'])->name('invoice-particulars-add2');
 

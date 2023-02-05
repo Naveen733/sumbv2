@@ -22,6 +22,11 @@ use App\Models\SumbExpensesClients;
 use App\Models\SumbInvoiceParticulars;
 use App\Models\SumbInvoiceParticularsTemp;
 use App\Models\SumbInvoiceDetails;
+use App\Models\SumbExpenseDetails;
+use App\Models\SumbExpenseParticulars;
+use App\Models\SumbExpenseSettings;
+
+use function PHPUnit\Framework\isNull;
 
 class InvoiceController extends Controller {
 
@@ -64,16 +69,14 @@ class InvoiceController extends Controller {
         $pagedata['ourl'] = route('invoice', $purl);
         $pagedata['npurl'] = http_build_query(['ipp'=>$itemsperpage]);
         
-        
-        
         //==== get all tranasactions
-        $ptype = 'all';
-        if (!empty($request->input('type'))) {
-            $invoicedata = SumbTransactions::where('user_id', $userinfo[0])->where('transaction_type', $request->input('type'))->paginate($itemsperpage)->toArray();
-            $ptype = $request->input('type');
-        } else {
-            $invoicedata = SumbTransactions::where('user_id', $userinfo[0])->paginate($itemsperpage)->toArray();
-        }
+        // $ptype = 'all';
+        // if (!empty($request->input('type'))) {
+        //     $invoicedata = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_type', $request->input('type'))->paginate($itemsperpage)->toArray();
+        //     $ptype = $request->input('type');
+        // } else {
+            $invoicedata = SumbExpenseDetails::where('user_id', $userinfo[0])->paginate($itemsperpage)->toArray();
+        // }
         $pagedata['invoicedata'] = $invoicedata;
         
         //echo '<pre>';
@@ -111,12 +114,18 @@ class InvoiceController extends Controller {
     //* Create Expenses Page
     //*
     //***********************************************
-    public function create_expenses(Request $request) {
+    public function create_expense(Request $request) {
         $userinfo =$request->get('userinfo');
         $pagedata = array(
             'userinfo'=>$userinfo,
             'pagetitle' => 'Create Expenses'
         );
+        // $dtnow = Carbon::now();
+        // if(!SumbExpenseSettings::where('user_id', $userinfo[0])->first()){
+        //     SumbExpenseSettings::insert(['user_id'=>$userinfo[0], 'created_at'=>$dtnow, 'updated_at'=>$dtnow]);
+        // }
+       
+
         $errors = array(
             1 => ['Values are required to process invoice or expenses, please fill in non-optional fields.', 'danger'],
             2 => ['Your amount is incorrect, it should be numeric only and no negative value. Please try again', 'danger'],
@@ -124,11 +133,13 @@ class InvoiceController extends Controller {
         );
         $pagedata['errors'] = $errors;
         if (!empty($request->input('err'))) { $pagedata['err'] = $request->input('err'); }
-        $pagedata['data'] = $get_settings = SumbInvoiceSettings::where('user_id', $userinfo[0])->first()->toArray();
+        $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
+       
         $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
         if (!empty($get_expclients)) {
             $pagedata['exp_clients'] = $get_expclients->toArray();
         }
+        $pagedata['type'] = 'create';
         return view('invoice.expensescreate', $pagedata);
     }
     
@@ -137,15 +148,7 @@ class InvoiceController extends Controller {
     //* Create Expenses Process
     //*
     //***********************************************
-    public function create_expenses_new(Request $request) {
-        // var_dump($request->client_name);
-        // var_dump($request->expense_date);
-        // var_dump($request->expense_due_date);
-        // var_dump($request->expense_description);
-        // var_dump($request->item_quantity);
-        // var_dump($request->item_unit_price);
-        // var_dump($request->expense_tax);
-        // var_dump($request->expense_amount);
+    public function save_expense(Request $request) {
         
         $userinfo = $request->get('userinfo');
         $pagedata = array(
@@ -154,71 +157,95 @@ class InvoiceController extends Controller {
         );
 
         //validation
-    //     $validator = Validator::make($request->all(),[
-    //         'expense_date' => 'bail|required|date',
-    //         'expense_due_date' => 'bail|required|date',
-    //         'client_name' => 'bail|required|max:100',
-    //         'expense_description.*' => 'bail|required',
-    //         'item_quantity.*' => 'bail|required|numeric|gt:0',
-    //         'item_unit_price.*' => 'bail|required|numeric|gt:0',
-    //         'expense_tax.*' => 'bail|required|gt:-1',
-    //         'expense_amount.*' => 'bail|required|gt:0',
-    //         'expense_total_amount.*' => 'bail|required|numeric|gt:0',
-    //         'total_gst.*' => 'bail|required|numeric',
-    //         'total_amount.*' => 'bail|required|numeric'
-    //     ],
-    //     [
-    //        'expense_date.required' => 'Date is Required',
-    //        'expense_date.date' => 'Enter proper date format',
-    //        'expense_due_date.required' => 'Due Date is Required',
-    //        'expense_due_date.date' => 'Enter proper Due date format',
-    //        'client_name.required' => 'Recepient Name is Required',
-    //        'client_name.max' => 'Recepient Name must to exceed 100 characters',
-    //        'expense_description.*.required' => 'Item Description is Required',
-    //        'item_quantity.*.required' => 'Item Quantity is Required',
-    //        'item_quantity.*.gt' => 'Item Quantity must be greater than 0',
-    //        'item_quantity.*.numeric' => 'Item Quantity must be a numeric value',
-    //        'item_unit_price.*.required' => 'Item Unit Price is Required',
-    //        'item_unit_price.*.gt' => 'Item Unit Price must be greater than 0',
-    //        'item_unit_price.*.numeric' => 'Item Unit Price must be a numeric value',
-    //        'expense_tax.*.required' => 'Tax rate is Required',
-    //        'expense_tax.*.gt' => 'Tax rate must be selected',
-    //     ]
-    // );
+        $validator = Validator::make($request->all(),[
+            'expense_number' => 'bail|required',
+            'expense_date' => 'bail|required|date',
+            'expense_due_date' => 'bail|required|date',
+            'client_name' => 'bail|required|max:100',
+            'expense_description.*' => 'bail|required',
+            'item_quantity.*' => 'bail|required|numeric|gt:0',
+            'item_unit_price.*' => 'bail|required|numeric|gt:0',
+            'expense_tax.*' => 'bail|required|gt:-1',
+            'expense_amount.*' => 'bail|required|gt:0',
+            'tax_type.*' => 'bail|required',
+            'expense_total_amount.*' => 'bail|required|numeric|gt:0',
+            'total_gst.*' => 'bail|required|numeric',
+            'total_amount.*' => 'bail|required|numeric',
+            'file_upload' =>  'mimes:jpg,jpeg,png,pdf'
+        ],
+        [
+           'expense_number' => 'Expense Number is Required',
+           'expense_date.required' => 'Date is Required',
+           'expense_date.date' => 'Enter proper date format',
+           'expense_due_date.required' => 'Due Date is Required',
+           'expense_due_date.date' => 'Enter proper Due date format',
+           'client_name.required' => 'Recepient Name is Required',
+           'client_name.max' => 'Recepient Name must to exceed 100 characters',
+           'expense_description.*.required' => 'Item Description is Required',
+           'item_quantity.*.required' => 'Item Quantity is Required',
+           'item_quantity.*.gt' => 'Item Quantity must be greater than 0',
+           'item_quantity.*.numeric' => 'Item Quantity must be a numeric value',
+           'item_unit_price.*.required' => 'Item Unit Price is Required',
+           'item_unit_price.*.gt' => 'Item Unit Price must be greater than 0',
+           'item_unit_price.*.numeric' => 'Item Unit Price must be a numeric value',
+           'expense_tax.*.required' => 'Tax rate is Required',
+           'expense_tax.*.gt' => 'Tax rate must be selected',
+           'file_upload' =>  'Please insert image/pdf only'
+        ]);
 
-        
-       
-       
         $expense_details = [];
-        $parts = [];
+        $dtnow = Carbon::now();
+
+        $expense_date_exploded = explode("/", $request->expense_date);
+        $expense_due_date_exploded = explode("/", $request->expense_due_date);
+        $carbon_expense_date = Carbon::createFromDate($expense_date_exploded[2], $expense_date_exploded[0], $expense_date_exploded[1]);
+        $carbon_expense_due_date = Carbon::createFromDate($expense_due_date_exploded[2], $expense_due_date_exploded[0], $expense_due_date_exploded[1]);
+
+        $get_exp_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
+
+        if ($request->hasFile('file_upload')) {
+            // Get the file instance
+            $file = $request->file('file_upload');
+
+            // Store the file in the public directory
+            $path = $file->store('public');
+
+            // Get the file URL
+            $url = Storage::url($path);
+        }
+
         $expense_details = array(
             "user_id" => $userinfo[0],
+            "transaction_id" => $get_exp_settings['expenses_count'],
+            "expense_number" => $request->expense_number,
             "client_name" => $request->client_name,
-            "expense_date" => $request->expense_date,
-            "expense_due_date" => $request->expense_due_date,
-            "expense_description" => $request->expense_description,
-            "item_quantity" => $request->item_quantity,
-            "item_unit_price" => $request->item_unit_price,
-            "expense_tax" => $request->expense_tax,
-            "expense_amount" => $request->expense_amount,
+            "expense_date" => $carbon_expense_date,
+            "expense_due_date" => $carbon_expense_due_date,
+            "tax_type" => $request->tax_type,
             "expense_total_amount" => $request->expense_total_amount,
             "total_gst" => $request->total_gst,
             "total_amount" => $request->total_amount,
+            "file_upload" => (isset($url) ? $url : ''),
+            "file_upload_format" => (isset($file) ? $file->extension() : ''),
+            "created_at" => $dtnow,
+            "updated_at" => $dtnow,
+            "status_paid" => 'paid'
         );
 
         $pagedata['expense_details'] = $expense_details;
-        // if ($validator->fails()) {
-        //     // return response()->json([
-        //     //     'status' => false,
-        //     //     'message' => 'validation error',
-        //     //     'errors' => $validator->errors()
-        //     // ], 401);
-            
-        //     return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
-        // }
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'validation error',
+                'errors' => $validator->errors()
+            ], 401);
+            // echo "sds";
+            // die();
+           // return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
+        }
 
-        echo "<pre>"; var_dump( $expense_details); echo "</pre>";
-        die();
+        //echo "<pre>"; var_dump( $expense_details); echo "</pre>";
+       // die();
       
         // echo "<pre>";
         // print_r($request->all());
@@ -243,28 +270,8 @@ class InvoiceController extends Controller {
         //     return redirect()->route('expenses-create', $oriform); die();
         // }
         
-        //prepare saving data
-        $get_settings = SumbInvoiceSettings::where('user_id', $userinfo[0])->first()->toArray();
-        //print_r($get_settings);
-        $dateexploded = explode("/", $request->invoice_date);
-        //print_r($dateexploded);
-        $carbon_invdate = Carbon::createFromDate($dateexploded[2], $dateexploded[0], $dateexploded[1]);
-        //print_r($carbon_invdate);
-        $dtnow = Carbon::now();
+
         
-        // $dataprep = array(
-        //     'user_id'           => $userinfo[0],
-        //     'transaction_type'  => 'expenses',
-        //     'transaction_id'    => $get_settings['expenses_count'],
-        //     'amount'            => $request->amount,
-        //     'client_name'       => $request->client_name,
-        //     'invoice_details'   => $request->invoice_details,
-        //     'invoice_date'      => $carbon_invdate,
-        //     'status_paid'       => 'paid',
-        //     'created_at'        => $dtnow,
-        //     'updated_at'        => $dtnow,
-        // );
-        //print_r($dataprep);
         
         //if save reciepient is on
         if (!empty($request->savethisrep)) {
@@ -275,7 +282,7 @@ class InvoiceController extends Controller {
                 $dataprep_client = [
                     'user_id'               => $userinfo[0],
                     'client_name'           => $request->client_name,
-                    'client_description'    => $request->invoice_details,
+                   // 'client_description'    => $request->invoice_details,
                     'created_at'            => $dtnow,
                     'updated_at'            => $dtnow,
                 ];
@@ -284,13 +291,248 @@ class InvoiceController extends Controller {
         }
         
         //saving data
-        $transaction_id = SumbTransactions::insertGetId($dataprep);
-        $updatethis = SumbInvoiceSettings::where('user_id', $userinfo[0])->first();
+        $transaction_id = SumbExpenseDetails::insertGetId($expense_details);
+        
+        for ($i = 0; $i < count($request->item_quantity); $i++) {
+            $expense_details = array(
+                "user_id" => $userinfo[0],
+                "expense_description" => $request->expense_description[$i],
+                "item_quantity" => $request->item_quantity[$i],
+                "item_unit_price" => $request->item_unit_price[$i],
+                "expense_tax" => $request->expense_tax[$i],
+                "expense_amount" => $request->expense_amount[$i],
+                "expense_id" => $transaction_id,
+                "expense_number" => $get_exp_settings['expenses_count'],
+                'created_at'            => $dtnow,
+                'updated_at'            => $dtnow
+            );
+            SumbExpenseParticulars::insert($expense_details);
+        };
+
+        $updatethis = SumbExpenseSettings::where('user_id', $userinfo[0])->first();
         $updatethis->increment('expenses_count');
         
         return redirect()->route('invoice', ['err'=>1]); die();
     }
-    
+
+    //***********************************************
+    //*
+    //* Edit Expense Page
+    //*
+    //***********************************************
+    public function edit_expense(Request $request)
+    {
+        $userinfo = $request->get('userinfo');
+        $id = $request->id;
+        $pagedata = array(
+            'userinfo' => $userinfo,
+            'pagetitle' => 'Edit Expense'
+        );
+        $expense_particulars = [];
+       
+        $pagedata['expense_details'] = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first();
+        $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
+        $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
+       
+        if(!empty($expense_particulars)){
+            $pagedata['expense_particulars'] = $expense_particulars->toArray();
+        }
+
+        $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
+        if (!empty($get_expclients)) {
+            $pagedata['exp_clients'] = $get_expclients->toArray();
+        }
+        $pagedata['type'] = 'edit';
+          return view('invoice.expensescreate', $pagedata);
+
+        //  echo "<pre>"; var_dump($pagedata['expense_details']); echo "</pre>";
+        //  die();
+        
+    }
+
+    //***********************************************
+    //*
+    //* Update Expense Details
+    //*
+    //***********************************************
+    public function update_expense(Request $request)
+    {
+        $userinfo = $request->get('userinfo');
+        $id = $request->id;
+        // $pagedata = array(
+        //     'userinfo' => $userinfo,
+        //     'pagetitle' => 'Update Expense'
+        // );
+        $expense_particulars = [];
+        $expense_details = [];
+        $updateExpenseParticulars = [];
+
+        $validator = Validator::make($request->all(),[
+            'expense_number' => 'bail|required',
+            'expense_date' => 'bail|required|date',
+            'expense_due_date' => 'bail|required|date',
+            'client_name' => 'bail|required|max:100',
+            'expense_description.*' => 'bail|required',
+            'item_quantity.*' => 'bail|required|numeric|gt:0',
+            'item_unit_price.*' => 'bail|required|numeric|gt:0',
+            'expense_tax.*' => 'bail|required|gt:-1',
+            'expense_amount.*' => 'bail|required|gt:0',
+            'tax_type.*' => 'bail|required',
+            'expense_total_amount.*' => 'bail|required|numeric|gt:0',
+            'total_gst.*' => 'bail|required|numeric',
+            'total_amount.*' => 'bail|required|numeric',
+            'file_upload' =>  'mimes:jpg,jpeg,png,pdf'
+        ],
+        [
+           'expense_number' => 'Expense Number is Required',
+           'expense_date.required' => 'Date is Required',
+           'expense_date.date' => 'Enter proper date format',
+           'expense_due_date.required' => 'Due Date is Required',
+           'expense_due_date.date' => 'Enter proper Due date format',
+           'client_name.required' => 'Recepient Name is Required',
+           'client_name.max' => 'Recepient Name must to exceed 100 characters',
+           'expense_description.*.required' => 'Item Description is Required',
+           'item_quantity.*.required' => 'Item Quantity is Required',
+           'item_quantity.*.gt' => 'Item Quantity must be greater than 0',
+           'item_quantity.*.numeric' => 'Item Quantity must be a numeric value',
+           'item_unit_price.*.required' => 'Item Unit Price is Required',
+           'item_unit_price.*.gt' => 'Item Unit Price must be greater than 0',
+           'item_unit_price.*.numeric' => 'Item Unit Price must be a numeric value',
+           'expense_tax.*.required' => 'Tax rate is Required',
+           'expense_tax.*.gt' => 'Tax rate must be selected',
+           'file_upload' =>  'Please insert image/pdf only'
+        ]);
+        $dtnow = Carbon::now();
+        
+        $expense_date_exploded = explode("/", ($request->expense_date));
+        $expense_due_date_exploded = explode("/", ($request->expense_due_date));
+        
+        $carbon_expense_date = Carbon::createFromDate($expense_date_exploded[2], $expense_date_exploded[0], $expense_date_exploded[1]);
+        $carbon_expense_due_date = Carbon::createFromDate($expense_due_date_exploded[2], $expense_due_date_exploded[0], $expense_due_date_exploded[1]);
+
+        // $get_exp_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
+
+        $expense_details = array(
+            "user_id" => $userinfo[0],
+            "expense_number" => $request->expense_number,
+            "client_name" => $request->client_name,
+            "expense_date" => $carbon_expense_date,
+            "expense_due_date" => $carbon_expense_due_date,
+            "tax_type" => $request->tax_type,
+            "expense_total_amount" => $request->expense_total_amount,
+            "total_gst" => $request->total_gst,
+            "total_amount" => $request->total_amount,
+            "file_upload" => (isNull($request->file_upload) ? '' : json_encode($request->file_upload)),
+            "file_upload_format" => (isNull($request->file_upload) ? '' : $request->file_upload->extension()),
+            "updated_at" => $dtnow,
+            "status_paid" => 'paid'
+        );
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'validation error',
+                'errors' => $validator->errors()
+            ], 401);
+            // echo "sds";
+            // die();
+           // return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
+        }
+
+        $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first();
+        $updateExpenseDetails->update($expense_details);
+
+        $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
+        if(!empty($expense_particulars)){
+            $updateExpenseParticulars = $expense_particulars->toArray();
+        }
+        //echo count($request->item_quantity);
+        //echo count($updateExpenseParticulars);
+
+        if(count($request->item_quantity) == count($updateExpenseParticulars)){
+            for ($i = 0; $i < count($request->item_quantity); $i++) {
+            
+                $expense_particular_item = array(
+                    "user_id" => $userinfo[0],
+                    "expense_description" => $request->expense_description[$i],
+                    "item_quantity" => $request->item_quantity[$i],
+                    "item_unit_price" => $request->item_unit_price[$i],
+                    "expense_tax" => $request->expense_tax[$i],
+                    "expense_amount" => $request->expense_amount[$i],
+                    "updated_at" => $dtnow,
+                );
+                $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
+                $expense_item->update($expense_particular_item);
+            };
+        }else if(count($request->item_quantity) < count($updateExpenseParticulars)){
+            for ($i = 0; $i < count($updateExpenseParticulars); $i++) {
+                if($i < count($request->item_quantity)){
+                    $expense_particular_item = array(
+                        "user_id" => $userinfo[0],
+                        "expense_description" => $request->expense_description[$i],
+                        "item_quantity" => $request->item_quantity[$i],
+                        "item_unit_price" => $request->item_unit_price[$i],
+                        "expense_tax" => $request->expense_tax[$i],
+                        "expense_amount" => $request->expense_amount[$i],
+                        "updated_at" => $dtnow,
+                    );
+                    $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
+                   $expense_item->update($expense_particular_item);
+                //     echo "update";
+                //   echo "<pre>"; var_dump($expense_particular_item); echo "</pre>";
+                }else{
+                    $expense_del_old_extra_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
+                   $expense_del_old_extra_item->delete();
+                //   echo "delete";
+                //   echo "<pre>"; var_dump($expense_del_old_extra_item); echo "</pre>";
+                }
+                
+            };
+        }else{
+            for ($i = 0; $i < count($request->item_quantity); $i++) {
+                if($i < count($updateExpenseParticulars)){
+                    $expense_particular_item = array(
+                        "user_id" => $userinfo[0],
+                        "expense_description" => $request->expense_description[$i],
+                        "item_quantity" => $request->item_quantity[$i],
+                        "item_unit_price" => $request->item_unit_price[$i],
+                        "expense_tax" => $request->expense_tax[$i],
+                        "expense_amount" => $request->expense_amount[$i],
+                        "updated_at" => $dtnow,
+                    );
+                    $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
+                    $expense_item->update($expense_particular_item);
+                //     echo "update";
+                //   echo "<pre>"; var_dump($expense_particular_item); echo "</pre>";
+                }else{
+                    $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->first();
+                    
+                    $expense_particular_new_item = array(
+                        "user_id" => $userinfo[0],
+                        "expense_description" => $request->expense_description[$i],
+                        "item_quantity" => $request->item_quantity[$i],
+                        "item_unit_price" => $request->item_unit_price[$i],
+                        "expense_tax" => $request->expense_tax[$i],
+                        "expense_amount" => $request->expense_amount[$i],
+                        "expense_id" => $id,
+                        "expense_number" => $expense_item['expense_number'],
+                        'created_at'            => $dtnow,
+                        'updated_at'            => $dtnow,
+                    );
+                    SumbExpenseParticulars::insert($expense_particular_new_item);
+                //    echo "insert";
+                //    echo "<pre>"; var_dump($expense_particular_new_item); echo "</pre>";
+                }
+                
+            };
+        }
+        
+         return redirect()->route('invoice', ['err'=>1]); die();
+
+        //  echo "<pre>"; var_dump($updateExpenseParticulars); echo "</pre>";
+        //  die();
+        
+    }
+
     //***********************************************
     //*
     //* Create Invoice Page
@@ -759,33 +1001,6 @@ class InvoiceController extends Controller {
         echo "<pre>"; print_r($chk_inv); //echo "</pre>";
         return redirect()->route('invoice', ['err'=>4]); die();
     }
-    
-    //***********************************************
-    //*
-    //* Expenses VOID PROCESS
-    //*
-    //***********************************************
-    public function expenses_void(Request $request) {
-        $userinfo =$request->get('userinfo');
-        $pagedata = array(
-            'userinfo'=>$userinfo,
-            'pagetitle' => 'Void Expenses'
-        );
-        //echo "<pre>"; print_r($request->all()); //echo "</pre>";
-        $pagedata['oriform'] = $request->all();
-        echo "<pre>"; print_r($pagedata);
-        if (empty($pagedata['oriform']['invno'])) {
-            return redirect()->route('invoice', ['err'=>3]); die();
-        }
-        $chk_inv = SumbTransactions::where('user_id', $userinfo[0])->where('transaction_type','expenses')->where('transaction_id', $pagedata['oriform']['invno'])->first();
-        if ($chk_inv->exists) {
-            $chk_inv = $chk_inv->toArray();
-        }
-        SumbTransactions::where('id',$chk_inv['id'])->update(['status_paid'=>'void']);
-        echo "<pre>"; print_r($chk_inv); //echo "</pre>";
-        return redirect()->route('invoice', ['err'=> 5]); die();
-    }
-    
     //***********************************************
     //*
     //* Transaction status change PROCESS
@@ -793,35 +1008,36 @@ class InvoiceController extends Controller {
     //***********************************************
     public function status_change(Request $request) {
         $userinfo =$request->get('userinfo');
+        $id = $request->id;
+        $type = $request->type;
         $pagedata = array(
             'userinfo'=>$userinfo,
             'pagetitle' => 'Status Change'
         );
-        //echo "<pre>"; print_r($request->all()); //echo "</pre>";
-        $pagedata['oriform'] = $request->all();
+       // $pagedata['oriform'] = $request->all();
         //echo "<pre>"; print_r($pagedata);
         
-        if (empty($pagedata['oriform']['tno']) || empty($pagedata['oriform']['type']) || empty($pagedata['oriform']['to']) ) {
-            return redirect()->route('invoice', ['err'=>3]); die();
-        }
-        if ($pagedata['oriform']['type'] != 'expenses' && $pagedata['oriform']['type'] != 'invoice' && $pagedata['oriform']['type'] != 'adjustment') {
-            return redirect()->route('invoice', ['err'=>3]); die();
-        }
-        if ($pagedata['oriform']['to'] != 'paid' && $pagedata['oriform']['to'] != 'unpaid' && $pagedata['oriform']['to'] != 'void') {
-            return redirect()->route('invoice', ['err'=>3]); die();
-        }
+        // if (empty($pagedata['oriform']['tno']) || empty($pagedata['oriform']['type']) || empty($pagedata['oriform']['to']) ) {
+        //     return redirect()->route('invoice', ['err'=>3]); die();
+        // }
+        // if ($pagedata['oriform']['type'] != 'expenses' && $pagedata['oriform']['type'] != 'invoice' && $pagedata['oriform']['type'] != 'adjustment') {
+        //     return redirect()->route('invoice', ['err'=>3]); die();
+        // }
+        // if ($pagedata['oriform']['to'] != 'paid' && $pagedata['oriform']['to'] != 'unpaid' && $pagedata['oriform']['to'] != 'void') {
+        //     return redirect()->route('invoice', ['err'=>3]); die();
+        // }
         
         
-        $chk_inv = SumbTransactions::where('user_id', $userinfo[0])->where('transaction_type',$pagedata['oriform']['type'])->where('transaction_id', $pagedata['oriform']['tno'])->first();
+        $chk_inv = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first();
         if ($chk_inv->exists) {
             $chk_inv = $chk_inv->toArray();
         }
         //print_r($chk_inv);
         //die();
-        SumbTransactions::where('id',$chk_inv['id'])->update(['status_paid'=>$pagedata['oriform']['to']]);
+        SumbExpenseDetails::where('id',$chk_inv['id'])->update(['status_paid'=>$type]);
         //echo "<pre>"; print_r($chk_inv); //echo "</pre>";
         //die();
-        return redirect()->route('invoice', ['err'=> 5]); die();
+        return redirect()->route('invoice'); die();
     }
     
     public function testpdf(Request $request) {

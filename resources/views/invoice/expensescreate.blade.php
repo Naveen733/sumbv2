@@ -17,7 +17,15 @@
                 </section>
                 <hr class="form-cutter">
                 <section>
-                <form action="/expenses-create-save" method="post" enctype="multipart/form-data">
+               
+               @if($type == 'edit')
+                <form action="/expense/{{ $expense_details['transaction_id'] }}/update" method="post" enctype="multipart/form-data">
+                {{ csrf_field() }}
+                {{ method_field('put') }}
+                @elseif($type == 'create')
+                <form action="/expense-save" method="post" enctype="multipart/form-data">
+                {{ csrf_field() }}
+                @endif
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                            
@@ -27,14 +35,14 @@
                                 </div>
                             @endisset
 
-                                @csrf
+                                
                                 <div class="row">
                                     <div class="col-xl-12">
                                         <div class="form-input--wrap">
                                             <label class="form-input--question">Expense Number <span>Read-Only</span></label>
                                             <div class="form--inputbox readOnly row">
                                                 <div class="col-12">
-                                                    <input type="text" readonly="" value="{{ str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
+                                                    <input type="text" id="expense_number" name="expense_number" readonly="" value="{{ !empty($expense_details['expense_number']) ? $expense_details['expense_number'] : 'EXP-'. str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -46,7 +54,7 @@
                                             <label class="form-input--question" for="expense_date">Date <span>MM/DD/YYYY</span></label>
                                             <div class="date--picker row">
                                                 <div class="col-12">
-                                                    <input type="text" id="expense_date" name="expense_date" placeholder="{{ date("m/d/Y") }}" class="form-control" value="{{ !empty($form['expense_date']) ? $form['expense_date'] :  date("m/d/Y")  }}">
+                                                    <input type="text" id="expense_date" name="expense_date" class="form-control" value="{{ !empty($expense_details['expense_date']) ? date('m/d/Y', strtotime($expense_details['expense_date'])) :  date("m/d/Y")  }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -56,7 +64,7 @@
                                             <label class="form-input--question" for="expense_due_date">Due Date <span>MM/DD/YYYY</span></label>
                                             <div class="date--picker row">
                                                 <div class="col-12">
-                                                    <input type="text" id="expense_due_date" name="expense_due_date" class="form-control" value="{{ !empty($form['expense_due_date']) ? $form['expense_due_date'] : '' }}" required>
+                                                    <input type="text" id="expense_due_date" name="expense_due_date" class="form-control" value="{{ !empty($expense_details['expense_due_date']) ? date('m/d/Y', strtotime($expense_details['expense_due_date'])) : '' }}" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -70,7 +78,7 @@
                                             </label>
                                             <div class="form--inputbox recentsearch--input row">
                                                 <div class="searchRecords col-12">
-                                                    <input type="text" id="client_name" name="client_name" class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" autocomplete="off" required value="{{ !empty($form['client_name']) ? $form['client_name'] : '' }}">
+                                                    <input type="text" id="client_name" name="client_name" class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" autocomplete="off" required value="{{ !empty($expense_details['client_name']) ? $expense_details['client_name'] : '' }}">
                                                 </div>
                                             </div>
                                             <div class="form--recentsearch clientname row">
@@ -125,16 +133,16 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                 @if (empty($pagedata['expense_details'])) 
+                                                 @if (empty($expense_particulars)) 
                                                     <tr>
                                                         <td>
-                                                            <textarea name="expense_description[]" id="expense_description" class="autoresizing" required></textarea>
+                                                            <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required></textarea>
                                                         </td>
                                                         <td>
-                                                           <input type="number" id="item_quantity" name="item_quantity[]" required ">
+                                                           <input type="number" id="item_quantity" name="item_quantity[]" step="any" required ">
                                                         </td>
                                                         <td>
-                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" required ">
+                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" step="any" required ">
                                                         </td>
                                                         <td>
                                                             <!-- <input id="expense_tax" name="expense_tax[]" type="number"> -->
@@ -145,7 +153,7 @@
                                                             </select> 
                                                         </td>
                                                         <td>
-                                                            <input readonly id="expense_amount" name="expense_amount[]" type="number" required>
+                                                            <input readonly id="expense_amount" name="expense_amount[]" type="number" step="any" required>
                                                         </td>
                                                         <td class="tableOptions">
                                                             <button class="btn sumb-del-btn delepart" type="button" ><i class="fa-solid fa-trash"></i></button>
@@ -153,44 +161,35 @@
                                                     </tr>
                                                 @else
                                                 <tr>
-                                                    @foreach ($pagedata['expense_details'] as $prts)
-                                                    @for ($i = 0; $i <= count($prts['expense_description']); $i++)
+                                                    @foreach ($expense_particulars as $prts)
+                                                    
                                                     <td>
-                                                        <textarea name="expense_description[]" id="expense_description" class="autoresizing" value="{{ !empty($prts['expense_description'][$i]) ? $prts['expense_description'][$i] : '' }}" required></textarea>
+                                                        <input name="expense_description[]" id="expense_description" class="autoresizing" value="{{ !empty($prts['expense_description']) ? $prts['expense_description'] : '' }}" required >
                                                     </td>
-                                                    @endfor
-                                                    @for ($i = 0; $i <= count($prts['item_quantity']); $i++)
+                                                   
                                                     <td>
-                                                        <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['item_quantity'][$i]) ? $prts['item_quantity'][$i] : '' }}" required ">
+                                                        <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['item_quantity']) ? $prts['item_quantity'] : '' }}" required >
                                                     </td>
-                                                    @endfor
+                                                    <td>
+                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['item_unit_price']) ? $prts['item_unit_price'] : '' }}" step="any" required >
+                                                    </td>
                                                     <td>
                                                             <!-- <input id="expense_tax" name="expense_tax[]" type="number"> -->
-                                                            <select style="border: none;" name="expense_tax[]" id="expense_tax" required>
+                                                            <select style="border: none;" name="expense_tax[]" id="expense_tax" required >
                                                                 <!-- <option selected disabled>Select Tax Rate</option>     -->
-                                                                <option value="0">Tax Exempt</option>
-                                                                <option value="10">General Tax</option>
+                                                                <option <?php echo ($prts['expense_tax']) ==  '0' ? ' selected="selected"' : '';?>  value="0">Tax Exempt</option>
+                                                                <option <?php echo ($prts['expense_tax']) ==  '10' ? ' selected="selected"' : '';?> value="10">General Tax</option>
                                                             </select> 
                                                     </td>
-                                                    @for ($i = 0; $i <= count($prts['item_quantity']); $i++)
+                                                   
                                                     <td>
-                                                        <input type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['expense_amount'][$i]) ? $prts['expense_amount'][$i] : '' }}" required ">
+                                                        <input type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['expense_amount']) ? $prts['expense_amount'] : '' }}" required >
                                                     </td>
-                                                    @endfor
                                                     <td class="tableOptions">
                                                         <button class="btn sumb-del-btn delepart" type="button" ><i class="fa-solid fa-trash"></i></button>
                                                     </td>
 
-                                                    <!-- <tr id="part_{{ $prts['id'] }}" data-type="{{ $prts['part_type'] }}">
-                                                        <td scope="row" id="part_qty_{{ $prts['id'] }}">{{ ($prts['unit_price']<1 ? '-' : $prts['unit_price']) }}</td>
-                                                        <td id="part_desc_{{ $prts['id'] }}" style="text-align: left">{{nl2br($prts['description'])}}</td>
-                                                        <td id="part_uprice_{{ $prts['id'] }}" data-amt="{{ $prts['unit_price'] }}">{{($prts['unit_price']<1 ? '-' : '$'.number_format($prts['unit_price'], 2, ".", ","))}}</td>
-                                                        <td id="part_amount_{{ $prts['id'] }}" data-amt="{{ $prts['amount'] }}">{{'$'.number_format($prts['amount'], 2, ".", ",")}}</td>
-                                                        <td>
-                                                            <button class="btn sumb--btn editpart" type="button" data-partid="{{ $prts['id'] }}" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> 
-                                                            <button class="btn sumb--btn delepart" type="button" data-partid="{{ $prts['id'] }}"><i class="fa-solid fa-trash"></i></button>
-                                                        </td>
-                                                    </tr> -->
+                                                   
                                                 </tr>
                                                     @endforeach
                                                 @endif
@@ -209,21 +208,27 @@
                                                     <td colspan="2" rowspan="3"></td>
                                                     <td>Subtotal</td>
                                                     <td rowspan="3" style="vertical-align : top;text-align:center;">
+                                                    
                                                         <select style="border: none;" name="tax_type" id="tax_type">
+                                                        @if(empty($expense_details['tax_type']))
                                                             <option value="0">Incl. Tax</option>
                                                             <option value="1">Excl. Tax</option>
+                                                        @else
+                                                            <option <?php echo ($expense_details['tax_type']) ==  '0' ? ' selected="selected"' : '';?> value="0">Incl. Tax</option>
+                                                            <option <?php echo ($expense_details['tax_type']) ==  '1' ? ' selected="selected"' : '';?> value="1">Excl. Tax</option>
+                                                        @endif
                                                         </select> </span>
                                                     </td>
                                                     
                                                     <td  colspan="2">
-                                                    <input readonly id="expense_total_amount" name="expense_total_amount" type="number">
+                                                    <input readonly id="expense_total_amount" step="any" name="expense_total_amount" type="number" value="{{ !empty($expense_details['expense_total_amount']) ? $expense_details['expense_total_amount'] : '' }}">
                                                     </td>
                                                 </tr>
 
                                                 <tr class="invoice-total--gst">
                                                     <td>Total GST</td>
                                                     <td colspan="2">
-                                                    <input type="number" readonly  name="total_gst" id="total_gst" value="">
+                                                    <input type="number" readonly step="any" name="total_gst" id="total_gst" value="{{ !empty($expense_details['total_gst']) ? $expense_details['total_gst'] : '' }}">
                                                     </td>
                                                 </tr>
 
@@ -231,7 +236,7 @@
                                                     <td><strong>Total</strong></td>
                                                     <td colspan="2">
                                                         <strong id="grandtotal"></strong>
-                                                        <input type="number" readonly  name="total_amount" id="total_amount" value="">
+                                                        <input type="number" readonly step="any"  name="total_amount" id="total_amount" value="{{ !empty($expense_details['total_amount']) ? $expense_details['total_amount'] : '' }}">
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -241,7 +246,7 @@
                         </div>
                         
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                            <div class="sumb-expense-upload-container">
+                           <div class="sumb-expense-upload-container">
                                 <div id="sumb-file-upload-container" class="sumb-flex sumb-flex-column sumb-flex-justify-center sumb-flex-align-center sumb-expense-dropzone">
                                     <div class="sumb-text-align-center sumb-padding-small">
                                         <svg width="60px" height="75px" viewBox="0 0 60 75" version="1.1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -253,11 +258,11 @@
                                         <div class="sumb-textcolor-muted">Drag &amp; drop here, or select your file manually</div>
                                     </div>
                                     <!-- <button class="sumb-button sumb-margin-top-small sumb-button-standard sumb-button-small" tabindex="0" type="button" data-automationid="upload-button" fdprocessedid="g5oor">Upload</button> -->
-                                    <input id="file-upload" name="file-upload" style="padding-left: 30%;" accept="image/jpg, image/jpeg, image/png, application/pdf" type="file" ">
+                                    <input id="file_upload" name="file_upload" style="padding-left: 30%;" accept="image/jpg,image/jpeg,image/png,application/pdf" type="file">
                                 </div>
                                 <div id="sumb-receipt-container" class="sumb-receipt-container sumb-flex sumb-flex-align-center">
                                 <!-- pdf upload  -->
-                                    <iframe id="pdf-preview" class="" src="" style="width: 100%; height: 100%;"></iframe>
+                                    <iframe id="pdf-preview" class="" src="{{ !empty($expense_details['file_upload']) ? asset($expense_details['file_upload']) : '' }}" style="width: 100%; height: 100%;"></iframe>
                                     <div class="sumb-expense-receipt-actions sumb-margin sumb-flex sumb-button-group-corners sumb-expense-receipt-actions--pdf">
                                         <div role="presentation" data-ref="toggled-wrapper">
                                         <button class="sumb-button sumb-button-standard sumb-button-small btn sumb-del-btn deleFile" type="button" ><i class="fa-solid fa-trash"></i></button>
@@ -279,8 +284,8 @@
                         </div> 
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 col-12">
                             <button style="float: right;" type="submit" class="btn sumb--btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-                            <button style="float: right;" type="submit" class="btn sumb--btn preview--btn"><i class="fa-solid fa-eye"></i> Preview</button>
-                            <button style="float: right;" type="reset" class="btn sumb--btn reset--btn"><i class="fa fa-ban"></i> Clear Invioce</button>
+                            <button style="float: right;" type="button" onclick="previewInvoice()" class="btn sumb--btn preview--btn"><i class="fa-solid fa-eye"></i> Preview</button>
+                            <button style="float: right;" type="reset" class="btn sumb--btn reset--btn"><i class="fa fa-ban"></i> Clear Expense</button>
                         </div>
                             
                     </div>
@@ -293,8 +298,106 @@
 </div>
 
 
+<!-- Expense preview model -->
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" style="max-width: 70%;">
+    <div class="modal-content">
+      <!------- Expnse Preview Modal ------>
+        <div class="card">
+            <div class="card-body">
+                <div class="container mb-5 mt-3">
+                    <div class="row d-flex align-items-baseline">
+                        <hr>
+                    </div>
+
+                    <div class="container">
+                        <div class="col-md-12">
+                            <div class="text-center">
+                                <h3>Expense Preview</h3>
+                                <!-- <p class="pt-0">MDBootstrap.com</p> -->
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-xl-8">
+                                <ul class="list-unstyled">
+                                    <li class="text-muted">To: <span style="color:#5d9fc5 ;" id="expense_preview_to"></span></li>
+                                    <li class="text-muted">Invoice number: <span id="expense_preview_expense_number"></span></li>
+                                    <li class="text-muted">Issued: <span id="expense_preview_issue_date"></span></li>
+                                    <li class="text-muted">Due: <span id="expense_preview_due_date"></span></li>
+                                </ul>
+                            </div>
+                            <div class="col-xl-4">
+                                <ul class="list-unstyled">
+                                    <li class="text-muted">From: <span id="expense_preview_from">{{$userinfo['1']}}</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <hr class="form-cutter">
+                        <div class="table-responsive">
+                            <table  class="table table-striped" id="expense_preview_parts">
+                                <thead>
+                                <tr>
+                                    <!-- <th scope="col" style="width:120px; min-width:120px;">Item</th> -->
+                                    <th scope="col" style="width:320px; min-width:320px;">Description</th>
+                                    <th scope="col" style="width:100px; min-width:100px;">QTY</th>
+                                    <th scope="col" style="width:120px; min-width:120px;">Unit Price</th>
+                                    <th scope="col" style="width:120px; min-width:120px;">Tax</th>
+                                    <th scope="col" style="width:120px; min-width:120px;">Amount</th>
+                                </tr>
+                                </thead>
+                                <tbody id="expense_preview_parts_rows">
+                                
+                                </tbody>
+
+                            </table>
+                        </div>
+                        <hr class="form-cutter">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <!-- <p class="ms-3">Add additional notes and payment information</p> -->
+
+                            </div>
+                            <div class="col-xl-6">
+                                <table class="table table-clear">
+                                    <tbody>
+                                        <tr>
+                                            <td class="left">
+                                                <strong>Subtotal</strong>
+                                            </td>
+                                            <td class="right" id="expense_preview_sub_total"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="left">
+                                                <strong>Total Tax %</strong>
+                                            </td>
+                                            <td class="right" id="expense_preview_total_tax"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="left">
+                                                <strong>Total</strong>
+                                            </td>
+                                            <td class="right" id="expense_preview_total_amount">
+                                                <strong></strong>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <hr class="form-cutter">
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!--------------END---------------------->
+    </div>
+  </div>
+</div>
+
 <!-- Modal -->
-<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<!-- <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -340,7 +443,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
   
 
 <!-- END PAGE CONTAINER-->
@@ -349,18 +452,89 @@
 @include('includes.footer')
 
 <script>
-    $(function() {
-        $( "#expense_date" ).datepicker();
-        $( "#expense_due_date" ).datepicker();
+    $(document).ready(function () {
+        $(".bd-example-modal-lg").on("hidden.bs.modal", function () {
+    // put your default event here
+            $("#expense_preview_to").text($("#client_name").val());
+                    $("#expense_preview_expense_number").text();
+                    $("#expense_preview_issue_date").text();
+                    $("#expense_preview_due_date").text();
+
+                   // $("#expense_preview_parts_rows").last().remove();
+                   $("#expense_preview_parts_rows").empty()
+
+                    $("#expense_preview_sub_total").text();
+                    $("#expense_preview_total_tax").text();
+                    $("#expense_preview_total_amount").text();
+        });
+    });
+
+     function previewInvoice(){
+        var to = $("#client_name").val();
+        
+             $("#expense_preview_to").text($("#client_name").val());
+             $("#expense_preview_expense_number").text($("#expense_number").val());
+             $("#expense_preview_issue_date").text($("#expense_date").val());
+             $("#expense_preview_due_date").text($("#expense_due_date").val());
+
+            expense_description_array = [];
+            expense_item_quantity_array = [];
+            expense_item_unit_price_array = [];
+            expense_amount_array = [];
+            expense_tax_array = [];
+
+            $('[name="expense_description[]"]').each(function() {
+                expense_description_array.push(this.value);
+            })
+            $('[name="item_quantity[]"]').each(function() {
+                expense_item_quantity_array.push(Number(this.value));
+            })
+            $('[name="item_unit_price[]"]').each(function() {
+                expense_item_unit_price_array.push(Number(this.value));
+            })
+            $('[name="expense_amount[]"]').each(function() {
+                expense_amount_array.push(Number(this.value));
+            })
+            $('[name="expense_tax[]"]').each(function() {
+                expense_tax_array.push(Number(this.value));
+            })
+            
+             $("#partstable #expense_description").each(function (index) {
+                // console.log(expense_description_array[index]);
+                // console.log(expense_item_quantity_array[index]);
+                // console.log(expense_item_unit_price_array[index]);
+                // console.log(expense_amount_array[index]);
+                // console.log(expense_tax_array[index]);
+                $("#expense_preview_parts_rows").append(
+                     '<tr><td>'+expense_description_array[index]+'</td>\n'+
+                     '<td>'+expense_item_quantity_array[index]+'</td>\n'+
+                     '<td>'+expense_item_unit_price_array[index]+'</td>\n'+
+                     '<td>'+expense_tax_array[index]+'</td>\n'+
+                     '<td>'+expense_amount_array[index]+'</td>\n'+
+                    '</tr>');
+             });
+             $("#expense_preview_sub_total").text($("#expense_total_amount").val());
+             $("#expense_preview_total_tax").text($("#total_gst").val());
+             $("#expense_preview_total_amount").text($("#total_amount").val());
+
+            $(".bd-example-modal-lg").modal({
+                show: true
+            });
+        }
+
+   $(function() {
+       // $("#expense_date").datepicker().datepicker('setDate', 'today');
+        $("#expense_date").datepicker();
+        $("#expense_due_date").datepicker();
         $('.dcc_click').on('click', function () {
             //console.log('clicked!');
             //console.log( $(this).data('myid') );
             var clientid = $(this).data('myid');
             var clientname = $("#data_name_"+clientid).html();
-            var clientdesc = $("#data_desc_"+clientid).html();
+           // var clientdesc = $("#data_desc_"+clientid).html();
             //console.log(clientdesc);
             $('#client_name').val(clientname);
-            $('#invoice_details').val(clientdesc);
+            //$('#invoice_details').val(clientdesc);
             $('.form--recentsearch').hide();
         });
 
@@ -439,13 +613,13 @@
 
      //Add new row on Table Particulars
 
-     $('#addnewline').on('click', function(){
+    $('#addnewline').on('click', function(){
         $('#partstable tr.add--new-line').before(
             '<tr><td><textarea name=\"expense_description[]\" id=\"expense_description\" class=\"autoresizing\" required></textarea></td>\n'+
-            '<td><input type=\"number\" id=\"item_quantity\" name=\"item_quantity[]\" required \"></td>\n'+
-            '<td><input type=\"number\" id=\"item_unit_price\" name=\"item_unit_price[]\" required \"></td>\n'+
+            '<td><input type=\"number\" step="any" id=\"item_quantity\" name=\"item_quantity[]\" required \"></td>\n'+
+            '<td><input type=\"number\" step="any" id=\"item_unit_price\" name=\"item_unit_price[]\" required \"></td>\n'+
             '<td><select style=\"border: none;\" name=\"expense_tax[]\" id=\"expense_tax\" required><option value=\"0\">Tax Exempt</option><option value=\"10\">General Tax</option></select></td>\n'+
-            '<td><input readonly id=\"expense_amount\" name=\"expense_amount[]\" type=\"number\" required></td>\n'+
+            '<td><input readonly id=\"expense_amount\" name=\"expense_amount[]\" type=\"number\" step="any" required></td>\n'+
             '<td class=\"tableOptions\">\n'+
                 '<button class=\"btn sumb-del-btn delepart\" type=\"button\" ><i class=\"fa-solid fa-trash\"></i></button>\n'+
             '</td></tr>');
@@ -456,16 +630,19 @@
         this.style.height = (this.scrollHeight) + 'px';
     });
 
-       
-
     //row total Amount,form total amoount, total tax
     $(document).ready(function () {
-        $('#sumb-receipt-container').hide();
+        if($('#pdf-preview').attr('src'))
+        {
+            $('#sumb-file-upload-container').hide();
+        }else{
+            $('#sumb-receipt-container').hide();
+        }
         //file-upload
-        $('#file-upload').on('change',function() {
+        $('#file_upload').on('change',function() {
             $('#sumb-file-upload-container').hide();
             
-            const fileInput = document.getElementById('file-upload');
+            const fileInput = document.getElementById('file_upload');
             const selectedFile = fileInput.files[0];
             const url = URL.createObjectURL( selectedFile );
             
@@ -477,7 +654,7 @@
             // alert("s");
             $('#pdf-preview').attr("src", "");
             $('#sumb-receipt-container').hide();
-            $('#file-upload').val("");
+            $('#file_upload').val("");
             $('#sumb-file-upload-container').show();
         })
                        
