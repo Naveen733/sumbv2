@@ -153,22 +153,44 @@
                                                 <!-- <td>@if (!empty($idat['client_email'])) <a href="mailto:{{ $idat['client_email'] }}">{{ $idat['client_email'] }}</a> @else &nbsp; @endif</td> -->
                                                 
                                                 <td class="@if ($idat['status_paid'] == 'void') sumb--recentlogdements__status_rej @elseif ($idat['status_paid'] == 'paid') sumb--recentlogdements__status_acc @else sumb--recentlogdements__status_proc @endif">{{ ucwords($idat['status_paid']) }}</td>
+                                                @if($idat['status_paid'] != 'void')
                                                 <td style="text-align:right;">${{ number_format((float)$idat['total_amount'], 2, '.', ',') }}</td>
+                                                @else
+                                                <td style="text-align:right;">0.00</td>
+                                                @endif
                                                 <td class="sumb--recentlogdements__actions" style="text-align:right;">
                                                    
-                                                  
-                                                    
-                                                    <div class="sumb--fileSharebtn dropdown">
-                                                        <a href="{{ url('/expense/'.$idat['transaction_id'].'/edit') }}"><i class="fa-solid fa-edit"></i></a>
-                                                        <a class="fileSharebtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear"></i></a>
-                                                        
-                                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="mainlinkadd">
-                                                            @if($idat['status_paid'] != 'paid') <a class="dropdown-item" href="/status-change/?id={{ $idat['transaction_id'] }}&type=paid">Flag as Paid</a>@endif
-                                                            @if($idat['status_paid'] != 'unpaid') <a class="dropdown-item" href="/status-change/?id={{ $idat['transaction_id'] }}&type=unpaid">Flag as Unpaid</a>@endif
-                                                            @if($idat['status_paid'] != 'void') <a class="dropdown-item" href="/status-change/?id={{ $idat['transaction_id'] }}&type=void">Flag as Void</a>@endif
+                                                   
+                                                        @if($idat['status_paid'] == 'paid')
+                                                        <div class="sumb--fileSharebtn dropdown">
+                                                            <a href="{{ url('/expense/'.$idat['transaction_id'].'/view') }}"><i class="fa-solid fa-eye"></i></a>
                                                         </div>
+                                                        @elseif($idat['status_paid'] == 'void')
+                                                        <div class="sumb--fileSharebtn dropdown">
+                                                            <a href="{{ url('/expense/'.$idat['transaction_id'].'/view') }}"><i class="fa-solid fa-eye"></i></a>
+                                                            <a class="fileSharebtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear"></i></a>
+                                                            
+                                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="mainlinkadd">
+                                                                <a class="dropdown-item">Some options</a>
+                                                            </div>
+                                                        </div>
+                                                        @else
+                                                        <div class="sumb--fileSharebtn dropdown">
+                                                            <a href="{{ url('/expense/'.$idat['transaction_id'].'/edit') }}"><i class="fa-solid fa-edit"></i></a>
+                                                            <a class="fileSharebtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear"></i></a>
+                                                            
+                                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="mainlinkadd">
+                                                                <a class="dropdown-item" href="/status-change/?id={{ $idat['transaction_id'] }}&type=paid">Flag as Paid</a>
+                                                                <a class="dropdown-item" href="/expense-void/?id={{ $idat['transaction_id'] }}&type=void">Flag as Void</a>
+                                                            </div>
+                                                        </div>    
+                                                        @endif
+
+                                                      
                                                         
-                                                    </div>
+                                                    
+                                                    
+                                                    
                                                     
 
                                                 </td>

@@ -18,13 +18,16 @@
                 <hr class="form-cutter">
                 <section>
                
-               @if($type == 'edit')
-                <form action="/expense/{{ $expense_details['transaction_id'] }}/update" method="post" enctype="multipart/form-data">
-                {{ csrf_field() }}
-                {{ method_field('put') }}
+                @if($type == 'edit')
+                    <form id="expense-form-edit" action="/expense/{{ $expense_details['transaction_id'] }}/update" method="post" enctype="multipart/form-data">
+                    {{ csrf_field() }}
+                    {{ method_field('put') }}
                 @elseif($type == 'create')
-                <form action="/expense-save" method="post" enctype="multipart/form-data">
-                {{ csrf_field() }}
+                    <form id="expense-form-create" action="/expense-save" method="post" enctype="multipart/form-data">
+                    {{ csrf_field() }}
+                @elseif($type == 'view')
+                    <form id="expense-form-view" action="" method="" enctype="multipart/form-data">
+                    {{ csrf_field() }}
                 @endif
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -286,6 +289,7 @@
                             <button style="float: right;" type="submit" class="btn sumb--btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
                             <button style="float: right;" type="button" onclick="previewInvoice()" class="btn sumb--btn preview--btn"><i class="fa-solid fa-eye"></i> Preview</button>
                             <button style="float: right;" type="reset" class="btn sumb--btn reset--btn"><i class="fa fa-ban"></i> Clear Expense</button>
+                            <!-- <input type="hidden" name="status_paid" id="status_paid" value="{{ !empty($expense_details['status_paid']) ? $expense_details['status_paid'] : '' }}"> -->
                         </div>
                             
                     </div>
@@ -630,8 +634,17 @@
         this.style.height = (this.scrollHeight) + 'px';
     });
 
-    //row total Amount,form total amoount, total tax
+    
     $(document).ready(function () {
+        //is status is void
+        // if($("#status_paid").val() == 'void'){
+        //      $("#expense-form-edit :input").prop('disabled', true); 
+        // }
+
+        //view page restrict editing for status void and paid
+        $("#expense-form-view :input").prop('disabled', true); 
+
+        //file upload hide show scenario handle
         if($('#pdf-preview').attr('src'))
         {
             $('#sumb-file-upload-container').hide();
@@ -649,7 +662,7 @@
             $('#pdf-preview').attr("src", url);
             $('#sumb-receipt-container').show();
         })
-
+        //
         $('.deleFile').on('click',function(){
             // alert("s");
             $('#pdf-preview').attr("src", "");
@@ -658,7 +671,7 @@
             $('#sumb-file-upload-container').show();
         })
                        
-
+        //row total Amount,form total amoount, total tax
         var body = $('#partstable').children('tbody').first();
         body.on('change', 'input[type="number"]', function() {
             var cells = $(this).closest('tr').children('td');

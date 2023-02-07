@@ -229,7 +229,7 @@ class InvoiceController extends Controller {
             "file_upload_format" => (isset($file) ? $file->extension() : ''),
             "created_at" => $dtnow,
             "updated_at" => $dtnow,
-            "status_paid" => 'paid'
+            "status_paid" => 'unpaid'
         );
 
         $pagedata['expense_details'] = $expense_details;
@@ -349,6 +349,40 @@ class InvoiceController extends Controller {
         //  die();
         
     }
+    //***********************************************
+    //*
+    //* View Expense Page
+    //*
+    //***********************************************
+    public function view_expense(Request $request)
+    {
+        $userinfo = $request->get('userinfo');
+        $id = $request->id;
+        $pagedata = array(
+            'userinfo' => $userinfo,
+            'pagetitle' => 'Edit Expense'
+        );
+        $expense_particulars = [];
+       
+        $pagedata['expense_details'] = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first();
+        $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
+        $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
+       
+        if(!empty($expense_particulars)){
+            $pagedata['expense_particulars'] = $expense_particulars->toArray();
+        }
+
+        $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
+        if (!empty($get_expclients)) {
+            $pagedata['exp_clients'] = $get_expclients->toArray();
+        }
+        $pagedata['type'] = 'view';
+          return view('invoice.expensescreate', $pagedata);
+
+        //  echo "<pre>"; var_dump($pagedata['expense_details']); echo "</pre>";
+        //  die();
+        
+    }
 
     //***********************************************
     //*
@@ -437,7 +471,7 @@ class InvoiceController extends Controller {
             "file_upload" => (isset($url) ? $url : ''),
             "file_upload_format" => (isset($file) ? $file->extension() : ''),
             "updated_at" => $dtnow,
-            "status_paid" => 'paid'
+           // "status_paid" => 'paid'
         );
         if ($validator->fails()) {
             return response()->json([
@@ -993,25 +1027,31 @@ class InvoiceController extends Controller {
     //* Invoice VOID PROCESS
     //*
     //***********************************************
-    public function invoice_void(Request $request) {
+    public function expense_void(Request $request) {
         $userinfo =$request->get('userinfo');
+        $id = $request->id;
+        $type = $request->type;
         $pagedata = array(
             'userinfo'=>$userinfo,
             'pagetitle' => 'Void Invoice'
         );
         //echo "<pre>"; print_r($request->all()); //echo "</pre>";
-        $pagedata['oriform'] = $request->all();
-        echo "<pre>"; print_r($pagedata);
-        if (empty($pagedata['oriform']['invno'])) {
-            return redirect()->route('invoice', ['err'=>3]); die();
-        }
-        $chk_inv = SumbTransactions::where('user_id', $userinfo[0])->where('transaction_type','invoice')->where('transaction_id', $pagedata['oriform']['invno'])->first();
+        // $pagedata['oriform'] = $request->all();
+        // echo "<pre>"; print_r($pagedata);
+        // if (empty($pagedata['oriform']['invno'])) {
+        //     return redirect()->route('invoice', ['err'=>3]); die();
+        // }
+
+        $chk_inv = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first();
         if ($chk_inv->exists) {
             $chk_inv = $chk_inv->toArray();
         }
-        SumbTransactions::where('id',$chk_inv['id'])->update(['status_paid'=>'void']);
-        echo "<pre>"; print_r($chk_inv); //echo "</pre>";
-        return redirect()->route('invoice', ['err'=>4]); die();
+        //print_r($chk_inv);
+        //die();
+        SumbExpenseDetails::where('id',$chk_inv['id'])->update(['status_paid'=>$type]);
+        //echo "<pre>"; print_r($chk_inv); //echo "</pre>";
+        //die();
+        return redirect()->route('invoice'); die();
     }
     //***********************************************
     //*
