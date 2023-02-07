@@ -163,12 +163,12 @@ class InvoiceController extends Controller {
             'expense_due_date' => 'bail|required|date',
             'client_name' => 'bail|required|max:100',
             'expense_description.*' => 'bail|required',
-            'item_quantity.*' => 'bail|required|numeric|gt:0',
-            'item_unit_price.*' => 'bail|required|numeric|gt:0',
+            'item_quantity.*' => 'bail|required|numeric',
+            'item_unit_price.*' => 'bail|required|numeric',
             'expense_tax.*' => 'bail|required|gt:-1',
-            'expense_amount.*' => 'bail|required|gt:0',
+            'expense_amount.*' => 'bail|required',
             'tax_type.*' => 'bail|required',
-            'expense_total_amount.*' => 'bail|required|numeric|gt:0',
+            'expense_total_amount.*' => 'bail|required|numeric',
             'total_gst.*' => 'bail|required|numeric',
             'total_amount.*' => 'bail|required|numeric',
             'file_upload' =>  'mimes:jpg,jpeg,png,pdf'
@@ -183,10 +183,10 @@ class InvoiceController extends Controller {
            'client_name.max' => 'Recepient Name must to exceed 100 characters',
            'expense_description.*.required' => 'Item Description is Required',
            'item_quantity.*.required' => 'Item Quantity is Required',
-           'item_quantity.*.gt' => 'Item Quantity must be greater than 0',
+           //'item_quantity.*.gt' => 'Item Quantity must be greater than 0',
            'item_quantity.*.numeric' => 'Item Quantity must be a numeric value',
            'item_unit_price.*.required' => 'Item Unit Price is Required',
-           'item_unit_price.*.gt' => 'Item Unit Price must be greater than 0',
+           //'item_unit_price.*.gt' => 'Item Unit Price must be greater than 0',
            'item_unit_price.*.numeric' => 'Item Unit Price must be a numeric value',
            'expense_tax.*.required' => 'Tax rate is Required',
            'expense_tax.*.gt' => 'Tax rate must be selected',
@@ -229,7 +229,7 @@ class InvoiceController extends Controller {
             "file_upload_format" => (isset($file) ? $file->extension() : ''),
             "created_at" => $dtnow,
             "updated_at" => $dtnow,
-            "status_paid" => 'unpaid'
+            "status_paid" => (($request->total_amount != 0) ? 'unpaid' : 'paid')
         );
 
         $pagedata['expense_details'] = $expense_details;
