@@ -25,7 +25,6 @@ class CreateDocumentsTable extends Migration
             // $table->date('updated_at');
         });
     }
-
     /**
      * Reverse the migrations.
      *

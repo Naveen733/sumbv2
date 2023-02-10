@@ -93,7 +93,6 @@
                                 </tbody>
                             </table>
 
-
                         </div>
                         <div class="d-flex">                            
                             {{ $doclist->links() }}
