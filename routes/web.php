@@ -65,6 +65,7 @@ Route::middleware('sumbauth')->group(function() {
         Route::get('/downloadfile', [App\Http\Controllers\DocumentUploadController::class, 'downloadFile'])->name('DocumentUploadController.downloadfile');
         Route::get('/docview', [App\Http\Controllers\DocumentUploadController::class, 'docview'])->name('docview');
         
+        
         //testing
     Route::get('/testing', [App\Http\Controllers\InvoiceController::class, 'testing'])->name('testing');
     Route::get('/testpdf', [App\Http\Controllers\InvoiceController::class, 'testpdf'])->name('testpdf');

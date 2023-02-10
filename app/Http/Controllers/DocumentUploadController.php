@@ -135,8 +135,7 @@ class DocumentUploadController extends Controller
             $mime = File::mimeType($filepath);     
             $file = File::get($filepath);
             $response = Response::make($file, 200);            
-            $response->header('Content-Type', $mime);
-            
+            $response->header('Content-Type', $mime);            
             return $response;
         }
     }
