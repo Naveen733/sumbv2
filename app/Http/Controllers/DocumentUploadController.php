@@ -28,7 +28,10 @@ class DocumentUploadController extends Controller
             'pagetitle' => 'Docs'
         );
 
-        $itemsperpage = 10;        
+        //pagination
+        $itemsperpage = 10;
+        if (!empty($request->input('ipp'))) { $itemsperpage = $request->input('ipp'); }
+        $pagedata['ipp'] = $itemsperpage;        
         $doclist = Document::orderBy('created_at','desc')->paginate($itemsperpage)->toArray();
         $pagedata['doclist'] = $doclist;
 
