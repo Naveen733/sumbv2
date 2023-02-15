@@ -37,6 +37,7 @@ Route::middleware('sumbauth')->group(function() {
         Route::put('/expense/{id}/update', [App\Http\Controllers\InvoiceController::class, 'update_expense'])->name('update-expense');
         Route::get('/expense/{id}/edit', [App\Http\Controllers\InvoiceController::class, 'edit_expense'])->name('edit-expense');
         Route::get('/expense/{id}/view', [App\Http\Controllers\InvoiceController::class, 'view_expense'])->name('view-expense');
+        Route::get('/expense/{id}/delete', [App\Http\Controllers\InvoiceController::class, 'delete_expense'])->name('delete-expense');
         Route::post('/expense-save', [App\Http\Controllers\InvoiceController::class, 'save_expense'])->name('expense-create-save');
 
 

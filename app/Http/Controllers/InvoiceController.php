@@ -46,11 +46,12 @@ class InvoiceController extends Controller {
             'pagetitle' => 'Invoice & Expenses'
         );
         $errors = array(
-            1 => ['A new expenses has been saved.', 'primary'],
-            2 => ['A new invoice has been saved.', 'primary'],
+            1 => ['A new expense has been saved.', 'primary'],
+            2 => ['The expense is now deleted.', 'primary'],
             3 => ['Invoice does not exists to void or requirements are not complete to do this process, please try again.', 'danger'],
-            4 => ['the invoice is now voided.', 'primary'],
-            5 => ['the expenses is now voided.', 'primary'],
+            4 => ['The expense is now paid.', 'primary'],
+            5 => ['The expense is now voided.', 'primary'],
+            6 => ['The expense is now unpaid.', 'primary'],
         );
         $pagedata['errors'] = $errors;
         if (!empty($request->input('err'))) { $pagedata['err'] = $request->input('err'); }
@@ -68,40 +69,134 @@ class InvoiceController extends Controller {
         $pagedata['myurl'] = route('invoice');
         $pagedata['ourl'] = route('invoice', $purl);
         $pagedata['npurl'] = http_build_query(['ipp'=>$itemsperpage]);
+
+        $pagedata['search_number_email_amount'] = '';
+        $pagedata['start_date'] = '';
+        $pagedata['end_date'] = '';
+        $pagedata['orderBy'] = '';
+        $pagedata['direction'] = '';
         
         //==== get all tranasactions
-        // $ptype = 'all';
-        // if (!empty($request->input('type'))) {
-        //     $invoicedata = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_type', $request->input('type'))->paginate($itemsperpage)->toArray();
-        //     $ptype = $request->input('type');
-        // } else {
-            $invoicedata = SumbExpenseDetails::where('user_id', $userinfo[0])->paginate($itemsperpage)->toArray();
-        // }
-        $pagedata['invoicedata'] = $invoicedata;
+        $ptype = 'all';
+        if (!empty($request->input('type'))) {
+            $expensedata = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_type', $request->input('type'))->paginate($itemsperpage)->toArray();
+            $ptype = $request->input('type');
+        } else {
+            if($request->search_number_name_amount || $request->start_date || $request->end_date || $request->orderBy){
+                
+                if($request->start_date){
+                    $start_date = Carbon::createFromFormat('m/d/Y', $request->start_date)->format('Y-m-d');
+                }
+                if($request->end_date){
+                    $end_date = Carbon::createFromFormat('m/d/Y', $request->end_date)->format('Y-m-d');
+                }
+                // var_dump($request->start_date);die();
+                $total_amount = $request->search_number_name_amount;
+                $expense_number = $request->search_number_name_amount;
+
+                if($request->search_number_name_amount){
+                    if(is_numeric(trim($request->search_number_name_amount))){
+                        $total_amount = trim($request->search_number_name_amount);
+                        $expense_number = $total_amount;
+                    } 
+                    else if(is_string(trim($request->search_number_name_amount))){
+                        $expense_number = trim(strtolower($request->search_number_name_amount));                        
+                    }
+                }
+                $userinfo = $request->get('userinfo');
+                $expensedata = SumbExpenseDetails::
+                                where('user_id', $userinfo[0]);
+                                if($request->search_number_name_amount && $request->start_date && $request->end_date){
+                                    $expensedata->where('expense_date','>=',$start_date);
+                                    $expensedata->where('expense_date','<=',$end_date);
+                                    $expensedata->where('expense_number', 'LIKE', "%{$expense_number}%");
+                                    $expensedata->orWhere('client_name', 'LIKE', "%{$request->search_number_name_amount}%");
+                                    $expensedata->orWhere('expense_total_amount', 'LIKE', "{$total_amount}");
+                                }
+                                if($request->search_number_name_amount && !$request->start_date && !$request->end_date){
+                                    $expensedata->where('expense_number', 'LIKE', "%{$expense_number}%");
+                                    $expensedata->orWhere('client_name', 'LIKE', "%{$request->search_number_name_amount}%");
+                                    $expensedata->orWhere('expense_total_amount', 'LIKE', "{$total_amount}");
+                                }
+                                if($request->start_date && $request->end_date && !($request->search_number_name_amount)){
+                                    $expensedata->whereBetween('expense_date',array($start_date, $end_date));
+                                }
+                                if($request->start_date && !$request->search_number_name_amount && !$request->end_date){
+                                    $expensedata->where('expense_date','>=',$start_date);
+                                }
+                                if($request->end_date && !$request->search_number_name_amount && !$request->start_date){
+                                    $expensedata->where('expense_date','<=',$end_date);
+                                }
+                                if(!$request->start_date && $request->search_number_name_amount && $request->end_date){
+                                    $expensedata->where('expense_date','<=',$end_date);
+                                    $expensedata->where('expense_number', 'LIKE', "%{$expense_number}%");
+                                    $expensedata->orWhere('client_name', 'LIKE', "%{$request->search_number_name_amount}%");
+                                    $expensedata->orWhere('expense_total_amount', 'LIKE', "{$total_amount}");
+                                }
+                                if(!$request->end_date && $request->search_number_name_amount && $request->start_date){
+                                    $expensedata->where('expense_date','>=',$start_date);
+                                    $expensedata->where('expense_number', 'LIKE', "%{$expense_number}%");
+                                    $expensedata->orWhere('client_name', 'LIKE', "%{$request->search_number_name_amount}%");
+                                    $expensedata->orWhere('expense_total_amount', 'LIKE', "{$total_amount}");
+                                }
+                                if($request->orderBy){
+                                    $expensedata->orderBy($request->orderBy, $request->direction);
+                                }
+                                $expensedata = $expensedata->paginate($itemsperpage)->toArray();
+
+                $pagedata['search_number_name_amount'] = $request->search_number_name_amount;
+                $pagedata['start_date'] = $request->start_date;
+                $pagedata['end_date'] = $request->end_date;
+                $pagedata['orderBy'] = $request->orderBy;
+                if($request->direction == 'ASC')
+                {
+                    $pagedata['direction'] = 'DESC';
+                }
+                if($request->direction == 'DESC')
+                {
+                    $pagedata['direction'] = 'ASC';
+                }
+                
+            }else{
+                $pagedata['orderBy'] = 'expense_date';
+                $pagedata['direction'] = 'ASC';
+
+                $expensedata = SumbExpenseDetails::
+                // with(['particulars'])
+                // ->whereHas('particulars', function($query) use($userinfo) {
+                //     $query->where('user_id', $userinfo[0]);
+                // })
+                // ->
+                where('user_id', $userinfo[0])
+                ->orderBy('expense_date', 'DESC')
+                ->paginate($itemsperpage)->toArray();
+            }
+        }
+        $pagedata['expensedata'] = $expensedata;
         
         //echo '<pre>';
-        //print_r($invoicedata);
+        //print_r($expensedata);
         //paginghandler
         $allrequest = $request->all();
         $pfirst = $allrequest; $pfirst['page'] = 1;
-        $pprev = $allrequest; $pprev['page'] = $invoicedata['current_page']-1;
-        $pnext = $allrequest; $pnext['page'] = $invoicedata['current_page']+1;
-        $plast = $allrequest; $plast['page'] = $invoicedata['last_page'];
+        $pprev = $allrequest; $pprev['page'] = $expensedata['current_page']-1;
+        $pnext = $allrequest; $pnext['page'] = $expensedata['current_page']+1;
+        $plast = $allrequest; $plast['page'] = $expensedata['last_page'];
         $pagedata['paging'] = [
             'current' => url()->current().'?'.http_build_query($allrequest),
             'starpage' => url()->current().'?'.http_build_query($pfirst),
-            'first' => ($invoicedata['current_page'] == 1) ? '' : url()->current().'?'.http_build_query($pfirst),
-            'prev' => ($invoicedata['current_page'] == 1) ? '' : url()->current().'?'.http_build_query($pprev),
-            'now' => 'Page '.$invoicedata['current_page']." of ".$invoicedata['last_page'],
-            'next' => ($invoicedata['current_page'] >= $invoicedata['last_page']) ? '' : url()->current().'?'.http_build_query($pnext),
-            'last' => ($invoicedata['current_page'] >= $invoicedata['last_page']) ? '' : url()->current().'?'.http_build_query($plast),
+            'first' => ($expensedata['current_page'] == 1) ? '' : url()->current().'?'.http_build_query($pfirst),
+            'prev' => ($expensedata['current_page'] == 1) ? '' : url()->current().'?'.http_build_query($pprev),
+            'now' => 'Page '.$expensedata['current_page']." of ".$expensedata['last_page'],
+            'next' => ($expensedata['current_page'] >= $expensedata['last_page']) ? '' : url()->current().'?'.http_build_query($pnext),
+            'last' => ($expensedata['current_page'] >= $expensedata['last_page']) ? '' : url()->current().'?'.http_build_query($plast),
         ];
         //print_r($pagedata['paging']);
         //die();
-        //echo "<pre>"; print_r($invoicedata); die();
+        //echo "<pre>"; print_r($expensedata); die();
         
         
-        //echo "<pre>"; print_r(empty($invoicedata)); echo "</pre>"; die();
+        //echo "<pre>"; print_r(empty($expensedata)); echo "</pre>"; die();
         
         //echo "<pre>loggedin!";
         //$value = $request->session()->get('keysumb');
@@ -382,6 +477,36 @@ class InvoiceController extends Controller {
         //  echo "<pre>"; var_dump($pagedata['expense_details']); echo "</pre>";
         //  die();
         
+    }
+//***********************************************
+    //*
+    //* Delete Expense 
+    //*
+    //***********************************************
+    public function delete_expense(Request $request)
+    {
+        $userinfo = $request->get('userinfo');
+        $id = $request->id;
+        $pagedata = array(
+            'userinfo' => $userinfo,
+            'pagetitle' => 'Delete Expense'
+        );
+        $expense_particulars = [];
+        $deleteExpenseParticulars = [];
+
+        $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
+        if(!empty($expense_particulars)){
+            $deleteExpenseParticulars = $expense_particulars->toArray();
+        }
+        
+        SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first()->delete();
+        
+        for($i = 0; $i < count($deleteExpenseParticulars); $i++){
+            SumbExpenseParticulars::where('user_id', $userinfo[0])->where('id', $deleteExpenseParticulars[$i]['id'])->delete();
+        }
+        //die();
+        return redirect()->route('invoice'); die();
+    
     }
 
     //***********************************************
@@ -1051,7 +1176,8 @@ class InvoiceController extends Controller {
         SumbExpenseDetails::where('id',$chk_inv['id'])->update(['status_paid'=>$type]);
         //echo "<pre>"; print_r($chk_inv); //echo "</pre>";
         //die();
-        return redirect()->route('invoice'); die();
+        return redirect()->route('invoice', ['err'=>5]); die();
+        //return redirect()->route('invoice'); die();
     }
     //***********************************************
     //*
@@ -1089,7 +1215,12 @@ class InvoiceController extends Controller {
         SumbExpenseDetails::where('id',$chk_inv['id'])->update(['status_paid'=>$type]);
         //echo "<pre>"; print_r($chk_inv); //echo "</pre>";
         //die();
-        return redirect()->route('invoice'); die();
+        if($type == 'paid'){
+            return redirect()->route('invoice', ['err'=>4]); die();
+        }else{
+            return redirect()->route('invoice', ['err'=>6]); die();
+        }
+        
     }
     
     public function testpdf(Request $request) {

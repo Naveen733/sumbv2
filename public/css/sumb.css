@@ -2829,6 +2829,13 @@ input {
     text-align: center;
 }
 
+table tr {
+    cursor: pointer;
+}
+.expense_list a {
+    color: #000000 !important;
+}
+
 /* iframe {
     overflow-clip-margin: content-box !important;
     border-width: 2px;

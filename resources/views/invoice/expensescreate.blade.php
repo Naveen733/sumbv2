@@ -12,9 +12,16 @@
             <div class="container-fluid">
 
 
-                <section>
-                    <h3 class="sumb--title">New Expense</h3>
-                </section>
+            <section> 
+                @if($type == 'create')
+                <h3 class="sumb--title">New Expense</h3>
+                @elseif($type == 'edit')
+                <h3 class="sumb--title">Edit Expense({{ $expense_details['expense_number'] }})</h3>
+                @elseif($type == 'view')
+                <h3 class="sumb--title">Expense({{ $expense_details['expense_number'] }})</h3>
+                <p style="color: red;"><small>This expense entry is on Read Only mode. Entries flagged as VOID or PAID cannot be edited.</small></p>
+                @endif
+            </section>
                 <hr class="form-cutter">
                 <section>
                
