@@ -4,15 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-// use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\SignupMail;
 use App\Models\Document;
 use File;
-
+use URL;
 
 use App\Models\SumbUsers;
 use App\Models\SumbClients;
@@ -30,9 +27,26 @@ class DocumentUploadController extends Controller
             'userinfo'=>$userinfo,
             'pagetitle' => 'Docs'
         );
-        $doclist = Document::orderBy('created_at','asc')->paginate(5);
-        //$doclist = Document::all()->paginate(10);
-        return view('docupload.doc-upload', $pagedata)->with(compact('doclist')); 
+
+        $itemsperpage = 10;        
+        $doclist = Document::orderBy('created_at','desc')->paginate($itemsperpage)->toArray();
+        $pagedata['doclist'] = $doclist;
+
+        $allrequest = $request->all();
+        $pfirst = $allrequest; $pfirst['page'] = 1;
+        $pprev = $allrequest; $pprev['page'] = $doclist['current_page']-1;
+        $pnext = $allrequest; $pnext['page'] = $doclist['current_page']+1;
+        $plast = $allrequest; $plast['page'] = $doclist['last_page'];
+        $pagedata['paging'] = [
+            'current' => url()->current().'?'.http_build_query($allrequest),
+            'starpage' => url()->current().'?'.http_build_query($pfirst),
+            'first' => ($doclist['current_page'] == 1) ? '' : url()->current().'?'.http_build_query($pfirst),
+            'prev' => ($doclist['current_page'] == 1) ? '' : url()->current().'?'.http_build_query($pprev),
+            'now' => 'Page '.$doclist['current_page']." of ".$doclist['last_page'],
+            'next' => ($doclist['current_page'] >= $doclist['last_page']) ? '' : url()->current().'?'.http_build_query($pnext),
+            'last' => ($doclist['current_page'] >= $doclist['last_page']) ? '' : url()->current().'?'.http_build_query($plast),
+        ];         
+        return view('docupload.doc-upload', $pagedata)->with(compact('doclist'));
     }
  
     public function store(Request $request)
