@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use DB;
 use URL;
+use Illuminate\Support\Facades\Redirect;
 
 use App\Models\SumbUsers;
 use App\Models\SumbInvoiceSettings;
@@ -25,6 +26,8 @@ use App\Models\SumbInvoiceDetails;
 use App\Models\SumbExpenseDetails;
 use App\Models\SumbExpenseParticulars;
 use App\Models\SumbExpenseSettings;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
+use Symfony\Component\VarDumper\VarDumper;
 
 use function PHPUnit\Framework\isNull;
 
@@ -47,11 +50,11 @@ class InvoiceController extends Controller {
         );
         $errors = array(
             1 => ['A new expense has been saved.', 'primary'],
-            2 => ['The expense is now deleted.', 'primary'],
-            3 => ['Invoice does not exists to void or requirements are not complete to do this process, please try again.', 'danger'],
-            4 => ['The expense is now paid.', 'primary'],
-            5 => ['The expense is now voided.', 'primary'],
-            6 => ['The expense is now unpaid.', 'primary'],
+            2 => ['The expense was deleted.', 'danger'],
+            3 => ['The expense is now paid.', 'primary'],
+            4=> ['The expense is now voided.', 'primary'],
+            5 => ['The expense is now unpaid.', 'primary'],
+            6 => ['The expense was updated.', 'primary'],
         );
         $pagedata['errors'] = $errors;
         if (!empty($request->input('err'))) { $pagedata['err'] = $request->input('err'); }
@@ -221,13 +224,13 @@ class InvoiceController extends Controller {
         // }
        
 
-        $errors = array(
-            1 => ['Values are required to process invoice or expenses, please fill in non-optional fields.', 'danger'],
-            2 => ['Your amount is incorrect, it should be numeric only and no negative value. Please try again', 'danger'],
-            3 => ['A new expenses has been saved.', 'primary'],
-        );
-        $pagedata['errors'] = $errors;
-        if (!empty($request->input('err'))) { $pagedata['err'] = $request->input('err'); }
+        // $errors = array(
+        //     1 => ['Values are required to process invoice or expenses, please fill in non-optional fields.', 'danger'],
+        //     2 => ['Your amount is incorrect, it should be numeric only and no negative value. Please try again', 'danger'],
+        //     3 => ['A new expenses has been saved.', 'primary'],
+        // );
+        // $pagedata['errors'] = $errors;
+        // if (!empty($request->input('err'))) { $pagedata['err'] = $request->input('err'); }
         $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
        
         $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
@@ -252,7 +255,7 @@ class InvoiceController extends Controller {
         );
 
         //validation
-        $validator = Validator::make($request->all(),[
+        $validator = $request->validate([
             'expense_number' => 'bail|required',
             'expense_date' => 'bail|required|date',
             'expense_due_date' => 'bail|required|date',
@@ -262,31 +265,33 @@ class InvoiceController extends Controller {
             'item_unit_price.*' => 'bail|required|numeric',
             'expense_tax.*' => 'bail|required|gt:-1',
             'expense_amount.*' => 'bail|required',
-            'tax_type.*' => 'bail|required',
+            'tax_type' => 'bail|required',
             'expense_total_amount.*' => 'bail|required|numeric',
             'total_gst.*' => 'bail|required|numeric',
             'total_amount.*' => 'bail|required|numeric',
             'file_upload' =>  'mimes:jpg,jpeg,png,pdf'
-        ],
-        [
-           'expense_number' => 'Expense Number is Required',
-           'expense_date.required' => 'Date is Required',
-           'expense_date.date' => 'Enter proper date format',
-           'expense_due_date.required' => 'Due Date is Required',
-           'expense_due_date.date' => 'Enter proper Due date format',
-           'client_name.required' => 'Recepient Name is Required',
-           'client_name.max' => 'Recepient Name must to exceed 100 characters',
-           'expense_description.*.required' => 'Item Description is Required',
-           'item_quantity.*.required' => 'Item Quantity is Required',
-           //'item_quantity.*.gt' => 'Item Quantity must be greater than 0',
-           'item_quantity.*.numeric' => 'Item Quantity must be a numeric value',
-           'item_unit_price.*.required' => 'Item Unit Price is Required',
-           //'item_unit_price.*.gt' => 'Item Unit Price must be greater than 0',
-           'item_unit_price.*.numeric' => 'Item Unit Price must be a numeric value',
-           'expense_tax.*.required' => 'Tax rate is Required',
-           'expense_tax.*.gt' => 'Tax rate must be selected',
-           'file_upload' =>  'Please insert image/pdf only'
-        ]);
+        ]
+        // ,
+        // [
+        //    'expense_number' => 'Expense Number is Required',
+        //    'expense_date.required' => 'Date is Required',
+        //    'expense_date.date' => 'Enter proper date format',
+        //    'expense_due_date.required' => 'Due Date is Required',
+        //    'expense_due_date.date' => 'Enter proper Due date format',
+        //    'client_name.required' => 'Recepient Name is Required',
+        //    'client_name.max' => 'Recepient Name must to exceed 100 characters',
+        //    'expense_description.*.required' => 'Item Description is Required',
+        //    'item_quantity.*.required' => 'Item Quantity is Required',
+        //    //'item_quantity.*.gt' => 'Item Quantity must be greater than 0',
+        //    'item_quantity.*.numeric' => 'Item Quantity must be a numeric value',
+        //    'item_unit_price.*.required' => 'Item Unit Price is Required',
+        //    //'item_unit_price.*.gt' => 'Item Unit Price must be greater than 0',
+        //    'item_unit_price.*.numeric' => 'Item Unit Price must be a numeric value',
+        //    'expense_tax.*.required' => 'Tax rate is Required',
+        //    'expense_tax.*.gt' => 'Tax rate must be selected',
+        //    'file_upload' =>  'Please insert image/pdf only'
+        // ]
+    );
 
         $expense_details = [];
         $dtnow = Carbon::now();
@@ -328,16 +333,18 @@ class InvoiceController extends Controller {
         );
 
         $pagedata['expense_details'] = $expense_details;
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'validation error',
-                'errors' => $validator->errors()
-            ], 401);
-            // echo "sds";
-            // die();
-           // return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
-        }
+        // if ($validator->fails()) {
+        //     // return response()->json([
+        //     //     'status' => false,
+        //     //     'message' => 'validation error',
+        //     //     'errors' => $validator->errors()
+        //     // ], 401);
+        //     // echo "sds";
+        //     // die();
+        //    // return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
+        //    //return Redirect::back()->withErrors($validator);
+        //    return view('invoice.expensescreate')->withErrors($validator)->with($pagedata);
+        // }
 
         //echo "<pre>"; var_dump( $expense_details); echo "</pre>";
        // die();
@@ -491,21 +498,26 @@ class InvoiceController extends Controller {
             'userinfo' => $userinfo,
             'pagetitle' => 'Delete Expense'
         );
-        $expense_particulars = [];
-        $deleteExpenseParticulars = [];
+        // $expense_particulars = [];
+        // $deleteExpenseParticulars = [];
 
-        $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
-        if(!empty($expense_particulars)){
-            $deleteExpenseParticulars = $expense_particulars->toArray();
-        }
+        // $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
+        // if(!empty($expense_particulars)){
+        //     $deleteExpenseParticulars = $expense_particulars->toArray();
+        // }
         
-        SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first()->delete();
+        // SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first()->delete();
         
-        for($i = 0; $i < count($deleteExpenseParticulars); $i++){
-            SumbExpenseParticulars::where('user_id', $userinfo[0])->where('id', $deleteExpenseParticulars[$i]['id'])->delete();
-        }
+        // for($i = 0; $i < count($deleteExpenseParticulars); $i++){
+        //     SumbExpenseParticulars::where('user_id', $userinfo[0])->where('id', $deleteExpenseParticulars[$i]['id'])->delete();
+        // }
+        $expense_details = array("inactive_status" => 1);
+
+        $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first();
+        $updateExpenseDetails->update($expense_details);
+        
         //die();
-        return redirect()->route('invoice'); die();
+        return redirect()->route('invoice', ['err'=>2]); die();
     
     }
 
@@ -526,7 +538,7 @@ class InvoiceController extends Controller {
         $expense_details = [];
         $updateExpenseParticulars = [];
 
-        $validator = Validator::make($request->all(),[
+        $validator = $request->validate([
             'expense_number' => 'bail|required',
             'expense_date' => 'bail|required|date',
             'expense_due_date' => 'bail|required|date',
@@ -536,31 +548,34 @@ class InvoiceController extends Controller {
             'item_unit_price.*' => 'bail|required|numeric|gt:0',
             'expense_tax.*' => 'bail|required|gt:-1',
             'expense_amount.*' => 'bail|required|gt:0',
-            'tax_type.*' => 'bail|required',
+            'tax_type' => 'bail|required',
             'expense_total_amount.*' => 'bail|required|numeric|gt:0',
             'total_gst.*' => 'bail|required|numeric',
             'total_amount.*' => 'bail|required|numeric',
             'file_upload' =>  'mimes:jpg,jpeg,png,pdf'
-        ],
-        [
-           'expense_number' => 'Expense Number is Required',
-           'expense_date.required' => 'Date is Required',
-           'expense_date.date' => 'Enter proper date format',
-           'expense_due_date.required' => 'Due Date is Required',
-           'expense_due_date.date' => 'Enter proper Due date format',
-           'client_name.required' => 'Recepient Name is Required',
-           'client_name.max' => 'Recepient Name must to exceed 100 characters',
-           'expense_description.*.required' => 'Item Description is Required',
-           'item_quantity.*.required' => 'Item Quantity is Required',
-           'item_quantity.*.gt' => 'Item Quantity must be greater than 0',
-           'item_quantity.*.numeric' => 'Item Quantity must be a numeric value',
-           'item_unit_price.*.required' => 'Item Unit Price is Required',
-           'item_unit_price.*.gt' => 'Item Unit Price must be greater than 0',
-           'item_unit_price.*.numeric' => 'Item Unit Price must be a numeric value',
-           'expense_tax.*.required' => 'Tax rate is Required',
-           'expense_tax.*.gt' => 'Tax rate must be selected',
-           'file_upload' =>  'Please insert image/pdf only'
-        ]);
+        ]
+        // ,
+        // [
+        //    'expense_number' => 'Expense Number is Required',
+        //    'expense_date.required' => 'Date is Required',
+        //    'expense_date.date' => 'Enter proper date format',
+        //    'expense_due_date.required' => 'Due Date is Required',
+        //    'expense_due_date.date' => 'Enter proper Due date format',
+        //    'client_name.required' => 'Recepient Name is Required',
+        //    'client_name.max' => 'Recepient Name must to exceed 100 characters',
+        //    'expense_description.*.required' => 'Item Description is Required',
+        //    'item_quantity.*.required' => 'Item Quantity is Required',
+        //    'item_quantity.*.gt' => 'Item Quantity must be greater than 0',
+        //    'item_quantity.*.numeric' => 'Item Quantity must be a numeric value',
+        //    'item_unit_price.*.required' => 'Item Unit Price is Required',
+        //    'item_unit_price.*.gt' => 'Item Unit Price must be greater than 0',
+        //    'item_unit_price.*.numeric' => 'Item Unit Price must be a numeric value',
+        //    'expense_tax.*.required' => 'Tax rate is Required',
+        //    'expense_tax.*.gt' => 'Tax rate must be selected',
+        //    'file_upload' =>  'Please insert image/pdf only'
+        // ]
+        );
+
         $dtnow = Carbon::now();
         
         $expense_date_exploded = explode("/", ($request->expense_date));
@@ -598,16 +613,16 @@ class InvoiceController extends Controller {
             "updated_at" => $dtnow,
            // "status_paid" => 'paid'
         );
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'validation error',
-                'errors' => $validator->errors()
-            ], 401);
-            // echo "sds";
-            // die();
-           // return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'validation error',
+        //         'errors' => $validator->errors()
+        //     ], 401);
+        //     // echo "sds";
+        //     // die();
+        //    // return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
+        // }
 
         $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first();
         $updateExpenseDetails->update($expense_details);
@@ -697,7 +712,7 @@ class InvoiceController extends Controller {
             };
         }
         
-         return redirect()->route('invoice', ['err'=>1]); die();
+         return redirect()->route('invoice', ['err'=>6]); die();
 
         //  echo "<pre>"; var_dump($updateExpenseParticulars); echo "</pre>";
         //  die();
@@ -1176,7 +1191,7 @@ class InvoiceController extends Controller {
         SumbExpenseDetails::where('id',$chk_inv['id'])->update(['status_paid'=>$type]);
         //echo "<pre>"; print_r($chk_inv); //echo "</pre>";
         //die();
-        return redirect()->route('invoice', ['err'=>5]); die();
+        return redirect()->route('invoice', ['err'=>4]); die();
         //return redirect()->route('invoice'); die();
     }
     //***********************************************
@@ -1216,9 +1231,9 @@ class InvoiceController extends Controller {
         //echo "<pre>"; print_r($chk_inv); //echo "</pre>";
         //die();
         if($type == 'paid'){
-            return redirect()->route('invoice', ['err'=>4]); die();
+            return redirect()->route('invoice', ['err'=>3]); die();
         }else{
-            return redirect()->route('invoice', ['err'=>6]); die();
+            return redirect()->route('invoice', ['err'=>5]); die();
         }
         
     }

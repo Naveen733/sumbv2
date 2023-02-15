@@ -39,11 +39,7 @@
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                            
-                            @isset($err) 
-                                <div class="sumb-alert alert alert-{{ $errors[$err][1] }}" role="alert">
-                                    {{ $errors[$err][0] }}
-                                </div>
-                            @endisset
+                          
 
                                 
                                 <div class="row">
@@ -52,7 +48,10 @@
                                             <label class="form-input--question">Expense Number <span>Read-Only</span></label>
                                             <div class="form--inputbox readOnly row">
                                                 <div class="col-12">
-                                                    <input type="text" id="expense_number" name="expense_number" readonly="" value="{{ !empty($expense_details['expense_number']) ? $expense_details['expense_number'] : 'EXP-'. str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
+                                                    <input type="text" id="expense_number" name="expense_number" required readonly="" value="{{ !empty($expense_details['expense_number']) ? $expense_details['expense_number'] : 'EXP-'. str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
+                                                    @error('expense_number')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
@@ -64,7 +63,10 @@
                                             <label class="form-input--question" for="expense_date">Date <span>MM/DD/YYYY</span></label>
                                             <div class="date--picker row">
                                                 <div class="col-12">
-                                                    <input type="text" id="expense_date" name="expense_date" class="form-control" value="{{ !empty($expense_details['expense_date']) ? date('m/d/Y', strtotime($expense_details['expense_date'])) :  date("m/d/Y")  }}">
+                                                    <input type="text" id="expense_date" name="expense_date" required class="form-control" value="{{ !empty($expense_details['expense_date']) ? date('m/d/Y', strtotime($expense_details['expense_date'])) :  date("m/d/Y")  }}">
+                                                    @error('expense_date')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
@@ -74,7 +76,10 @@
                                             <label class="form-input--question" for="expense_due_date">Due Date <span>MM/DD/YYYY</span></label>
                                             <div class="date--picker row">
                                                 <div class="col-12">
-                                                    <input type="text" id="expense_due_date" name="expense_due_date" class="form-control" value="{{ !empty($expense_details['expense_due_date']) ? date('m/d/Y', strtotime($expense_details['expense_due_date'])) : '' }}" required>
+                                                    <input type="text" id="expense_due_date" name="expense_due_date" required class="form-control" value="{{ !empty($expense_details['expense_due_date']) ? date('m/d/Y', strtotime($expense_details['expense_due_date'])) : '' }}" >
+                                                    @error('expense_due_date')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
@@ -88,7 +93,10 @@
                                             </label>
                                             <div class="form--inputbox recentsearch--input row">
                                                 <div class="searchRecords col-12">
-                                                    <input type="text" id="client_name" name="client_name" class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" autocomplete="off" required value="{{ !empty($expense_details['client_name']) ? $expense_details['client_name'] : '' }}">
+                                                    <input type="text" id="client_name" name="client_name" required class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" autocomplete="off"  value="{{ !empty($expense_details['client_name']) ? $expense_details['client_name'] : '' }}">
+                                                    @error('client_name')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="form--recentsearch clientname row">
@@ -149,14 +157,14 @@
                                                             <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required></textarea>
                                                         </td>
                                                         <td>
-                                                           <input type="number" id="item_quantity" name="item_quantity[]" step="any" required ">
+                                                           <input type="number" id="item_quantity" name="item_quantity[]" step="any"  required">
                                                         </td>
                                                         <td>
-                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" step="any" required ">
+                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" step="any"  required">
                                                         </td>
                                                         <td>
                                                             <!-- <input id="expense_tax" name="expense_tax[]" type="number"> -->
-                                                            <select style="border: none;" name="expense_tax[]" id="expense_tax" required>
+                                                            <select style="border: none;" name="expense_tax[]" id="expense_tax" >
                                                                 <!-- <option selected disabled>Select Tax Rate</option>     -->
                                                                 <option value="0">Tax Exempt</option>
                                                                 <option value="10">General Tax</option>
@@ -174,18 +182,18 @@
                                                     @foreach ($expense_particulars as $prts)
                                                     
                                                     <td>
-                                                        <input name="expense_description[]" id="expense_description" class="autoresizing" value="{{ !empty($prts['expense_description']) ? $prts['expense_description'] : '' }}" required >
+                                                        <input name="expense_description[]" id="expense_description" class="autoresizing" value="{{ !empty($prts['expense_description']) ? $prts['expense_description'] : '' }}"  required>
                                                     </td>
                                                    
                                                     <td>
-                                                        <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['item_quantity']) ? $prts['item_quantity'] : '' }}" required >
+                                                        <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['item_quantity']) ? $prts['item_quantity'] : '' }}"  required>
                                                     </td>
                                                     <td>
-                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['item_unit_price']) ? $prts['item_unit_price'] : '' }}" step="any" required >
+                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['item_unit_price']) ? $prts['item_unit_price'] : '' }}" step="any"  required>
                                                     </td>
                                                     <td>
                                                             <!-- <input id="expense_tax" name="expense_tax[]" type="number"> -->
-                                                            <select style="border: none;" name="expense_tax[]" id="expense_tax" required >
+                                                            <select style="border: none;" name="expense_tax[]" id="expense_tax"  >
                                                                 <!-- <option selected disabled>Select Tax Rate</option>     -->
                                                                 <option <?php echo ($prts['expense_tax']) ==  '0' ? ' selected="selected"' : '';?>  value="0">Tax Exempt</option>
                                                                 <option <?php echo ($prts['expense_tax']) ==  '10' ? ' selected="selected"' : '';?> value="10">General Tax</option>
@@ -193,7 +201,7 @@
                                                     </td>
                                                    
                                                     <td>
-                                                        <input type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['expense_amount']) ? $prts['expense_amount'] : '' }}" required >
+                                                        <input type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['expense_amount']) ? $prts['expense_amount'] : '' }}"  required>
                                                     </td>
                                                     <td class="tableOptions">
                                                         <button class="btn sumb-del-btn delepart" type="button" ><i class="fa-solid fa-trash"></i></button>
@@ -204,11 +212,27 @@
                                                     @endforeach
                                                 @endif
                                                 
+                                                
                                                 <tr class="add--new-line">
                                                     <td colspan="6">
                                                         <button class="btn sumb--btn" type="button" id="addnewline"><i class="fa-solid fa-circle-plus"></i>Add New Line</button> 
                                                     </td>
                                                 </tr>
+                                                @error('expense_description.*')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                @enderror
+                                                @error('item_quantity.*')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                @enderror
+                                                @error('item_unit_price.*')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                @enderror
+                                                @error('expense_tax.*')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                @enderror
+                                                @error('expense_amount.*')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                @enderror
                                                 
                                                 <tr class="invoice-separator">
                                                     <td colspan="6">hs</td>
@@ -231,22 +255,31 @@
                                                     </td>
                                                     
                                                     <td  colspan="2">
-                                                    <input readonly id="expense_total_amount" step="any" name="expense_total_amount" type="number" value="{{ !empty($expense_details['expense_total_amount']) ? $expense_details['expense_total_amount'] : '' }}">
-                                                    </td>
+                                                    <input readonly required id="expense_total_amount" step="any" name="expense_total_amount" type="number" value="{{ !empty($expense_details['expense_total_amount']) ? $expense_details['expense_total_amount'] : '' }}">
+                                                    @error('expense_total_amount')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror    
+                                                </td>
                                                 </tr>
 
                                                 <tr class="invoice-total--gst">
                                                     <td>Total GST</td>
                                                     <td colspan="2">
-                                                    <input type="number" readonly step="any" name="total_gst" id="total_gst" value="{{ !empty($expense_details['total_gst']) ? $expense_details['total_gst'] : '' }}">
-                                                    </td>
+                                                    <input type="number" required readonly step="any" name="total_gst" id="total_gst" value="{{ !empty($expense_details['total_gst']) ? $expense_details['total_gst'] : '' }}">
+                                                    @error('total_gst')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror    
+                                                </td>
                                                 </tr>
 
                                                 <tr class="invoice-total--amountdue">
                                                     <td><strong>Total</strong></td>
                                                     <td colspan="2">
                                                         <strong id="grandtotal"></strong>
-                                                        <input type="number" readonly step="any"  name="total_amount" id="total_amount" value="{{ !empty($expense_details['total_amount']) ? $expense_details['total_amount'] : '' }}">
+                                                        <input type="number" required readonly step="any"  name="total_amount" id="total_amount" value="{{ !empty($expense_details['total_amount']) ? $expense_details['total_amount'] : '' }}">
+                                                        @error('total_amount')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                        @enderror
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -269,6 +302,9 @@
                                     </div>
                                     <!-- <button class="sumb-button sumb-margin-top-small sumb-button-standard sumb-button-small" tabindex="0" type="button" data-automationid="upload-button" fdprocessedid="g5oor">Upload</button> -->
                                     <input id="file_upload" name="file_upload" style="padding-left: 30%;" accept="image/jpg,image/jpeg,image/png,application/pdf" type="file">
+                                    @error('file_upload')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div id="sumb-receipt-container" class="sumb-receipt-container sumb-flex sumb-flex-align-center">
                                 <!-- pdf upload  -->
@@ -293,7 +329,7 @@
                             <a href="/invoice" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i> Back</a>
                         </div> 
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 col-12">
-                            <button style="float: right;" type="submit" class="btn sumb--btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+                            <button value="save_expense" name="save_expense" style="float: right;" type="submit" class="btn sumb--btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
                             <button style="float: right;" type="button" onclick="previewInvoice()" class="btn sumb--btn preview--btn"><i class="fa-solid fa-eye"></i> Preview</button>
                             <button style="float: right;" type="reset" class="btn sumb--btn reset--btn"><i class="fa fa-ban"></i> Clear Expense</button>
                             <!-- <input type="hidden" name="status_paid" id="status_paid" value="{{ !empty($expense_details['status_paid']) ? $expense_details['status_paid'] : '' }}"> -->
