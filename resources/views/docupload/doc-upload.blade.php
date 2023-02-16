@@ -52,53 +52,97 @@
                         </div>
                     </div>
                     <br>
+            <section>
+                <h4 class="sumb--title2">My Transactions</h4>        
                 <div class="row">
-                    <div class="col-lg-12">
-                        <div class="table-responsive table--no-card m-b-40">
-                            <table class="table table-borderless table-striped table-earning">
-                                <thead class="table-dark">
+                    <div class="col-xl-12">
+                        <div class="sumb--recentlogdements sumb--putShadowbox">
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th style="border-top-left-radius: 7px;">id</th>
+                                            <th>Name</th>
+                                            <th>File type</th>
+                                            <th>Filesize</th>
+                                            <th>Date Created</th>
+                                            <th class="sumb--recentlogdements__actions" style="border-top-right-radius: 7px;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    @if (empty($doclist['total']))
                                     <tr>
-                                        <td class="text-center">ID</td>
-                                        <td class="text-center">Name</td>
-                                        <td class="text-center">File type</td>
-                                        <td class="text-center">Filesize</td>
-                                        <td class="text-center">Date Created</td>
-                                        <td class="text-center">Action</td>
+                                        <td colspan="8" style="padding: 30px 15px; text-align:center;">No Data At This time.</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($doclist as $doclists)
-                                    <tr>
-                                        <td>{{$doclists->id}}</td>
-                                        <td>{{$doclists->name}}</td>
-                                        <td>{{$doclists->extensionname}}</td>
-                                        <td>{{ number_format($doclists->filesize)." "."kb" }}</td>                                                            
-                                        <td>{{$doclists->created_at->format('Y-m-d')}}</td>
-                                        <td class="text-center">
-                                            @csrf
-                                            <a href="/docview/?id={{$doclists->id}}" class="btn btn-secondary btn-sm">View</a>                                                                                        
-                                            <a href="javascript:void(0)" onclick="viewDocument('<?php echo '/docview/?id='.$doclists->id;?>')" class="btn btn-info btn-sm" >modal</a>
-                                            <a href="/doc-edit/?id={{$doclists->id}}" class="btn btn-primary btn-sm">Edit</a>
-                                           
-                                            <form action="/destroy/?id={{$doclists->id}}" method="post" style="display: inline-block">
+                                    @else
+                                        @foreach ($doclist['data'] as $doclists)
+
+                                        <tr>
+                                            <td>{{$doclists['id']}}</td>                                           
+                                            <td>{{$doclists['name']}}</td>
+                                            <td>{{$doclists['extensionname']}}</td>
+                                            <td>{{ number_format($doclists['filesize'])." "."kb" }}</td>                                                            
+                                            <td>{{ date('Y-m-d', strtotime($doclists['created_at'])) }}</td>
+                                            <td class="sumb--recentlogdements__actions">
                                                 @csrf
-                                                @method('DELETE')
-                                                    <button class="btn btn-danger btn-sm" onclick="return confirm('Delete this item?')" type="submit" >Delete</button>
-                                            </form>
+                                                <a href="/docview/?id={{$doclists['id']}}"><i class="fa-solid fa-folder-open""></i></a>                                                                                        
+                                                <a href="javascript:void(0)" onclick="viewDocument('<?php echo '/docview/?id='.$doclists['id'];?>')" ><i class="fa-solid fa-file"></i></a>
+                                                <a href="/doc-edit/?id={{$doclists['id']}}"><i class="fa-solid fa-edit"></i></a>
+                                            
+                                                <form action="/destroy/?id={{$doclists['id']}}" method="post" style="display: inline-block">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                        <button class="doc-btn" onclick="return confirm('Delete this item?')" type="submit" ><i class="fa-solid fa-trash"></i></button>
+                                                </form>
 
-                                            <a href="/downloadfile/?id={{$doclists->id}}" class="btn btn-success btn-sm">Download</a>                                          
-                                        </td>                                        
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
+                                                <a href="/downloadfile/?id={{$doclists['id']}}"><i class="fa-solid fa-file-download"></i></a>
+                                            </td>                                        
+                                        </tr>
 
+                                    @endforeach
+                                    @endif
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="d-flex">                            
+                        {{-- <div class="d-flex">                            
                             {{ $doclist->links() }}
-                        </div>                          
+                        </div>                           --}}
+
+                        <table>
+                            <tr class="sumb--recentlogdements__pagination">
+                                <td colspan="8">
+                                    <!-- table pagination -->
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+
+                                        <a href="{{ empty($paging['first']) ? 'javascript:void(0)' : $paging['first'] }}" type="button" class="btn btn-outline-secondary {{ empty($paging['first']) ? 'disabled' : '' }}"><i class="fas fa-angle-double-left"></i></a>
+                                        <a href="{{ empty($paging['prev']) ? 'javascript:void(0)' : $paging['prev'] }}" type="button" class="btn btn-outline-secondary {{ empty($paging['prev']) ? 'disabled' : '' }}" ><i class="fas fa-angle-left"></i></a>
+                                        <a href="javascript:void(0)" type="button" class="btn btn-outline-secondary" >Page {{$paging['now']}}</a>
+                                        <a href="{{ empty($paging['next']) ? 'javascript:void(0)' : $paging['next'] }}" type="button" class="btn btn-outline-secondary {{ empty($paging['next']) ? 'disabled' : '' }}" ><i class="fas fa-angle-right"></i></a>
+                                        <a href="{{ empty($paging['last']) ? 'javascript:void(0)' : $paging['last'] }}" type="button" class="btn btn-outline-secondary {{ empty($paging['last']) ? 'disabled' : '' }}"><i class="fas fa-angle-double-right"></i></a>
+
+                                        <div class="btn-group" role="group">
+                                            <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                                Display: {{$doclist['per_page']}} Items
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                                <a class="dropdown-item" href="{{ $paging['starpage'].'?page=1&ipp=1' }}">1 Item</a>
+                                                <a class="dropdown-item" href="{{ $paging['starpage'].'?page=1&ipp=5' }}">5 Items</a>
+                                                <a class="dropdown-item" href="{{ $paging['starpage'].'?page=1&ipp=10' }}">10 Items</a>
+                                                <a class="dropdown-item" href="{{ $paging['starpage'].'?page=1&ipp=25' }}">25 Items</a>
+                                                <a class="dropdown-item" href="{{ $paging['starpage'].'?page=1&ipp=50' }}">50 Items</a>
+                                                <a class="dropdown-item" href="{{ $paging['starpage'].'?page=1&ipp=100' }}">100 Items</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
                     </div>
-                </div>                      
+                </div>
+            </section>                          
                      
 
                 </div>

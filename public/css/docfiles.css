@@ -17,3 +17,12 @@
   .modal .modal-body {
     overflow-y: auto;
   }
+
+  .doc-btn {
+    font-weight: 500;
+    background: #f5c85b;
+    border-radius: 5px;
+    padding: 4px 15px;
+    margin: 0px 2px;
+    color: #666;
+  }
