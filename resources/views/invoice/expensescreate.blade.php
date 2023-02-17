@@ -326,11 +326,11 @@
                     <div style="padding:2rem 0rem;" class="row">
                             
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 col-12">
-                            <a href="/invoice" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i> Back</a>
+                            <a href="/expense" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i> Back</a>
                         </div> 
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 col-12">
                             <button value="save_expense" name="save_expense" style="float: right;" type="submit" class="btn sumb--btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-                            <button style="float: right;" type="button" onclick="previewInvoice()" class="btn sumb--btn preview--btn"><i class="fa-solid fa-eye"></i> Preview</button>
+                            <button style="float: right;" type="button" onclick="previewExpense()" class="btn sumb--btn preview--btn"><i class="fa-solid fa-eye"></i> Preview</button>
                             <button style="float: right;" type="reset" class="btn sumb--btn reset--btn"><i class="fa fa-ban"></i> Clear Expense</button>
                             <!-- <input type="hidden" name="status_paid" id="status_paid" value="{{ !empty($expense_details['status_paid']) ? $expense_details['status_paid'] : '' }}"> -->
                         </div>
@@ -370,7 +370,7 @@
                             <div class="col-xl-8">
                                 <ul class="list-unstyled">
                                     <li class="text-muted">To: <span style="color:#5d9fc5 ;" id="expense_preview_to"></span></li>
-                                    <li class="text-muted">Invoice number: <span id="expense_preview_expense_number"></span></li>
+                                    <li class="text-muted">Expense number: <span id="expense_preview_expense_number"></span></li>
                                     <li class="text-muted">Issued: <span id="expense_preview_issue_date"></span></li>
                                     <li class="text-muted">Due: <span id="expense_preview_due_date"></span></li>
                                 </ul>
@@ -516,7 +516,7 @@
         });
     });
 
-     function previewInvoice(){
+     function previewExpense(){
         var to = $("#client_name").val();
         
              $("#expense_preview_to").text($("#client_name").val());
