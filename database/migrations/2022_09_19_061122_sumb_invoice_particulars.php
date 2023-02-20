@@ -16,7 +16,6 @@ class SumbInvoiceParticulars extends Migration
             $table->bigIncrements('id');
             $table->foreignId('user_id')->nullable()->index();
             $table->bigInteger('invoice_id')->unsigned()->index();
-            $table->foreign('invoice_id')->references('id')->on('sumb_invoice_details')->onDelete('cascade');
             $table->integer('invoice_number')->default(0);
             $table->string('invoice_part_name')->nullable();
             $table->string('invoice_part_code')->nullable();

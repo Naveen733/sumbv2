@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SumbInvoiceSettings extends Model
 {
-    use HasFactory;
-    
-    public $timestamps = true;
+    protected $table = 'sumb_invoice_settings';
+
+    protected $fillable = ['user_id', 'business_logo', 'business_invoice_format', 'business_name', 'business_email', 'business_phone', 'business_abn', 'business_address', 'business_terms_conditions'];
+
 }

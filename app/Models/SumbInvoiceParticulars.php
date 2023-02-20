@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+// use Eloquent;
 
-class SumbInvoiceParticulars extends Model
+class SumbInvoiceParticulars extends Model 
 {
     // use HasFactory;
 
@@ -16,6 +17,9 @@ class SumbInvoiceParticulars extends Model
      */
     protected $table = 'sumb_invoice_particulars';
 
-    protected $fillable = ['user_id', 'invoice_id', 'quantity', 'unit_price', 'description', 'amount', 'invoice_part_code', 'invoice_part_name', 'invoice_part_tax_rate'];
+    protected $fillable = ['user_id', 'invoice_id', 'invoice_parts_quantity', 'invoice_parts_unit_price', 'invoice_parts_description', 'invoice_parts_amount', 'invoice_parts_code', 'invoice_parts_name', 'invoice_parts_tax_rate'];
 
+    public function invoice() {
+        return $this->belongsTo(SumbInvoiceDetails::class);
+    }
 }
