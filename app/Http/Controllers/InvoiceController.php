@@ -27,6 +27,7 @@ use App\Models\SumbChartAccounts;
 use App\Models\SumbChartAccountsType;
 use App\Models\SumbChartAccountsTypeParticulars;
 use Illuminate\Support\Facades\Validator;
+use App\Models\SumbInvoiceTaxRates;
 
 class InvoiceController extends Controller {
 
@@ -192,7 +193,7 @@ class InvoiceController extends Controller {
         $pagedata['invoice_id'] = $request->id ? $request->id : '';
         $pagedata['type'] = $request->type;
         if($request->type == 'edit' && $request->id){
-            $invoice_details = SumbInvoiceDetails::with(['particulars'])
+            $invoice_details = SumbInvoiceDetails::with(['particulars', 'particulars.invoiceChartAccountsParticulars'])
                                 ->whereHas('particulars', function($query) use($userinfo) {
                                     $query->where('user_id', $userinfo[0]);
                                 })
@@ -203,6 +204,8 @@ class InvoiceController extends Controller {
                 $invoice_details['invoice_part_total_count'] = "[]";
                 unset($invoice_details['particulars']);
                 $pagedata['invoice_details'] = $invoice_details;
+
+                // echo "<pre>"; var_dump($invoice_details['parts']); echo "</pre>";die();
             }
             
         }else{
@@ -212,8 +215,6 @@ class InvoiceController extends Controller {
             }else{
                 $pagedata['invoice_number'] = 000001;
             }
-
-            // $pagedata['invoice_details'] = [];
         }
         $get_clients = SumbClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
         if (!empty($get_clients)) {
@@ -225,32 +226,12 @@ class InvoiceController extends Controller {
             $pagedata['invoice_items'] = $get_items->toArray();
         }
 
-        // $chart_accounts_particulars = SumbChartAccounts::with(['chartAccountsTypeParticulars'])
-        //                 ->whereHas('chartAccountsTypeParticulars', function($query) use($userinfo) {
-        //                     $query->where('user_id', $userinfo[0]);
-        //                 })
-        //                 ->where('user_id', $userinfo[0])->get();
-        // if (!empty($chart_accounts_particulars)) {
-        //     $pagedata['chart_accounts_particulars'] = $chart_accounts_particulars->toArray();
-        // }
-
         $chart_accounts_types = SumbChartAccounts::with(['chartAccountsTypes'])
                     ->where('user_id', $userinfo[0])->get();
         if (!empty($chart_accounts_types)) {
             $pagedata['chart_accounts_types'] = $chart_accounts_types->toArray();
         }
 
-        // $chart_account = SumbChartAccountsType::with(['chartAccounts' => function($query){
-        //     $query->groupBy('chart_accounts_name');
-        // }])->get();
-
-        // $chart_account = DB::table('sumb_chart_accounts')
-        // ->join('users', 'users.id', '=', 'chats.user_id')
-        // ->select('users.id', 'users.avatar', DB::raw('COUNT(*) AS total'))
-        // ->where('friend_id', Auth::user()->id)
-        // ->where('status',0)
-        // ->groupBy('users.id')
-        // ->get();
         $chart_account = SumbChartAccounts::with(['chartAccountsParticulars', 'chartAccountsTypes'])
                         ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
                             $query->where('user_id', $userinfo[0]);
@@ -263,9 +244,14 @@ class InvoiceController extends Controller {
             $pagedata['chart_account'] = $chart_account->toArray();
         }
 
+        $tax_rates = SumbInvoiceTaxRates::get();
+        if (!empty($tax_rates)) {
+            $pagedata['tax_rates'] = $tax_rates->toArray();
+        }
+
         // $pagedata['invoice_details']['image'] = env('APP_PUBLIC_DIRECTORY') . 'a71ed73925a75dae44b71bc161131adb.png';
         // $pagedata['form_data'] = $pagedata;
-        // echo "<pre>"; var_dump($chart_account->toArray()); echo "</pre>";die();
+        // echo "<pre>"; var_dump($pagedata['tax_rates']); echo "</pre>";die();
 
         return $pagedata;
         // return view('invoice.invoicecreate', $pagedata);
@@ -321,6 +307,9 @@ class InvoiceController extends Controller {
                         'invoice_parts_code' => $request->input('invoice_parts_code_'.$id),
                         'invoice_parts_name' => $request->input('invoice_parts_name_'.$id),
                         'invoice_parts_name_code' => $request->input('invoice_parts_name_code_'.$id),
+                        'invoice_chart_accounts_parts_id' => $request->input('invoice_parts_chart_accounts_parts_id_'.$id),
+                        'invoice_parts_chart_accounts' => trim($request->input('invoice_parts_chart_accounts_'.$id)),
+                        'invoice_parts_tax_rate_id' => trim($request->input('invoice_parts_tax_rate_id_'.$id)),
                         'invoice_parts_id' => $id
                     );
                     $invoice_details['parts'] = $parts;
@@ -336,20 +325,43 @@ class InvoiceController extends Controller {
                     // ]);
                 }
             }
-            
+            // echo "<pre>"; var_dump($invoice_details['parts']); echo "</pre>";die();
             $invoice_details['invoice_part_total_count'] = trim($request->input('invoice_part_total_count'));
             $invoice_details['invoice_status'] = $request->invoice_status;
             $pagedata['invoice_details'] = $invoice_details;
 
-            // echo "<pre>"; var_dump($request->input('invoice_part_total_count')); echo "</pre>";
             if ($validator->fails()) {
                 $get_items = SumbInvoiceItems::where('user_id', $userinfo[0])->orderBy('invoice_item_name')->get();
                 if (!empty($get_items)) {
                     $pagedata['invoice_items'] = $get_items->toArray();
                 }
+
                 $get_clients = SumbClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
                 if (!empty($get_clients)) {
                     $pagedata['clients'] = $get_clients = $get_clients->toArray();
+                }
+                
+                $chart_account = SumbChartAccounts::with(['chartAccountsParticulars', 'chartAccountsTypes'])
+                ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
+                    $query->where('user_id', $userinfo[0]);
+                })
+                ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
+                    $query->where('user_id', $userinfo[0]);
+                })
+                ->where('user_id', $userinfo[0])->get();
+                if (!empty($chart_account)) {
+                    $pagedata['chart_account'] = $chart_account->toArray();
+                }
+
+                $chart_accounts_types = SumbChartAccounts::with(['chartAccountsTypes'])
+                ->where('user_id', $userinfo[0])->get();
+                if (!empty($chart_accounts_types)) {
+                    $pagedata['chart_accounts_types'] = $chart_accounts_types->toArray();
+                }
+
+                $tax_rates = SumbInvoiceTaxRates::get();
+                if (!empty($tax_rates)) {
+                    $pagedata['tax_rates'] = $tax_rates->toArray();
                 }
                 return view('invoice.invoicecreate')->withErrors($validator)->with($pagedata);
             }
@@ -415,6 +427,8 @@ class InvoiceController extends Controller {
                                 'invoice_parts_code' => (!empty($value['invoice_parts_code']) ? $value['invoice_parts_code'] : $value['invoice_parts_name_code']),
                                 'invoice_parts_name' => trim($value['invoice_parts_name']),
                                 'invoice_parts_tax_rate' => trim($value['invoice_parts_tax_rate']),
+                                'invoice_chart_accounts_parts_id' => trim($value['invoice_chart_accounts_parts_id']),
+                                'invoice_parts_tax_rate_id' => trim($value['invoice_parts_tax_rate_id'])
                             ]);
                         array_push($ids,  $newParticulars->id);
                     }
@@ -455,6 +469,8 @@ class InvoiceController extends Controller {
                             'invoice_parts_code' => (!empty($value['invoice_parts_code']) ? $value['invoice_parts_code'] : $value['invoice_parts_name_code']),
                             'invoice_parts_name' => trim($value['invoice_parts_name']),
                             'invoice_parts_tax_rate' => trim($value['invoice_parts_tax_rate']),
+                            'invoice_chart_accounts_parts_id' =>trim($value['invoice_chart_accounts_parts_id']),
+                            'invoice_parts_tax_rate_id' => trim($value['invoice_parts_tax_rate_id'])
                         ]);
                     }
                 }
@@ -587,11 +603,13 @@ class InvoiceController extends Controller {
                         'invoice_item_name' => trim($request->invoice_item_name),
                         'invoice_item_unit_price' => trim($request->invoice_item_unit_price),
                         'invoice_item_tax_rate' => trim($request->invoice_item_tax_rate),
+                        'invoice_item_tax_rate_id' => trim($request->invoice_item_tax_rate_id),
                         'invoice_item_description' => trim($request->invoice_item_description),
+                        'invoice_item_chart_accounts_parts_id' => trim($request->invoice_item_chart_accounts_parts_id)
                     ]);
                 if($item->id){
                     DB::commit();
-                    $invoice_items = SumbInvoiceItems::where('user_id', $userinfo[0])->get();
+                    $invoice_items = SumbInvoiceItems::with(['taxRates'])->where('user_id', $userinfo[0])->get();
                     if($invoice_items){
                         $response = [
                             'status' => 'success',
@@ -648,7 +666,7 @@ class InvoiceController extends Controller {
         if ($request->ajax())
         {
             $userinfo = $request->get('userinfo');
-                $invoice_item = SumbInvoiceItems::where('user_id', $userinfo[0])
+                $invoice_item = SumbInvoiceItems::with(['taxRates'])->where('user_id', $userinfo[0])
                                 ->where('id', $id)
                                 ->first();
                 if($invoice_item){
@@ -724,5 +742,38 @@ class InvoiceController extends Controller {
             return redirect()->route('invoice')->with('success', 'Invoice deleted successfully');
         }
         return redirect()->route('invoice');
+    }
+
+    public function invoiceTaxRates(Request $request)
+    {
+        if ($request->ajax())
+        {
+                $invoice_tax_rates = SumbInvoiceTaxRates::get();
+                if($invoice_tax_rates){
+                    $response = [
+                        'status' => 'success',
+                        'err' => '',
+                        'data' => $invoice_tax_rates
+                    ];
+                    echo json_encode($response);
+                }
+                else{
+                    $response = [
+                        'status' => 'error',
+                        'err' => 'No item found',
+                        'data' => ''
+                    ];
+                    echo json_encode($response);
+                }
+        }
+        else
+        {
+            $response = [
+                'status' => 'error',
+                'err' => 'Something went wrong',
+                'data' => ''
+            ];
+            echo json_encode($response);
+        }
     }
 }

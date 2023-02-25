@@ -51,13 +51,55 @@
                     <div class="col-xl-6">
                         <label class="form-input--question" for="">Tax Rate</label>
                         <div class="input-group mb-3">
+                        @if(!empty($tax_rates))
                             <select class="custom-select form-control" id="invoice_item_tax_rate" name="invoice_item_tax_rate" value="" required>
                                 <option selected value="">Choose...</option>
-                                <option value="0">Tax Exempt(0%)</option>
-                                <option value="10">Tax Included(10%)</option>
+                                @foreach($tax_rates as $tax_rate)
+                                    <option hidden="hidden" id="{{$tax_rate['id']}}" value="{{$tax_rate['tax_rates']}}"></option>
+                                    <option value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                @endforeach
                             </select>
+                        @endif
                         </div>
                         <div class="" role="alert" id="invoice_item_tax_rate_error"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6">
+                        <div class="form-input--wrap">
+                            <label class="form-input--question" for="">Account Type </label>
+                            <input data-toggle="dropdown" type="text" id="invoice_item_chart_accounts_parts" name="invoice_item_chart_accounts_parts"  value="">
+                            <input type="hidden" id="invoice_item_chart_accounts_parts_id" value="">
+                            <ul class="dropdown-menu" id="invoice_chart_account_list">
+                                <div id="add_new_invoice_chart_account" style="padding-left: 10px;">
+                                    <a href="" class="pop-model" data-toggle="modal" data-target="#newAddAccountModal" onclick="openNewAddAccountPopUpModel('invoice_item_part_row_id', 'addItem')">+ New Item</a>
+                                </div>
+                                @if (!empty($chart_account))
+                                    @php $counter = 0; @endphp
+                                    @foreach ($chart_account as $item)
+                                        <optgroup label="{{$item['chart_accounts_name']}}" style="font-size: 13px;padding: 10px;border-bottom: 1px solid lightgrey"></optgroup>
+                                            <!-- <h4>{{$item['chart_accounts_name']}}</h4> -->
+                                            @foreach ($item['chart_accounts_particulars'] as $particulars)
+                                            <?php
+                                                $user = array_search($particulars['chart_accounts_type_id'], array_column($item['chart_accounts_types'], 'id'));
+                                            ?>
+                                            <li>
+                                                <div style="padding: 10px;border-bottom: 1px solid lightgrey">
+                                                    <button type="button" class="invoice_item" data-myid="{{ $counter }}" onclick="addInvoiceChartAccount('{{ $particulars['id'] }}', '', 'addItem')">
+                                                        <span id="data_name_{{ $counter }}">{{ $particulars['chart_accounts_particulars_code'] }}:{{ $particulars['chart_accounts_particulars_name'] }} </span>
+                                                        <input type="hidden" id="invoice_item_chart_accounts_type_id" name="invoice_item_chart_accounts_type_id" value="{{$item['chart_accounts_types'][$user]['chart_accounts_type']}}">
+                                                        <input type="hidden" id="invoice_item_id_{{ $counter }}" name="invoice_item_id" value="{{ $particulars['id'] }}">
+                                                    </button>
+                                                </div>
+                                            </li>
+                                            
+                                            @endforeach
+                                        <!-- </optgroup> -->
+                                    @endforeach
+                                @endif
+                            </ul>
+                            <div class="" role="alert" id="invoice_chart_accounts_type_error"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
@@ -70,9 +112,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <input type="hidden" id="invoice_part_row_id" value="">
+                <input type="hidden" id="invoice_item_part_row_id" value="">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="addInvoiceItem('invoice_part_row_id')">Save</button>
+                <button type="button" class="btn btn-primary" onclick="addInvoiceItem('invoice_item_part_row_id')">Save</button>
             </div>
         </div>
     </div>
@@ -150,20 +192,25 @@
                     <div class="col-xl-6">
                         <label class="form-input--question" for="">Tax Rate</label>
                         <div class="input-group mb-3">
-                            <select class="custom-select form-control" id="invoice_chart_accounts_tax_rate" name="invoice_chart_accounts_tax_rate" value="" required>
-                                <option selected value="">Choose...</option>
-                                <option value="0">Tax Exempt(0%)</option>
-                                <option value="10">Tax Included(10%)</option>
-                            </select>
+                            @if(!empty($tax_rates))
+                                <select class="custom-select form-control" id="invoice_chart_accounts_tax_rate" name="invoice_chart_accounts_tax_rate" value="" required>
+                                    <option selected value="">Choose...</option>
+                                    @foreach($tax_rates as $tax_rate)
+                                        <option hidden="hidden" id="{{$tax_rate['id']}}" value="{{$tax_rate['tax_rates']}}"></option>
+                                        <option value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                    @endforeach
+                                </select>
+                            @endif
                         </div>
                         <div class="" role="alert" id="invoice_chart_accounts_tax_rate_error"></div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <input type="hidden" id="invoice_part_row_id" value="">
+                <input type="hidden" id="invoice_account_part_row_id" value="">
+                <input type="hidden" id="add_account_from" value="">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="addNewAccount('invoice_part_row_id')">Save</button>
+                <button type="button" class="btn btn-primary" onclick="addNewAccount('invoice_account_part_row_id')">Save</button>
             </div>
         </div>
     </div>
@@ -543,11 +590,11 @@
                                                 <input type="hidden" id="{{'invoice_parts_code_'.$row_index}}" name="{{'invoice_parts_code_'.$row_index}}" value="{{!empty($parts['invoice_parts_code']) ? $parts['invoice_parts_code'] : ''}}">
                                                 <input type="hidden" id="{{'invoice_parts_name_'.$row_index}}" name="{{'invoice_parts_name_'.$row_index}}" value="{{!empty($parts['invoice_parts_name']) ? $parts['invoice_parts_name'] : ''}}">
                                                 <input type="hidden" id="{{'invoice_parts_id_'.$row_index}}" name="{{'invoice_parts_id_'.$row_index}}" value="{{!empty($parts['id']) ? $parts['id'] : ''}}">
-                                                <input data-toggle="dropdown" id="{{'invoice_parts_name_code_'.$row_index}}" name="{{'invoice_parts_name_code_'.$row_index}}" type="text" onkeyup="searchInvoiceparts(this)" value="{{!empty($invoice_part_code_name) ? $invoice_part_code_name : ''}}">
+                                                <input data-toggle="dropdown" id="{{'invoice_parts_name_code_'.$row_index}}" name="{{'invoice_parts_name_code_'.$row_index}}" type="text" onkeyup="searchInvoiceparts(this)" value="{{!empty($invoice_part_code_name) ? $invoice_part_code_name : ''}}" required>
 
                                                 <ul class="dropdown-menu" id="{{'invoice_item_list_'.$row_index}}" >
                                                     <li>
-                                                        <a href="" class="pop-model" data-toggle="modal" data-target="#newItemModal">+ New Item</a>
+                                                        <a href="" class="pop-model" data-toggle="modal" data-target="#newItemModal" onclick="openPopUpModel('{{$row_index}}')">+ New Item</a>
                                                     </li>
                                                     @if (!empty($invoice_items))
                                                         @php $counter = 0; @endphp
@@ -566,34 +613,31 @@
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
                                             </td>
-
                                             <td>
-                                                <input id="{{'invoice_parts_quantity_'.$row_index}}" name="{{'invoice_parts_quantity_'.$row_index}}" type="number" onchange="InvoicepartsQuantity('{{$row_index}}')" value="{{!empty($parts['invoice_parts_quantity']) ? $parts['invoice_parts_quantity'] : ''}}">
+                                                <input id="{{'invoice_parts_quantity_'.$row_index}}" name="{{'invoice_parts_quantity_'.$row_index}}" type="number" onchange="InvoicepartsQuantity('{{$row_index}}')" value="{{!empty($parts['invoice_parts_quantity']) ? $parts['invoice_parts_quantity'] : ''}}" required>
                                                 @error('invoice_parts_quantity_'.$row_index)
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
                                             </td>
                                             <td>
-                                                <textarea id="{{'invoice_parts_description_'.$row_index}}" name="{{'invoice_parts_description_'.$row_index}}" class="autoresizing" >{{!empty($parts['invoice_parts_description']) ? $parts['invoice_parts_description'] : ''}}</textarea>
+                                                <textarea id="{{'invoice_parts_description_'.$row_index}}" name="{{'invoice_parts_description_'.$row_index}}" class="autoresizing" required>{{!empty($parts['invoice_parts_description']) ? $parts['invoice_parts_description'] : ''}}</textarea>
                                                 @error('invoice_parts_description_'.$row_index)
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
                                             </td>
-                                            
                                             <td>
-                                                <input id="{{'invoice_parts_unit_price_'.$row_index}}" name="{{'invoice_parts_unit_price_'.$row_index}}" type="number" value="{{!empty($parts['invoice_parts_unit_price']) ? number_format($parts['invoice_parts_unit_price'], 2)  : ''}}" onchange="InvoicepartsQuantity('{{$row_index}}')" step=".01">
+                                                <input id="{{'invoice_parts_unit_price_'.$row_index}}" name="{{'invoice_parts_unit_price_'.$row_index}}" type="number" value="{{!empty($parts['invoice_parts_unit_price']) ? number_format($parts['invoice_parts_unit_price'], 2)  : ''}}" onchange="InvoicepartsQuantity('{{$row_index}}')" step=".01" required>
                                                 @error('invoice_parts_unit_price_'.$row_index)
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
                                                 <input type="hidden" id="{{'invoice_parts_gst_'.$row_index}}" name="{{'invoice_parts_gst_'.$row_index}}" value="">
                                             </td>
-
                                             <td>
-                                                <input data-toggle="dropdown" type="text" id="{{'invoice_parts_chart_accounts_'.$row_index}}" name="{{'invoice_parts_chart_accounts_'.$row_index}}"  value="">
+                                                <input data-toggle="dropdown" type="text" id="{{'invoice_parts_chart_accounts_'.$row_index}}" name="{{'invoice_parts_chart_accounts_'.$row_index}}"  value="{{!empty($parts['invoice_chart_accounts_particulars']) && $parts['invoice_chart_accounts_particulars']['id'] ? $parts['invoice_chart_accounts_particulars']['chart_accounts_particulars_code'] .' - '. $parts['invoice_chart_accounts_particulars']['chart_accounts_particulars_name'] : $parts['invoice_parts_chart_accounts'] }}" required>
                                                
                                                 <input type="hidden" id="{{'invoice_parts_chart_accounts_code_'.$row_index}}" name="{{'invoice_parts_chart_accounts_code_'.$row_index}}" value="">
                                                 <input type="hidden" id="{{'invoice_parts_chart_accounts_name_'.$row_index}}" name="{{'invoice_parts_chart_accounts_name_'.$row_index}}" value="">
-                                                <input type="hidden" id="{{'invoice_parts_chart_accounts_parts_id_'.$row_index}}" name="{{'invoice_parts_chart_accounts_parts_id_'.$row_index}}" value="">
+                                                <input type="hidden" id="{{'invoice_parts_chart_accounts_parts_id_'.$row_index}}" name="{{'invoice_parts_chart_accounts_parts_id_'.$row_index}}" value="{{!empty($parts['invoice_chart_accounts_particulars']) && $parts['invoice_chart_accounts_particulars']['id'] ? $parts['invoice_chart_accounts_particulars']['id'] : $parts['invoice_chart_accounts_parts_id']}}">
                                                 
                                                 <ul class="dropdown-menu" id="{{'invoice_chart_account_list_'.$row_index}}" >
                                                     <div id="{{'add_new_invoice_chart_account_'.$row_index}}" style="padding-left: 10px">
@@ -603,17 +647,15 @@
                                                         @php $counter = 0; @endphp
                                                         @foreach ($chart_account as $item)
                                                             <div>
-                                                            <optgroup label="{{$item['chart_accounts_name']}}" style="font-size: 13px;padding: 10px;border-bottom: 1px solid lightgrey"></optgroup>
+                                                                <optgroup label="{{$item['chart_accounts_name']}}" style="font-size: 13px;padding: 10px;border-bottom: 1px solid lightgrey"></optgroup>
                                                                 <!-- <h4>{{$item['chart_accounts_name']}}</h4> -->
                                                             </div>
                                                                 @foreach ($item['chart_accounts_particulars'] as $particulars)
-                                                                <?php
-                                                                    $user = array_search($particulars['chart_accounts_type_id'], array_column($item['chart_accounts_types'], 'id'));
-                                                                ?>
+                                                                <?php $user = array_search($particulars['chart_accounts_type_id'], array_column($item['chart_accounts_types'], 'id')); ?>
                                                                 <li>
                                                                     <div style="padding: 10px;border-bottom: 1px solid lightgrey">
                                                                         <button type="button" class="invoice_item" data-myid="{{ $counter }}" onclick="addInvoiceChartAccount('{{ $particulars['id'] }}', '{{$row_index}}')">
-                                                                            <span id="data_name_{{ $counter }}">{{ $particulars['chart_accounts_particulars_code'] }}:{{ $particulars['chart_accounts_particulars_name'] }} </span>
+                                                                            <span id="data_name_{{ $counter }}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }} </span>
                                                                             <input type="hidden" value="{{$item['chart_accounts_types'][$user]['chart_accounts_type']}}">
                                                                             <input type="hidden" id="invoice_item_id_{{ $counter }}" name="invoice_item_id" value="{{ $particulars['id'] }}">
                                                                         </button>
@@ -627,12 +669,19 @@
                                             </td>
 
                                             <td>
+                                                
                                                 <div class="input-group mb-3">
-                                                    <select class="custom-select form-control" id="{{'invoice_parts_tax_rate_'.$row_index}}" name="{{'invoice_parts_tax_rate_'.$row_index}}" value="" onchange="InvoicepartsQuantity('{{$row_index}}')" value="">
-                                                        <option selected value="">Choose...</option>
-                                                        <option value="0" {{ $parts['invoice_parts_tax_rate']=="0" ? 'selected' : '' }}>Tax Exempt(0%)</option>
-                                                        <option value="10" {{ (!empty($parts['invoice_parts_tax_rate']) && $parts['invoice_parts_tax_rate']=="10") ? 'selected' : '' }}>Tax Included(10%)</option>
-                                                    </select>
+                                                    @if(!empty($tax_rates))
+                                                        <input type="hidden" name="{{'invoice_parts_tax_rate_id_'.$row_index}}" id="{{'invoice_parts_tax_rate_id_'.$row_index}}" value="{{!empty($parts['invoice_parts_tax_rate_id']) ? $parts['invoice_parts_tax_rate_id'] : ''}}">
+                                                        <input type="hidden" name="{{'invoice_parts_tax_rate_name_'.$row_index}}" id="{{'invoice_parts_tax_rate_name_'.$row_index}}" value="">
+                                                        <select class="custom-select form-control" id="{{'invoice_parts_tax_rate_'.$row_index}}" name="{{'invoice_parts_tax_rate_'.$row_index}}" value="" onchange="InvoicepartsQuantity('{{$row_index}}'); getTaxRates('{{$row_index}}');" value="{{$parts['invoice_parts_tax_rate']}}">
+                                                            <option selected value="">Choose...</option>
+                                                            @foreach($tax_rates as $tax_rate)
+                                                                <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_'.$row_index}}" value="{{ !empty($parts['invoice_parts_tax_rate_id']) ? $parts['invoice_parts_tax_rate_id'] : $tax_rate['id']}}" ></option>
+                                                                <option id="{{$tax_rate['id'].'_'.$row_index}}" value="{{$tax_rate['tax_rates']}}" {{ $parts['invoice_parts_tax_rate_id']==$tax_rate['id'] ? 'selected' : '' }}>{{$tax_rate['tax_rates_name']}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td>
@@ -642,7 +691,7 @@
                                                 @enderror
                                             </td>
                                             <td class="tableOptions">
-                                                <button class="btn sumb--btn delepart" type="button" onclick="deleteInvoiceParts(<?php echo $row_index?>)" ><i class="fa-solid fa-trash"></i></button>
+                                                <button class="btn sumb--btn delepart" type="button" onclick="deleteInvoiceParts(<?php echo $row_index ?>)" ><i class="fa-solid fa-trash"></i></button>
                                             </td>
                                         </tr>
                                         @php  $row_index++ @endphp
@@ -699,7 +748,6 @@
                                                         @foreach ($chart_account as $item)
                                                             <optgroup label="{{$item['chart_accounts_name']}}" style="font-size: 13px;padding: 10px;border-bottom: 1px solid lightgrey"></optgroup>
                                                                 <!-- <h4>{{$item['chart_accounts_name']}}</h4> -->
-                                                                
                                                                 @foreach ($item['chart_accounts_particulars'] as $particulars)
                                                                 <?php
                                                                     $user = array_search($particulars['chart_accounts_type_id'], array_column($item['chart_accounts_types'], 'id'));
@@ -722,11 +770,17 @@
                                                 </td>
                                                 <td id="invoice_parts_tax_rate_td_0">
                                                     <div class="input-group mb-3">
-                                                        <select class="custom-select form-control" id="invoice_parts_tax_rate_0" name="invoice_parts_tax_rate_0" onchange="InvoicepartsQuantity(0)" value="">
-                                                            <option selected value="">Choose...</option>
-                                                            <option value="0">Tax Exempt(0%)</option>
-                                                            <option value="10">Tax Included(10%)</option>
+                                                    @if(!empty($tax_rates))
+                                                        <input type="hidden" name="invoice_parts_tax_rate_id_0" id="invoice_parts_tax_rate_id_0" value="">
+                                                        <input type="hidden" name="invoice_parts_tax_rate_name_0" id="invoice_parts_tax_rate_name_0" value="">
+                                                        <select class="custom-select form-control" id="invoice_parts_tax_rate_0" name="invoice_parts_tax_rate_0" onchange="InvoicepartsQuantity(0); getTaxRates(0);" value="">
+                                                            <option selected value="">Choose...</option>    
+                                                            @foreach($tax_rates as $tax_rate)
+                                                                <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
+                                                                <option id="{{$tax_rate['id'].'_0'}}" value="{{$tax_rate['tax_rates']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                                            @endforeach
                                                         </select>
+                                                    @endif
                                                     </div>
                                                 </td>
                                                 <td>
@@ -1148,7 +1202,6 @@
                 $('#puprice').hide();
             }
         });
-        
         
         $('.dcc_click').on('click', function () {
             var clientid = $(this).data('myid');

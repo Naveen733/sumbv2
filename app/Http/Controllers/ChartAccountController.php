@@ -43,6 +43,7 @@ class ChartAccountController extends Controller
                         'chart_accounts_particulars_name' => trim($request->invoice_chart_accounts_name),
                         'chart_accounts_particulars_description' => trim($request->invoice_chart_accounts_description),
                         'chart_accounts_particulars_tax' => trim($request->invoice_chart_accounts_tax_rate),
+                        'chart_accounts_particulars_tax_rate_id' => trim($request->invoice_chart_accounts_tax_rate_id)
                     ]);
                 if($chart_account_particulars->id){
                     DB::commit();
@@ -74,7 +75,7 @@ class ChartAccountController extends Controller
         if ($request->ajax())
         {
             $userinfo = $request->get('userinfo');
-            $chart_account_exists = SumbChartAccountsTypeParticulars::where('user_id', $userinfo[0])
+            $chart_account_exists = SumbChartAccountsTypeParticulars::with(['invoiceTaxRates'])->where('user_id', $userinfo[0])
                                         ->where('id', $request->id)
                                         ->first();
             if(!empty($chart_account_exists)){

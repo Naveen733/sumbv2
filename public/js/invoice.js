@@ -1,6 +1,6 @@
 function openPopUpModel(id){
-    $("#invoice_part_row_id").val('');
-    $("#invoice_part_row_id").val(id);
+    $("#invoice_item_part_row_id").val('');
+    $("#invoice_item_part_row_id").val(id);
     $("#invoice_item_code").val('');
     $("#invoice_item_name").val('');
     $("#invoice_item_unit_price").val('');
@@ -14,13 +14,21 @@ function openPopUpModel(id){
     });
 }
 
-function openNewAddAccountPopUpModel(id){
-    $("#invoice_part_row_id").val('');
-    $("#invoice_part_row_id").val(id);
+function openNewAddAccountPopUpModel(id, from){
+    $("#invoice_account_part_row_id").val('');
+    $("#invoice_account_part_row_id").val(id);
     $("#invoice_chart_accounts_code").val('');
     $("#invoice_chart_accounts_name").val('');
     $("#invoice_chart_accounts_description").val('');
     $("#invoice_chart_accounts_tax_rate").val('');
+    if(from == 'addItem'){
+        $("#add_account_from").val('addItem');
+        $("#invoice_account_part_row_id").val($("#invoice_item_part_row_id").val());
+        $(".close").click();
+    }
+    else{
+        $("#add_account_from").val('');
+    }
     
     $('#newAddAccountModal').modal({
         backdrop: 'static',
@@ -38,9 +46,10 @@ function addNewAccount(id){
         invoice_chart_accounts_name: $("#invoice_chart_accounts_name").val(),
         invoice_chart_accounts_description: $("#invoice_chart_accounts_description").val(),
         invoice_chart_accounts_tax_rate: $("#invoice_chart_accounts_tax_rate").val(),
+        invoice_chart_accounts_tax_rate_id: $("#invoice_chart_accounts_tax_rate").val(),
         invoice_chart_accounts_id: $("#invoice_chart_accounts_id_"+$("#invoice_chart_accounts_type_id").val()).val(),
     };
-    if(post_data.invoice_chart_accounts_type_id && post_data.invoice_chart_accounts_code && post_data.invoice_chart_accounts_name && post_data.invoice_chart_accounts_description && post_data.invoice_chart_accounts_tax_rate ){
+    if(post_data.invoice_chart_accounts_tax_rate_id && post_data.invoice_chart_accounts_type_id && post_data.invoice_chart_accounts_code && post_data.invoice_chart_accounts_name && post_data.invoice_chart_accounts_description && post_data.invoice_chart_accounts_tax_rate ){
         $("#invoice_chart_accounts_code_error").removeClass('alert alert-danger');
         $("#invoice_chart_accounts_code_error").html('');
 
@@ -65,87 +74,109 @@ function addNewAccount(id){
                     response = JSON.parse(response);
                     
                     if(response && response.status == "success"){
-                        // $("#client_details").show();
-                        $("#invoice_chart_account_list_"+id).empty();
-                        // $("#add_new_invoice_item").empty();
-                        var counter = 0;
-                        $("#invoice_chart_account_list_"+id).append('<div id="add_new_invoice_chart_accoun_'+id+'" style="padding-left: 10px"><a href="" class="pop-model" data-toggle="modal" data-target="#newAddAccountModal" onclick=openNewAddAccountPopUpModel('+id+')>+ New Item</a></div>')
+                        if($("#add_account_from").val() == 'addItem'){
+                            openPopUpModel(id);
+                            $("#invoice_chart_account_list").empty();
 
-                        $.each(response.data,function(key,value){
-                            $("#invoice_chart_account_list_"+id).append(
-                                '<optgroup label="'+value['chart_accounts_name']+'" style="font-size: 13px;border-bottom: 1px solid lightgrey"></optgroup>'
-                            );
-                            $.each(value['chart_accounts_particulars'],function(k,val){
-                                // counter++;
-                                $("#invoice_chart_account_list_"+id).append('\n\<li><div style="padding: 10px;border-bottom: 1px solid lightgrey">\n\
-                                <button type="button" class="invoice_item" data-myid="'+counter+'" onclick=addInvoiceChartAccount("'+encodeURI(val['id'])+'","'+id+'");>\n\
-                                <span id="data_name_'+counter+'">'+val['chart_accounts_particulars_code']+':'+val['chart_accounts_particulars_name']+'</span>\n\
-                                                            </button></div></li>');
+                            $("#invoice_chart_account_list").append('<div id="add_new_invoice_chart_account" style="padding-left: 10px"><a href="" class="pop-model" data-toggle="modal" data-target="#newAddAccountModal" onclick=openNewAddAccountPopUpModel('+id+')>+ New Item</a></div>')
+
+                            $.each(response.data,function(key,value){
+                                $("#invoice_chart_account_list").append(
+                                    '<optgroup label="'+value['chart_accounts_name']+'" style="font-size: 13px;border-bottom: 1px solid lightgrey"></optgroup>'
+                                );
+                                $.each(value['chart_accounts_particulars'],function(k,val){
+                                    $("#invoice_chart_account_list").append('\n\<li><div style="padding: 10px;border-bottom: 1px solid lightgrey">\n\
+                                    <button type="button" class="invoice_item" data-myid="'+counter+'" onclick=addInvoiceChartAccount('+val['id']+','+id+',"addItem")>\n\
+                                    <span id="data_name_'+counter+'">'+val['chart_accounts_particulars_code']+':'+val['chart_accounts_particulars_name']+'</span>\n\
+                                       </button></div></li>');
+                                });
                             });
-                        });
-                        
-                        // $("#invoice_chart_accounts_type_id").val('');
-                        // $("#invoice_chart_accounts_type_id_"+id).val('');
-                        // $("#invoice_chart_accounts_code_"+id).val('');
-                        // $("#invoice_chart_accounts_name_"+id).val('');
-                        // $("#invoice_chart_accounts_description_"+id).val('');
-                        // $("#invoice_chart_accounts_tax_rate_"+id).val('');
 
-                        $("#invoice_parts_chart_accounts_parts_id_"+id).val('');
-                        $("#invoice_parts_chart_accounts_"+id).val('');
-                        $("#invoice_parts_chart_accounts_code_"+id).val('');
-                        $("#invoice_parts_chart_accounts_name_"+id).val('');
- 
-                        $("#invoice_parts_chart_accounts_parts_id_"+id).val(response.id);
+                            if($("#invoice_item_tax_rate option:selected").attr('id')){
+                                const selected_option = $("#invoice_item_tax_rate option:selected").attr('id');
+                                $("#"+selected_option).removeAttr("selected");
 
-                        $("#invoice_parts_chart_accounts_"+id).val(post_data.invoice_chart_accounts_code+':'+post_data.invoice_chart_accounts_name);
-                        $("#invoice_parts_chart_accounts_name_"+id).val(post_data.invoice_chart_accounts_name);
-                        $("#invoice_parts_chart_accounts_code_"+id).val(post_data.invoice_chart_accounts_code);
+                                console.log(selected_option);
+                            }
 
-                        
-                        // $("#invoice_parts_description_"+id).val(post_data.invoice_item_description);
-                        // $("#invoice_parts_unit_price_"+id).val(post_data.invoice_item_unit_price);
-                        // $("#invoice_parts_quantity_"+id).val(1.00);
-                        // $("#invoice_parts_tax_rate_"+id).val(post_data.invoice_item_tax_rate);
+                            $("#invoice_item_tax_rate").val('');
+                            var tax_rate_id = $("#invoice_chart_accounts_tax_rate").val();
+                            $("#invoice_item_tax_rate").val(tax_rate_id);
 
-                        // InvoicepartsQuantity(id)
-                        // $("#invoice_parts_amount_"+id).val((parseFloat(post_data.invoice_item_unit_price) * 1).toFixed(2));
+                            console.log(tax_rate_id);
+                            
+                            $("#invoice_item_chart_accounts_parts_id").val(response.id);
+                            // $("#invoice_item_tax_rate option[id='"+tax_rate_id+"']").attr("selected", "selected");
 
+                            $("#invoice_item_chart_accounts_parts").val(post_data.invoice_chart_accounts_code+' - '+post_data.invoice_chart_accounts_name);
+                            
+                        }else{
+                            $("#invoice_chart_account_list_"+id).empty();
+                            var counter = 0;
+                            $("#invoice_chart_account_list_"+id).append('<div id="add_new_invoice_chart_accoun_'+id+'" style="padding-left: 10px"><a href="" class="pop-model" data-toggle="modal" data-target="#newAddAccountModal" onclick=openNewAddAccountPopUpModel('+id+')>+ New Item</a></div>')
+
+                            $.each(response.data,function(key,value){
+                                $("#invoice_chart_account_list_"+id).append(
+                                    '<optgroup label="'+value['chart_accounts_name']+'" style="font-size: 13px;border-bottom: 1px solid lightgrey"></optgroup>'
+                                );
+                                $.each(value['chart_accounts_particulars'],function(k,val){
+                                    $("#invoice_chart_account_list_"+id).append('\n\<li><div style="padding: 10px;border-bottom: 1px solid lightgrey">\n\
+                                    <button type="button" class="invoice_item" data-myid="'+counter+'" onclick=addInvoiceChartAccount("'+encodeURI(val['id'])+'","'+id+'");>\n\
+                                    <span id="data_name_'+counter+'">'+val['chart_accounts_particulars_code']+':'+val['chart_accounts_particulars_name']+'</span>\n\
+                                                                </button></div></li>');
+                                });
+                            });
+                            
+                            if($("#invoice_parts_tax_rate_"+id+" option:selected").attr('id')){
+                                const selected_option = $("#invoice_parts_tax_rate_"+id+" option:selected").attr('id');
+                                $("#"+selected_option).removeAttr("selected");
+                            }
+
+                            $("#invoice_parts_chart_accounts_parts_id_"+id).val('');
+                            $("#invoice_parts_chart_accounts_"+id).val('');
+                            $("#invoice_parts_chart_accounts_code_"+id).val('');
+                            $("#invoice_parts_chart_accounts_name_"+id).val('');
+                            $("#invoice_parts_tax_rate_"+id).val('');
+                            $("#invoice_parts_tax_rate_id_"+id).val('');
+
+                            $("#invoice_parts_chart_accounts_parts_id_"+id).val(response.id);
+
+                            $("#invoice_parts_chart_accounts_"+id).val(post_data.invoice_chart_accounts_code+' - '+post_data.invoice_chart_accounts_name);
+                            $("#invoice_parts_chart_accounts_name_"+id).val(post_data.invoice_chart_accounts_name);
+                            $("#invoice_parts_chart_accounts_code_"+id).val(post_data.invoice_chart_accounts_code);
+
+                            var tax_rate_id = $("#invoice_chart_accounts_tax_rate").val();
+                            $("#invoice_parts_tax_rate_id_"+id).val(tax_rate_id);
+                            $("#invoice_parts_tax_rate_"+id+ " option[id='"+tax_rate_id+"_"+id+"']").attr("selected", "selected");
+                        }
                         $(".close").click();
                     }else if(response.status == "error"){
                         $("#invoice_item_code_error").addClass('alert alert-danger');
                         $("#invoice_item_code_error").html(response.err);
-                        // console.log(response.err);
-                        // $("#client_details").show();
-                        // $("#invoice_item_list").empty();
-                        // $("#invoice_item_list").append('<input type="checkbox" onclick=closeClientSuggestionBox() name="add_new_client"><label for="add_new_client">Add as a new active client?</label></br>');
                     }
                 }catch(error){
-                    // alertBottom(null,'Something went wrong, try again later');
                 }
             },
             error:function(error){ 
-                // alertBottom(null,"Something went wrong, please try again later");
             }
         });
     }else{
-        $("#invoice_item_code_error").addClass('alert alert-danger');
-        $("#invoice_item_code_error").html('Code field is required');
+        $("#invoice_chart_accounts_code_error").addClass('alert alert-danger');
+        $("#invoice_chart_accounts_code_error").html('Code field is required');
 
-        $("#invoice_item_name_error").addClass('alert alert-danger');
-        $("#invoice_item_name_error").html('Name field is required');
+        $("#invoice_chart_accounts_name_error").addClass('alert alert-danger');
+        $("#invoice_chart_accounts_name_error").html('Name field is required');
 
-        $("#invoice_item_unit_price_error").addClass('alert alert-danger');
-        $("#invoice_item_unit_price_error").html('Unit price field is required');
+        $("#invoice_chart_accounts_type_error").addClass('alert alert-danger');
+        $("#invoice_chart_accounts_type_error").html('Account Type field is required');
 
-        $("#invoice_item_tax_rate_error").addClass('alert alert-danger');
-        $("#invoice_item_tax_rate_error").html('Tax rate field is required');
+        $("#invoice_chart_accounts_tax_rate_error").addClass('alert alert-danger');
+        $("#invoice_chart_accounts_tax_rate_error").html('Tax rate field is required');
     }
 }
 
-function addInvoiceChartAccount(chart_accounts_parts_id, rowId){
+function addInvoiceChartAccount(chart_accounts_parts_id, rowId, from){
     if(chart_accounts_parts_id && rowId>=0){
-        
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         });
@@ -156,30 +187,39 @@ function addInvoiceChartAccount(chart_accounts_parts_id, rowId){
         success:function(response){
             try{
                 response = JSON.parse(response);
-                
                 if(response && response.status == "success"){
-                    $("#invoice_parts_chart_accounts_parts_id_"+rowId).val('');
-                    $("#invoice_parts_chart_accounts_"+rowId).val('');
+                    if(from == 'addItem'){
+                        if($("#invoice_item_tax_rate option:selected").attr('id')){
+                            const selected_option = $("#invoice_item_tax_rate option:selected").attr('id');
+                            $("#"+selected_option).removeAttr("selected");
+                        }
 
-                    // $("#invoice_parts_name_"+rowId).val('');
-                    // $("#invoice_parts_code_"+rowId).val('');
-                    // $("#invoice_parts_quantity_"+rowId).val('');
-                    // $("#invoice_parts_description_"+rowId).val('');
-                    // $("#invoice_parts_unit_price_"+rowId).val('');
-                    // // $("#invoice_parts_amount_"+rowId).val('');
-                    // $("#invoice_parts_tax_rate_"+rowId).val('');
+                        $("#invoice_item_tax_rate").val('');
+                        $("#invoice_item_chart_accounts_parts_id").val('');
+                        $("#invoice_item_chart_accounts_parts").val('');
 
-                    $("#invoice_parts_chart_accounts_"+rowId).val(response['data']['chart_accounts_particulars_code']+':'+response['data']['chart_accounts_particulars_name']);
-                    $("#invoice_parts_chart_accounts_parts_id_"+rowId).val(response['data']['id']);
-                    // $("#invoice_parts_name_"+rowId).val(response['data']['invoice_item_name']);
-                    // $("#invoice_parts_code_"+rowId).val(response['data']['invoice_item_code']);
-                    // $("#invoice_parts_quantity_"+rowId).val(response['data']['invoice_item_quantity']);
-                    // $("#invoice_parts_description_"+rowId).val(response['data']['invoice_item_description']);
-                    // $("#invoice_parts_unit_price_"+rowId).val(response['data']['invoice_item_unit_price']);
-                    // $("#invoice_parts_tax_rate_"+rowId).val(response['data']['invoice_item_tax_rate']);
+                        $("#invoice_item_chart_accounts_parts").val(response['data']['chart_accounts_particulars_code']+':'+response['data']['chart_accounts_particulars_name']);
+                        $("#invoice_item_chart_accounts_parts_id").val(response['data']['id']);
 
-                    // console.log(rowId);
-                    // InvoicepartsQuantity(rowId)
+                        const tax_rate_id = response['data']['invoice_tax_rates']['id'] ? response['data']['invoice_tax_rates']['id'] : '';
+                        $("#invoice_item_tax_rate").val(tax_rate_id);
+                    }else{
+                        if($("#invoice_parts_tax_rate_"+rowId+" option:selected").attr('id')){
+                            const selected_option = $("#invoice_parts_tax_rate_"+rowId+" option:selected").attr('id');
+                            $("#"+selected_option).removeAttr("selected");
+                        }
+    
+                        $("#invoice_parts_chart_accounts_parts_id_"+rowId).val('');
+                        $("#invoice_parts_chart_accounts_"+rowId).val('');
+                        $("#invoice_parts_tax_rate_id_"+rowId).val('');
+    
+                        $("#invoice_parts_chart_accounts_"+rowId).val(response['data']['chart_accounts_particulars_code']+':'+response['data']['chart_accounts_particulars_name']);
+                        $("#invoice_parts_chart_accounts_parts_id_"+rowId).val(response['data']['id']);
+    
+                        const tax_rate_id = response['data']['invoice_tax_rates']['id'] ? response['data']['invoice_tax_rates']['id'] : '';
+                        $("#invoice_parts_tax_rate_"+rowId+ " option[id='"+tax_rate_id+"_"+rowId+"']").attr("selected", "selected");
+                        $("#invoice_parts_tax_rate_id_"+rowId).val(tax_rate_id);
+                    }
 
                 }else if(response.status == "error"){
                     alert(esponse.err);
@@ -261,40 +301,39 @@ function addInvoiceParts(){
     }
 
     $("#partstable tr.add--new-line").before('<tr class="invoice_parts_form_cls" id="invoice_parts_row_id_'+rowIndex+'" >\
-                    <td><input data-toggle="dropdown" type="text" id="invoice_parts_name_code_'+rowIndex+'" name="invoice_parts_name_code_'+rowIndex+'" onkeyup="searchInvoiceparts(this)" value="">\
-                    <input type="hidden" id="invoice_parts_code_'+rowIndex+'" name="invoice_parts_code_'+rowIndex+'" value="">\
-                    <input type="hidden" id="invoice_parts_name_'+rowIndex+'" name="invoice_parts_name_'+rowIndex+'" value="">\
-                    <ul class="dropdown-menu" id="invoice_item_list_'+rowIndex+'">\
-                        </ul>\
-                    </td>\
-                    <td><input type="number" id="invoice_parts_quantity_'+rowIndex+'" name="invoice_parts_quantity_'+rowIndex+'" value="" onchange=InvoicepartsQuantity('+rowIndex+')></td>\
-                    <td><textarea class="autoresizing" id="invoice_parts_description_'+rowIndex+'" name="invoice_parts_description_'+rowIndex+'" value=""></textarea></td>\
-                    <td><input type="number" id="invoice_parts_unit_price_'+rowIndex+'" name="invoice_parts_unit_price_'+rowIndex+'" value="" onchange=InvoicepartsQuantity('+rowIndex+')>\
-                        <input type="hidden" id="invoice_parts_gst_'+rowIndex+'" name="invoice_parts_gst_'+rowIndex+'" value="">\
-                    </td>\
-                    <td>\
-                        <input data-toggle="dropdown" type="text" id="invoice_parts_chart_accounts_'+rowIndex+'" name="invoice_parts_chart_accounts_'+rowIndex+'"  value="">\
-                        <input type="hidden" id="invoice_parts_chart_accounts_code_'+rowIndex+'" name="invoice_parts_chart_accounts_code_'+rowIndex+'" value="">\
-                        <input type="hidden" id="invoice_parts_chart_accounts_name_'+rowIndex+'" name="invoice_parts_chart_accounts_name_'+rowIndex+'" value="">\
-                        <input type="hidden" id="invoice_parts_chart_accounts_parts_id_'+rowIndex+'" name="invoice_parts_chart_accounts_parts_id_'+rowIndex+'" value="">\
-                        <ul class="dropdown-menu" id="invoice_chart_account_list_'+rowIndex+'">\
-                        </ul>\
-                    </td>\
-                    <td>\
-                        <div class="input-group mb-3">\
-                            <select class="custom-select form-control" id="invoice_parts_tax_rate_'+rowIndex+'" name="invoice_parts_tax_rate_'+rowIndex+'" onchange=InvoicepartsQuantity('+rowIndex+')>\
-                                <option selected value="">Choose...</option>\
-                                <option value="0">Tax Exempt(0%)</option>\
-                                <option value="10">Tax Included(10%)</option>\
-                            </select>\
-                        </div>\
-                    </td>\
-                    <td><input type="number" readonly id="invoice_parts_amount_'+rowIndex+'" name="invoice_parts_amount_'+rowIndex+'" value="" >\n\
-                    </td><td class="tableOptions"><button class="btn sumb--btn delepart" type="button" onclick=deleteInvoiceParts('+rowIndex+')><i class="fas fa-trash-alt"></i></button></td></tr>');
+            <td><input data-toggle="dropdown" type="text" id="invoice_parts_name_code_'+rowIndex+'" name="invoice_parts_name_code_'+rowIndex+'" onkeyup="searchInvoiceparts(this)" value="" required>\
+            <input type="hidden" id="invoice_parts_code_'+rowIndex+'" name="invoice_parts_code_'+rowIndex+'" value="">\
+            <input type="hidden" id="invoice_parts_name_'+rowIndex+'" name="invoice_parts_name_'+rowIndex+'" value="">\
+            <ul class="dropdown-menu" id="invoice_item_list_'+rowIndex+'">\
+                </ul>\
+            </td>\
+            <td><input type="number" id="invoice_parts_quantity_'+rowIndex+'" name="invoice_parts_quantity_'+rowIndex+'" value="" onchange=InvoicepartsQuantity('+rowIndex+') required></td>\
+            <td><textarea class="autoresizing" id="invoice_parts_description_'+rowIndex+'" name="invoice_parts_description_'+rowIndex+'" value="" required></textarea></td>\
+            <td><input type="number" id="invoice_parts_unit_price_'+rowIndex+'" name="invoice_parts_unit_price_'+rowIndex+'" value="" onchange=InvoicepartsQuantity('+rowIndex+') required>\
+                <input type="hidden" id="invoice_parts_gst_'+rowIndex+'" name="invoice_parts_gst_'+rowIndex+'" value="">\
+            </td>\
+            <td>\
+                <input data-toggle="dropdown" type="text" id="invoice_parts_chart_accounts_'+rowIndex+'" name="invoice_parts_chart_accounts_'+rowIndex+'"  value="" required>\
+                <input type="hidden" id="invoice_parts_chart_accounts_code_'+rowIndex+'" name="invoice_parts_chart_accounts_code_'+rowIndex+'" value="">\
+                <input type="hidden" id="invoice_parts_chart_accounts_name_'+rowIndex+'" name="invoice_parts_chart_accounts_name_'+rowIndex+'" value="">\
+                <input type="hidden" id="invoice_parts_chart_accounts_parts_id_'+rowIndex+'" name="invoice_parts_chart_accounts_parts_id_'+rowIndex+'" value="">\
+                <ul class="dropdown-menu" id="invoice_chart_account_list_'+rowIndex+'">\
+                </ul>\
+            </td>\
+            <td>\
+                <div class="input-group mb-3">\
+                    <input type="hidden" name="invoice_parts_tax_rate_id_'+rowIndex+'" id="invoice_parts_tax_rate_id_'+rowIndex+'" value="">\
+                    <input type="hidden" name="invoice_parts_tax_rate_name_'+rowIndex+'" id="invoice_parts_tax_rate_name_'+rowIndex+'" value="">\
+                    <select class="custom-select form-control" id="invoice_parts_tax_rate_'+rowIndex+'" name="invoice_parts_tax_rate_'+rowIndex+'" onchange="InvoicepartsQuantity('+rowIndex+');getTaxRates('+rowIndex+')" required>\
+                    </select>\
+                </div>\
+            </td>\
+            <td><input type="number" readonly id="invoice_parts_amount_'+rowIndex+'" name="invoice_parts_amount_'+rowIndex+'" value="" required>\n\
+            </td><td class="tableOptions"><button class="btn sumb--btn delepart" type="button" onclick=deleteInvoiceParts('+rowIndex+')><i class="fas fa-trash-alt"></i></button></td></tr>');
     
+    getInvoiceTaxRates(rowIndex);
     getInvoiceItemList(rowIndex);
     getChartAccountsParticularsList(rowIndex);
-
     addOrRemoveInvoicePartsIds('add',rowIndex);
 }
 
@@ -309,9 +348,7 @@ function getInvoiceItemList(id){
         success:function(response){
             try{
                 response = JSON.parse(response);
-                
                 if(response && response.status == "success"){
-                    
                     // $("#client_details").show();
                     $("#invoice_item_list_"+id).empty();
                     // $("#add_new_invoice_item").empty();
@@ -326,7 +363,6 @@ function getInvoiceItemList(id){
                                 <input type="hidden" id="invoice_item_id_'+counter+'" name="invoice_item_id" value="'+value['id']+'">\n\
                                 </button></li>');
                     });
-                    
                 }else if(response.status == "error"){
                     alert(esponse.err);
                     // $("#client_details").show();
@@ -343,6 +379,43 @@ function getInvoiceItemList(id){
     });
 }
 
+function getInvoiceTaxRates(rowId){
+    if(rowId>=0){
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        });
+        $.ajax({
+        method: "GET",
+        url: "/invoice-tax-rates",
+        // data: post_data,
+        success:function(response){
+            try{
+                response = JSON.parse(response);
+                
+                if(response && response.status == "success"){
+                    $("#invoice_parts_tax_rate_"+rowId).val('');
+                    $("#invoice_parts_tax_rate_"+rowId).append('<option selected value="">Choose...</option>');
+                    
+                    $.each(response.data, function (key, value) {
+                        $("#invoice_parts_tax_rate_"+rowId).append('<option hidden="hidden" id="tax_rate_id_'+value['id']+'_'+rowId+'" value='+value['id']+'></option>\
+                                                    <option id='+value['id']+"_"+rowId+' value='+value['tax_rates']+'>'+value['tax_rates_name']+'</option>');
+                    });
+                }else if(response.status == "error"){
+                    alert(esponse.err);
+                    // $("#client_details").show();
+                    // $("#invoice_item_list").empty();
+                    // $("#invoice_item_list").append('<input type="checkbox" onclick=closeClientSuggestionBox() name="add_new_client"><label for="add_new_client">Add as a new active client?</label></br>');
+                }
+            }catch(error){
+                // alertBottom(null,'Something went wrong, try again later');
+            }
+        },
+            error:function(error){ 
+                // alertBottom(null,"Something went wrong, please try again later");
+            }
+        });
+    }
+}
 function getInvoiceItemsById(itemId, rowId){
     if(itemId && rowId>=0){
         $.ajaxSetup({
@@ -357,6 +430,12 @@ function getInvoiceItemsById(itemId, rowId){
                 response = JSON.parse(response);
                 
                 if(response && response.status == "success"){
+                    
+                    if($("#invoice_parts_tax_rate_"+rowId+" option:selected").attr('id')){
+                        const selected_option = $("#invoice_parts_tax_rate_"+rowId+" option:selected").attr('id');
+                        $("#"+selected_option).removeAttr("selected");
+                    }
+                    
                     $("#invoice_parts_name_code_"+rowId).val('');
                     $("#invoice_parts_name_"+rowId).val('');
                     $("#invoice_parts_code_"+rowId).val('');
@@ -365,6 +444,7 @@ function getInvoiceItemsById(itemId, rowId){
                     $("#invoice_parts_unit_price_"+rowId).val('');
                     // $("#invoice_parts_amount_"+rowId).val('');
                     $("#invoice_parts_tax_rate_"+rowId).val('');
+                    $("#invoice_parts_tax_rate_id_"+rowId).val('');
 
                     $("#invoice_parts_name_code_"+rowId).val(response['data']['invoice_item_code']+':'+response['data']['invoice_item_name']);
                     $("#invoice_parts_name_"+rowId).val(response['data']['invoice_item_name']);
@@ -372,9 +452,13 @@ function getInvoiceItemsById(itemId, rowId){
                     $("#invoice_parts_quantity_"+rowId).val(response['data']['invoice_item_quantity']);
                     $("#invoice_parts_description_"+rowId).val(response['data']['invoice_item_description']);
                     $("#invoice_parts_unit_price_"+rowId).val(response['data']['invoice_item_unit_price']);
-                    $("#invoice_parts_tax_rate_"+rowId).val(response['data']['invoice_item_tax_rate']);
+                    // $("#invoice_parts_tax_rate_"+rowId).val(response['data']['invoice_item_tax_rate']);
 
-                    // console.log(rowId);
+                    
+                    const tax_rate_id = response['data']['tax_rates']['id'] ? response['data']['tax_rates']['id'] : '';
+                    $("#invoice_parts_tax_rate_"+rowId+ " option[id='"+tax_rate_id+"_"+rowId+"']").attr("selected", "selected");
+                    $("#invoice_parts_tax_rate_id_"+rowId).val(tax_rate_id);
+                    
                     InvoicepartsQuantity(rowId)
 
                 }else if(response.status == "error"){
@@ -539,10 +623,12 @@ function addInvoiceItem(id){
         invoice_item_name: $("#invoice_item_name").val(),
         invoice_item_unit_price: $("#invoice_item_unit_price").val(),
         invoice_item_tax_rate: $("#invoice_item_tax_rate").val(),
-        invoice_item_description: $("#invoice_item_description").val()
+        invoice_item_tax_rate_id: $("#invoice_item_tax_rate").val(),
+        invoice_item_description: $("#invoice_item_description").val(),
+        invoice_item_chart_accounts_parts: $("#invoice_item_chart_accounts_parts").val(),
+        invoice_item_chart_accounts_parts_id: $("#invoice_item_chart_accounts_parts_id").val()
     };
-    
-    if(post_data.invoice_item_code && post_data.invoice_item_tax_rate && post_data.invoice_item_name && post_data.invoice_item_unit_price ){
+    if(post_data.invoice_item_tax_rate_id && post_data.invoice_item_code && post_data.invoice_item_tax_rate && post_data.invoice_item_name && post_data.invoice_item_unit_price ){
         $("#invoice_item_code_error").removeClass('alert alert-danger');
         $("#invoice_item_code_error").html('');
 
@@ -567,12 +653,9 @@ function addInvoiceItem(id){
                     response = JSON.parse(response);
                     
                     if(response && response.status == "success"){
-                        // $("#client_details").show();
                         $("#invoice_item_list_"+id).empty();
-                        // $("#add_new_invoice_item").empty();
                         var counter = 0;
                         $("#invoice_item_list_"+id).append('<div id="add_new_invoice_item_'+id+'"><a href="" class="pop-model" data-toggle="modal" data-target="#newItemModal" onclick=openPopUpModel('+id+')>+ New Item</a></div>')
-
                         $.each(response.data,function(key,value){
                             counter++;
                             $("#invoice_item_list_"+id).append('\n\<li>\n\
@@ -580,6 +663,12 @@ function addInvoiceItem(id){
                             <span id="data_name_'+counter+'">'+value['invoice_item_code']+':'+value['invoice_item_name']+'</span>\n\
                                                             </button></li>');
                         });
+
+                        if($("#invoice_parts_tax_rate_"+id+" option:selected").attr('id')){
+                            const selected_option = $("#invoice_parts_tax_rate_"+id+" option:selected").attr('id');
+                            $("#"+selected_option).removeAttr("selected");
+                        }
+
                         $("#invoice_parts_name_code_"+id).val('');
                         $("#invoice_parts_name_"+id).val('');
                         $("#invoice_parts_code_"+id).val('');
@@ -587,20 +676,34 @@ function addInvoiceItem(id){
                         $("#invoice_parts_unit_price_"+id).val('');
                         $("#invoice_parts_quantity_"+id).val('');
                         $("#invoice_parts_tax_rate_"+id).val('');
+                        $("#invoice_parts_tax_rate_id_"+id).val('');
+
+                        $("#invoice_parts_chart_accounts_"+id).val('');
+                        $("#invoice_parts_chart_accounts_parts_id_"+id).val('');
+
+                        // var selected_tax_rate = $("#invoice_item_tax_rate option:selected").text();
+                        // selected_tax_rate = selected_tax_rate.replaceAll(' ', '');
 
                         $("#invoice_parts_name_code_"+id).val(post_data.invoice_item_code+':'+post_data.invoice_item_name);
                         $("#invoice_parts_name_"+id).val(post_data.invoice_item_name);
                         $("#invoice_parts_code_"+id).val(post_data.invoice_item_code);
 
-                        
+
                         $("#invoice_parts_description_"+id).val(post_data.invoice_item_description);
                         $("#invoice_parts_unit_price_"+id).val(post_data.invoice_item_unit_price);
                         $("#invoice_parts_quantity_"+id).val(1.00);
-                        $("#invoice_parts_tax_rate_"+id).val(post_data.invoice_item_tax_rate);
+
+
+                        $("#invoice_parts_chart_accounts_"+id).val($("#invoice_item_chart_accounts_parts").val());
+                        $("#invoice_parts_chart_accounts_parts_id_"+id).val(post_data.invoice_item_chart_accounts_parts_id);
+
+                        var tax_rate_id = $("#invoice_item_tax_rate").val();
+                        $("#invoice_parts_tax_rate_id_"+id).val(tax_rate_id);
+                        $("#invoice_parts_tax_rate_"+id+ " option[id='"+tax_rate_id+"_"+id+"']").attr("selected", "selected");
 
                         InvoicepartsQuantity(id)
-                        // $("#invoice_parts_amount_"+id).val((parseFloat(post_data.invoice_item_unit_price) * 1).toFixed(2));
-
+                        $("#invoice_item_chart_accounts_parts").val('');
+                        $("#invoice_item_chart_accounts_parts_id").val('');
                         $(".close").click();
                     }else if(response.status == "error"){
                         $("#invoice_item_code_error").addClass('alert alert-danger');
@@ -675,5 +778,13 @@ function previewInvoice(){
                 <td>'+$("#invoice_parts_amount_"+i).val()+'</td>\
             </tr> ');
         }
+    }
+}
+
+function getTaxRates(rowId){
+    if($("#invoice_parts_tax_rate_"+rowId+" option:selected").attr('id')){
+        const selected_option = $("#invoice_parts_tax_rate_"+rowId+" option:selected").attr('id');
+        $("#invoice_parts_tax_rate_id_"+rowId).val('');
+        $("#invoice_parts_tax_rate_id_"+rowId).val($("#tax_rate_id_"+selected_option).val());
     }
 }

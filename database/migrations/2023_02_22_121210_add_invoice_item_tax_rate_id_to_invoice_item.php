@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddChartAccountsPartsIdToInvoiceDetails extends Migration
+class AddInvoiceItemTaxRateIdToInvoiceItem extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddChartAccountsPartsIdToInvoiceDetails extends Migration
      */
     public function up()
     {
-        Schema::table('sumb_invoice_details', function (Blueprint $table) {
-            $table->bigInteger('invoice_chart_accounts_parts_id')->unsigned()->index();
+        Schema::table('invoice_item', function (Blueprint $table) {
+            $table->bigInteger('invoice_item_tax_rate_id')->unsigned()->index();
         });
     }
 
@@ -25,8 +25,8 @@ class AddChartAccountsPartsIdToInvoiceDetails extends Migration
      */
     public function down()
     {
-        Schema::table('sumb_invoice_details', function (Blueprint $table) {
-            $table->dropColumn('invoice_chart_accounts_parts_id');
+        Schema::table('invoice_item', function (Blueprint $table) {
+            $table->dropColumn('invoice_item_tax_rate_id');
         });
     }
 }
