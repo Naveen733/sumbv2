@@ -80,8 +80,7 @@ class InvoiceController extends Controller {
         //==== get all tranasactions
         $ptype = 'all';
         if (!empty($request->input('type'))) {
-            $invoicedata = SumbInvoiceDetails::where('user_id', $userinfo[0])->where('is_active', 1)->paginate($itemsperpage)->toArray();
-            
+            $invoicedata = SumbInvoiceDetails::where('user_id', $userinfo[0])->where('is_active', 1)->paginate($itemsperpage)->toArray();  
             $ptype = $request->input('type');
         } else {
             if($request->search_number_email_amount || $request->start_date || $request->end_date || $request->orderBy){
@@ -99,14 +98,13 @@ class InvoiceController extends Controller {
                     if(is_numeric(trim($request->search_number_email_amount))){
                         $total_amount = ltrim($request->search_number_email_amount, '0');
                         $invoice_number = $total_amount;
-                    } 
+                    }
                     else if(is_string(trim($request->search_number_email_amount))){
                         $invoice_number = str_replace('inv-00000', '', trim(strtolower($request->search_number_email_amount)));                        
                     }
                 }
                 $userinfo = $request->get('userinfo');
-                $invoicedata = SumbInvoiceDetails::
-                                where('user_id', $userinfo[0])->where('is_active', 1);
+                $invoicedata = SumbInvoiceDetails::where('user_id', $userinfo[0])->where('is_active', 1);
                                 if($request->search_number_email_amount){
                                     $invoicedata->where('invoice_number', 'LIKE', "%{$invoice_number}%");
                                     $invoicedata->orWhere('client_email', 'LIKE', "%{$request->search_number_email_amount}%");
@@ -132,20 +130,15 @@ class InvoiceController extends Controller {
                 {
                     $pagedata['direction'] = 'ASC';
                 }
-                
-            }else{
+            }
+            else
+            {
                 $pagedata['orderBy'] = 'invoice_issue_date';
                 $pagedata['direction'] = 'ASC';
 
-                $invoicedata = SumbInvoiceDetails::
-                // with(['particulars'])
-                // ->whereHas('particulars', function($query) use($userinfo) {
-                //     $query->where('user_id', $userinfo[0]);
-                // })
-                // ->
-                where('user_id', $userinfo[0])->where('is_active', 1)
-                ->orderBy('invoice_issue_date', 'DESC')
-                ->paginate($itemsperpage)->toArray();
+                $invoicedata = SumbInvoiceDetails::where('user_id', $userinfo[0])->where('is_active', 1)
+                        ->orderBy('invoice_issue_date', 'DESC')
+                        ->paginate($itemsperpage)->toArray();
             }
         }
         $pagedata['invoicedata'] = $invoicedata;
@@ -630,25 +623,27 @@ class InvoiceController extends Controller {
         {
             $userinfo = $request->get('userinfo');
             $invoice_item_name = trim($request->invoice_item_name);
-                $invoice_items = SumbInvoiceItems::where('user_id', $userinfo[0])
-                ->orderBy('invoice_item_name')
-                ->get();
-                if($invoice_items){
-                    $response = [
-                        'status' => 'success',
-                        'err' => '',
-                        'data' => $invoice_items
-                    ];
-                    echo json_encode($response);
-                }
-                else{
-                    $response = [
-                        'status' => 'error',
-                        'err' => 'No items found',
-                        'data' => ''
-                    ];
-                    echo json_encode($response);
-                }
+            $invoice_items = SumbInvoiceItems::where('user_id', $userinfo[0])
+            ->orderBy('invoice_item_name')
+            ->get();
+            if($invoice_items)
+            {
+                $response = [
+                    'status' => 'success',
+                    'err' => '',
+                    'data' => $invoice_items
+                ];
+                echo json_encode($response);
+            }
+            else
+            {
+                $response = [
+                    'status' => 'error',
+                    'err' => 'No items found',
+                    'data' => ''
+                ];
+                echo json_encode($response);
+            }
         }
         else
         {
@@ -666,25 +661,27 @@ class InvoiceController extends Controller {
         if ($request->ajax())
         {
             $userinfo = $request->get('userinfo');
-                $invoice_item = SumbInvoiceItems::with(['taxRates'])->where('user_id', $userinfo[0])
-                                ->where('id', $id)
-                                ->first();
-                if($invoice_item){
-                    $response = [
-                        'status' => 'success',
-                        'err' => '',
-                        'data' => $invoice_item
-                    ];
-                    echo json_encode($response);
-                }
-                else{
-                    $response = [
-                        'status' => 'error',
-                        'err' => 'No item found',
-                        'data' => ''
-                    ];
-                    echo json_encode($response);
-                }
+            $invoice_item = SumbInvoiceItems::with(['taxRates', 'chartAccountsParts'])->where('user_id', $userinfo[0])
+                            ->where('id', $id)
+                            ->first();
+            if($invoice_item)
+            {
+                $response = [
+                    'status' => 'success',
+                    'err' => '',
+                    'data' => $invoice_item
+                ];
+                echo json_encode($response);
+            }
+            else
+            {
+                $response = [
+                    'status' => 'error',
+                    'err' => 'No item found',
+                    'data' => ''
+                ];
+                echo json_encode($response);
+            }
         }
         else
         {
@@ -717,8 +714,7 @@ class InvoiceController extends Controller {
         }
         
         $userinfo = $request->get('userinfo');
-        $data = SumbInvoiceDetails::
-        where('user_id', $userinfo[0]);
+        $data = SumbInvoiceDetails::where('user_id', $userinfo[0]);
         if($request->search_number_email_amount){
             $data->where('invoice_number', 'LIKE', "%{$request->search_number_email_amount}%");
             $data->orWhere('client_email', 'LIKE', "%{$request->search_number_email_amount}%");
@@ -748,23 +744,25 @@ class InvoiceController extends Controller {
     {
         if ($request->ajax())
         {
-                $invoice_tax_rates = SumbInvoiceTaxRates::get();
-                if($invoice_tax_rates){
-                    $response = [
-                        'status' => 'success',
-                        'err' => '',
-                        'data' => $invoice_tax_rates
-                    ];
-                    echo json_encode($response);
-                }
-                else{
-                    $response = [
-                        'status' => 'error',
-                        'err' => 'No item found',
-                        'data' => ''
-                    ];
-                    echo json_encode($response);
-                }
+            $invoice_tax_rates = SumbInvoiceTaxRates::get();
+            if($invoice_tax_rates)
+            {
+                $response = [
+                    'status' => 'success',
+                    'err' => '',
+                    'data' => $invoice_tax_rates
+                ];
+                echo json_encode($response);
+            }
+            else
+            {
+                $response = [
+                    'status' => 'error',
+                    'err' => 'No item found',
+                    'data' => ''
+                ];
+                echo json_encode($response);
+            }
         }
         else
         {

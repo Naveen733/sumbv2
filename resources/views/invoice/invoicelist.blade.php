@@ -178,7 +178,6 @@
                                     </div>
                                     <div class="col-sm-3">
                                         <div class="form-input--wrap" style="margin-top:35px">
-                                        <!-- <a href="/invoice?search_number_email_amount='0001' " onclick="clearSearchItems()" >Search</a> -->
                                         <button type="button" name="search_invoice" class="btn sumb--btn" value="Search" onclick="searchItems(null, null)">Search</button>
                                             &nbsp; <span><b>or</b></span>&nbsp;
                                             <a href="#" onclick="clearSearchItems()" style="font-size: 12px;font-weight:bold">Clear</a>

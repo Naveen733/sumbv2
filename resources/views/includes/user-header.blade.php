@@ -33,6 +33,7 @@
                                 <li><a href="/invoice">Invoice</a></li>
                                 <li><a href="#">Report</a></li>
                                 <li><a href="/invoice/settings">Invoice Settings</a></li>
+                                <li><a href="/chart-accounts">Chart of Accounts</a></li>
                             </ul>
                         </li>
                         <li><a href="#"><i class="fas fa-folder"></i>Employment Docs</a></li>
@@ -76,6 +77,7 @@
                         <li><a href="/invoice">Invoice</a></li>
                         <li><a href="#">Report</a></li>
                         <li><a href="/invoice/settings">Invoice Settings</a></li>
+                        <li><a href="/chart-accounts">Chart of Accounts</a></li>
                     </ul>
                 </li>
                 <li><a href="#"><i class="fas fa-folder"></i>Employment Docs</a></li>

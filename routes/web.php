@@ -89,5 +89,7 @@ Route::middleware('sumbauth')->group(function() {
     Route::get('/chart-accounts-parts/{id}', [App\Http\Controllers\ChartAccountController::class, 'chartAccountsPartsById'])->name('chart-accounts-parts/{id}');
     Route::get('/chart-accounts-parts', [App\Http\Controllers\ChartAccountController::class, 'chartAccountsPartsList'])->name('chart-accounts-parts');
     Route::get('/invoice-tax-rates', [App\Http\Controllers\InvoiceController::class, 'invoiceTaxRates'])->name('invoice-tax-rates');
+    Route::get('/chart-accounts', [App\Http\Controllers\ChartAccountController::class, 'index'])->name('chart-accounts');
+    Route::post('/edit-chart-account/{id}', [App\Http\Controllers\ChartAccountController::class, 'update'])->name('edit-chart-account/{id}');
     
 });

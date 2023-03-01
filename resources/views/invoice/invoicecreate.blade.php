@@ -633,7 +633,7 @@
                                                 <input type="hidden" id="{{'invoice_parts_gst_'.$row_index}}" name="{{'invoice_parts_gst_'.$row_index}}" value="">
                                             </td>
                                             <td>
-                                                <input data-toggle="dropdown" type="text" id="{{'invoice_parts_chart_accounts_'.$row_index}}" name="{{'invoice_parts_chart_accounts_'.$row_index}}"  value="{{!empty($parts['invoice_chart_accounts_particulars']) && $parts['invoice_chart_accounts_particulars']['id'] ? $parts['invoice_chart_accounts_particulars']['chart_accounts_particulars_code'] .' - '. $parts['invoice_chart_accounts_particulars']['chart_accounts_particulars_name'] : $parts['invoice_parts_chart_accounts'] }}" required>
+                                                <input data-toggle="dropdown" type="text" id="{{'invoice_parts_chart_accounts_'.$row_index}}" name="{{'invoice_parts_chart_accounts_'.$row_index}}"  value="{{!empty($parts['invoice_chart_accounts_particulars']) && $parts['invoice_chart_accounts_particulars']['id'] ? $parts['invoice_chart_accounts_particulars']['chart_accounts_particulars_code'] .' - '. $parts['invoice_chart_accounts_particulars']['chart_accounts_particulars_name'] : '' }}" required>
                                                
                                                 <input type="hidden" id="{{'invoice_parts_chart_accounts_code_'.$row_index}}" name="{{'invoice_parts_chart_accounts_code_'.$row_index}}" value="">
                                                 <input type="hidden" id="{{'invoice_parts_chart_accounts_name_'.$row_index}}" name="{{'invoice_parts_chart_accounts_name_'.$row_index}}" value="">

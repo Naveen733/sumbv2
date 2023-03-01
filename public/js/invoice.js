@@ -1,4 +1,8 @@
-function openPopUpModel(id){
+function openPopUpModel(id, from){
+    if(from != 'addAccount'){
+        $("#invoice_item_chart_accounts_parts").val('');
+        $("#invoice_item_chart_accounts_parts_id").val('');
+    }
     $("#invoice_item_part_row_id").val('');
     $("#invoice_item_part_row_id").val(id);
     $("#invoice_item_code").val('');
@@ -28,6 +32,8 @@ function openNewAddAccountPopUpModel(id, from){
     }
     else{
         $("#add_account_from").val('');
+        $("#invoice_item_chart_accounts_parts").val('');
+        $("#invoice_item_chart_accounts_parts_id").val('');
     }
     
     $('#newAddAccountModal').modal({
@@ -72,13 +78,12 @@ function addNewAccount(id){
             success:function(response){
                 try{
                     response = JSON.parse(response);
-                    
                     if(response && response.status == "success"){
                         if($("#add_account_from").val() == 'addItem'){
-                            openPopUpModel(id);
+                            openPopUpModel(id,'addAccount');
                             $("#invoice_chart_account_list").empty();
 
-                            $("#invoice_chart_account_list").append('<div id="add_new_invoice_chart_account" style="padding-left: 10px"><a href="" class="pop-model" data-toggle="modal" data-target="#newAddAccountModal" onclick=openNewAddAccountPopUpModel('+id+')>+ New Item</a></div>')
+                            $("#invoice_chart_account_list").append('<div id="add_new_invoice_chart_account" style="padding-left: 10px"><a href="" class="pop-model" data-toggle="modal" data-target="#newAddAccountModal" onclick=openNewAddAccountPopUpModel('+id+',"addItem")>+ New Item</a></div>')
 
                             $.each(response.data,function(key,value){
                                 $("#invoice_chart_account_list").append(
@@ -87,7 +92,7 @@ function addNewAccount(id){
                                 $.each(value['chart_accounts_particulars'],function(k,val){
                                     $("#invoice_chart_account_list").append('\n\<li><div style="padding: 10px;border-bottom: 1px solid lightgrey">\n\
                                     <button type="button" class="invoice_item" data-myid="'+counter+'" onclick=addInvoiceChartAccount('+val['id']+','+id+',"addItem")>\n\
-                                    <span id="data_name_'+counter+'">'+val['chart_accounts_particulars_code']+':'+val['chart_accounts_particulars_name']+'</span>\n\
+                                    <span id="data_name_'+counter+'">'+val['chart_accounts_particulars_code']+' - '+val['chart_accounts_particulars_name']+'</span>\n\
                                        </button></div></li>');
                                 });
                             });
@@ -95,19 +100,13 @@ function addNewAccount(id){
                             if($("#invoice_item_tax_rate option:selected").attr('id')){
                                 const selected_option = $("#invoice_item_tax_rate option:selected").attr('id');
                                 $("#"+selected_option).removeAttr("selected");
-
-                                console.log(selected_option);
                             }
 
                             $("#invoice_item_tax_rate").val('');
                             var tax_rate_id = $("#invoice_chart_accounts_tax_rate").val();
                             $("#invoice_item_tax_rate").val(tax_rate_id);
-
-                            console.log(tax_rate_id);
                             
                             $("#invoice_item_chart_accounts_parts_id").val(response.id);
-                            // $("#invoice_item_tax_rate option[id='"+tax_rate_id+"']").attr("selected", "selected");
-
                             $("#invoice_item_chart_accounts_parts").val(post_data.invoice_chart_accounts_code+' - '+post_data.invoice_chart_accounts_name);
                             
                         }else{
@@ -122,7 +121,7 @@ function addNewAccount(id){
                                 $.each(value['chart_accounts_particulars'],function(k,val){
                                     $("#invoice_chart_account_list_"+id).append('\n\<li><div style="padding: 10px;border-bottom: 1px solid lightgrey">\n\
                                     <button type="button" class="invoice_item" data-myid="'+counter+'" onclick=addInvoiceChartAccount("'+encodeURI(val['id'])+'","'+id+'");>\n\
-                                    <span id="data_name_'+counter+'">'+val['chart_accounts_particulars_code']+':'+val['chart_accounts_particulars_name']+'</span>\n\
+                                    <span id="data_name_'+counter+'">'+val['chart_accounts_particulars_code']+' - '+val['chart_accounts_particulars_name']+'</span>\n\
                                                                 </button></div></li>');
                                 });
                             });
@@ -151,8 +150,8 @@ function addNewAccount(id){
                         }
                         $(".close").click();
                     }else if(response.status == "error"){
-                        $("#invoice_item_code_error").addClass('alert alert-danger');
-                        $("#invoice_item_code_error").html(response.err);
+                        $("#invoice_chart_accounts_code_error").addClass('alert alert-danger');
+                        $("#invoice_chart_accounts_code_error").html(response.err);
                     }
                 }catch(error){
                 }
@@ -198,7 +197,7 @@ function addInvoiceChartAccount(chart_accounts_parts_id, rowId, from){
                         $("#invoice_item_chart_accounts_parts_id").val('');
                         $("#invoice_item_chart_accounts_parts").val('');
 
-                        $("#invoice_item_chart_accounts_parts").val(response['data']['chart_accounts_particulars_code']+':'+response['data']['chart_accounts_particulars_name']);
+                        $("#invoice_item_chart_accounts_parts").val(response['data']['chart_accounts_particulars_code']+' - '+response['data']['chart_accounts_particulars_name']);
                         $("#invoice_item_chart_accounts_parts_id").val(response['data']['id']);
 
                         const tax_rate_id = response['data']['invoice_tax_rates']['id'] ? response['data']['invoice_tax_rates']['id'] : '';
@@ -213,7 +212,7 @@ function addInvoiceChartAccount(chart_accounts_parts_id, rowId, from){
                         $("#invoice_parts_chart_accounts_"+rowId).val('');
                         $("#invoice_parts_tax_rate_id_"+rowId).val('');
     
-                        $("#invoice_parts_chart_accounts_"+rowId).val(response['data']['chart_accounts_particulars_code']+':'+response['data']['chart_accounts_particulars_name']);
+                        $("#invoice_parts_chart_accounts_"+rowId).val(response['data']['chart_accounts_particulars_code']+' - '+response['data']['chart_accounts_particulars_name']);
                         $("#invoice_parts_chart_accounts_parts_id_"+rowId).val(response['data']['id']);
     
                         const tax_rate_id = response['data']['invoice_tax_rates']['id'] ? response['data']['invoice_tax_rates']['id'] : '';
@@ -249,9 +248,7 @@ function getChartAccountsParticularsList(id){
     success:function(response){
         try{
             response = JSON.parse(response);
-            
             if(response && response.status == "success"){
-                
                 // $("#client_details").show();
                 $("#invoice_chart_account_list_"+id).empty();
                 var counter = 0;
@@ -265,7 +262,7 @@ function getChartAccountsParticularsList(id){
                         // counter++;
                         $("#invoice_chart_account_list_"+id).append('\n\<li><div style="padding: 10px;border-bottom: 1px solid lightgrey">\n\
                         <button type="button" class="invoice_item" data-myid="'+counter+'" onclick=addInvoiceChartAccount("'+encodeURI(val['id'])+'","'+id+'");>\n\
-                        <span id="data_name_'+counter+'">'+val['chart_accounts_particulars_code']+':'+val['chart_accounts_particulars_name']+'</span>\n\
+                        <span id="data_name_'+counter+'">'+val['chart_accounts_particulars_code']+' - '+val['chart_accounts_particulars_name']+'</span>\n\
                                                     </button></div></li>');
                     });
                 });
@@ -445,6 +442,8 @@ function getInvoiceItemsById(itemId, rowId){
                     // $("#invoice_parts_amount_"+rowId).val('');
                     $("#invoice_parts_tax_rate_"+rowId).val('');
                     $("#invoice_parts_tax_rate_id_"+rowId).val('');
+                    $("#invoice_parts_chart_accounts_"+rowId).val('');
+                    $("#invoice_parts_chart_accounts_parts_id_"+rowId).val('');
 
                     $("#invoice_parts_name_code_"+rowId).val(response['data']['invoice_item_code']+':'+response['data']['invoice_item_name']);
                     $("#invoice_parts_name_"+rowId).val(response['data']['invoice_item_name']);
@@ -454,7 +453,10 @@ function getInvoiceItemsById(itemId, rowId){
                     $("#invoice_parts_unit_price_"+rowId).val(response['data']['invoice_item_unit_price']);
                     // $("#invoice_parts_tax_rate_"+rowId).val(response['data']['invoice_item_tax_rate']);
 
-                    
+                    const chart_account = response['data']['chart_accounts_parts'] ? response['data']['chart_accounts_parts']['chart_accounts_particulars_code']+' - '+response['data']['chart_accounts_parts']['chart_accounts_particulars_name'] : '';
+                    $("#invoice_parts_chart_accounts_"+rowId).val(chart_account);
+                    $("#invoice_parts_chart_accounts_parts_id_"+rowId).val(response['data']['chart_accounts_parts']['id']);
+
                     const tax_rate_id = response['data']['tax_rates']['id'] ? response['data']['tax_rates']['id'] : '';
                     $("#invoice_parts_tax_rate_"+rowId+ " option[id='"+tax_rate_id+"_"+rowId+"']").attr("selected", "selected");
                     $("#invoice_parts_tax_rate_id_"+rowId).val(tax_rate_id);
@@ -701,9 +703,12 @@ function addInvoiceItem(id){
                         $("#invoice_parts_tax_rate_id_"+id).val(tax_rate_id);
                         $("#invoice_parts_tax_rate_"+id+ " option[id='"+tax_rate_id+"_"+id+"']").attr("selected", "selected");
 
+                        getChartAccountsParticularsList(id);
                         InvoicepartsQuantity(id)
                         $("#invoice_item_chart_accounts_parts").val('');
                         $("#invoice_item_chart_accounts_parts_id").val('');
+                        $("#invoice_account_part_row_id").val('')
+
                         $(".close").click();
                     }else if(response.status == "error"){
                         $("#invoice_item_code_error").addClass('alert alert-danger');
