@@ -70,7 +70,10 @@ class ExpenseController extends Controller {
         //==== get all tranasactions
         $ptype = 'all';
         if (!empty($request->input('type'))) {
-            $expensedata = SumbExpenseDetails::where('user_id', $userinfo[0])->where('inactive_status', 0)->paginate($itemsperpage)->toArray();
+            $expensedata = SumbExpenseDetails::where('user_id', $userinfo[0])->where('inactive_status', 0)->paginate($itemsperpage);
+            if(!empty($expensedata)){
+                $expensedata = $expensedata->toArray();
+            }
             $ptype = $request->input('type');
         } else {
             if($request->search_number_name_amount || $request->start_date || $request->end_date || $request->orderBy){
@@ -234,9 +237,12 @@ class ExpenseController extends Controller {
         // );
         // $pagedata['errors'] = $errors;
         // if (!empty($request->input('err'))) { $pagedata['err'] = $request->input('err'); }
-        $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
-       
-        $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
+        $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first();
+        if(!empty($get_settings)){
+            $pagedata['data'] = $get_settings->toArray();
+        }
+        
+       $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
         if (!empty($get_expclients)) {
             $pagedata['exp_clients'] = $get_expclients->toArray();
         }
