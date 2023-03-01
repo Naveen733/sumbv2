@@ -242,12 +242,7 @@ class InvoiceController extends Controller {
             $pagedata['tax_rates'] = $tax_rates->toArray();
         }
 
-        // $pagedata['invoice_details']['image'] = env('APP_PUBLIC_DIRECTORY') . 'a71ed73925a75dae44b71bc161131adb.png';
-        // $pagedata['form_data'] = $pagedata;
-        // echo "<pre>"; var_dump($pagedata['tax_rates']); echo "</pre>";die();
-
         return $pagedata;
-        // return view('invoice.invoicecreate', $pagedata);
     }
 
     public function create_invoice_new(Request $request) {
@@ -264,9 +259,6 @@ class InvoiceController extends Controller {
                 'invoice_issue_date' => 'bail|required',
                 'invoice_due_date' => 'bail|required',
                 'invoice_number' => 'bail|required|max:255',
-                // 'invoice_parts_unit_price_.*' => 'bail|required|max:255',
-                // 'invoice_parts_description_.' => 'bail|required',
-                // 'invoice_parts_amount_.*' => 'bail|required',
             ]);
             
             $pagedata['invoice_id'] = $request->invoice_id;
