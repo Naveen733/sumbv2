@@ -44,7 +44,7 @@ class ChartAccountController extends Controller
                         'chart_accounts_particulars_name' => trim($request->invoice_chart_accounts_name),
                         'chart_accounts_particulars_description' => trim($request->invoice_chart_accounts_description),
                         'chart_accounts_particulars_tax' => trim($request->invoice_chart_accounts_tax_rate),
-                        'chart_accounts_particulars_tax_rate_id' => trim($request->invoice_chart_accounts_tax_rate_id)
+                        'accounts_tax_rate_id' => trim($request->invoice_chart_accounts_tax_rate_id)
                     ]);
                 if($chart_account_particulars->id){
                     DB::commit();
@@ -247,7 +247,7 @@ class ChartAccountController extends Controller
                         'chart_accounts_particulars_name' => trim($request->chart_accounts_parts_name),
                         'chart_accounts_particulars_description' => trim($request->chart_accounts_description),
                         'chart_accounts_particulars_tax' => trim($request->chart_accounts_tax_rate),
-                        'chart_accounts_particulars_tax_rate_id' => trim($request->chart_accounts_tax_rate)
+                        'accounts_tax_rate_id' => trim($request->chart_accounts_tax_rate)
                     ]);
                 if($chart_account_particulars)
                 {
