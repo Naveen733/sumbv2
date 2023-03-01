@@ -8,6 +8,7 @@
     <meta name="description" content="SUMBv2 Template">
     <meta name="author" content="Dhon Collera">
     <meta name="keywords" content="SUMBv2 Template">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Title Page-->
     <title>@if (!empty($pagetitle)) {{ $pagetitle }} @endif | SUMBv2 - Set Up My Business Australia</title>
@@ -42,10 +43,11 @@
     <link href="/css/theme.css?v=1" rel="stylesheet" media="all">
     <link href="/css/sumb.css?v=1.1" rel="stylesheet" media="all">
     <link href="/css/system.css?v=1.11" rel="stylesheet" media="all">
-
+    <!--- Invoice JS----->
+    <script src="/vendor/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="/js/invoice.js?v=1.4"></script>
     <!-- Docfiles CSS-->
-    <link href="/css/docfiles.css?v=1.11" rel="stylesheet" media="all">
-     
+    <link href="/css/docfiles.css?v=1.11" rel="stylesheet" media="all">     
     <style>
     </style>
 </head>

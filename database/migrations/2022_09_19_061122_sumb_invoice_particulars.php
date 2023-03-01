@@ -13,9 +13,13 @@ class SumbInvoiceParticulars extends Migration
      */
     public function up() {
         Schema::create('sumb_invoice_particulars', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->foreignId('user_id')->nullable()->index();
+            $table->bigInteger('invoice_id')->unsigned()->index();
             $table->integer('invoice_number')->default(0);
+            $table->string('invoice_part_name')->nullable();
+            $table->string('invoice_part_code')->nullable();
+            $table->string('invoice_part_tax_rate')->nullable();
             $table->integer('quantity')->default(0);
             $table->string('part_type')->default('goods');
             $table->text('description');

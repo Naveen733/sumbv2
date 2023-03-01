@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class SumbInvoiceSettings extends Migration
+class SumbInvoiceSettingsCopy extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class SumbInvoiceSettings extends Migration
      */
     public function up()
     {
-        Schema::create('sumb_invoice_settings', function (Blueprint $table) {
+        Schema::create('sumb_invoice_settings_copy', function (Blueprint $table) {
             $table->increments('id');
             $table->foreignId('user_id')->nullable()->index();
             $table->integer('invoice_count')->default(1);
@@ -36,6 +36,6 @@ class SumbInvoiceSettings extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sumb_invoice_settings');
+        Schema::dropIfExists('sumb_invoice_settings_copy');
     }
 }

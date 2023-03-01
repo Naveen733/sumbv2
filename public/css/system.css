@@ -26,3 +26,145 @@ body{
 .void {
     color: red !important;
 }
+
+.send-invoice-form input{
+    font-size: 13px;
+    color: #000000;
+}
+
+.send-invoice-form textarea{
+    font-size: 13px;
+    color: #000000;
+}
+
+.send-invoice-form{
+    font-size: 13px;
+    color: #000000;
+}
+
+.send-invoice-form-text-area {
+    height: 210px;
+    float: none;
+    width: 334px !important;
+    padding-left: 5px;
+    padding-top: 8px;
+}
+.send-invoice-label{
+    color:black;
+    align-items: start;
+}
+.send-invoice-modal {
+    width:600px !important;
+}
+.invoice-status-voided {
+    color: #CC0000;
+    font-size: 14px;
+    font-weight: bold;
+}
+.invoice-status-paid {
+    color: #008000;
+    font-size: 14px;
+    font-weight: bold;
+}
+table tr {
+    cursor: pointer;
+}
+.invoice_list a {
+    color: #000000 !important;
+}
+.status-text{
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    font-family: Arial;
+  }
+  
+  /* The grid: Four equal columns that floats next to each other */
+  .column {
+    float: left;
+    width: 25%;
+    padding: 10px;
+  }
+  
+  /* Style the images inside the grid */
+  .column img {
+    opacity: 0.8; 
+    cursor: pointer; 
+  }
+  
+  .column img:hover {
+    opacity: 1;
+  }
+  
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  
+  /* The expanding image container */
+  /* .container {
+    position: relative;
+    display: none;
+  } */
+  
+  /* Expanding image text */
+  #imgtext {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    color: white;
+    font-size: 20px;
+  }
+  
+  /* Closable button inside the expanded image */
+  .closebtn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    color: white;
+    font-size: 35px;
+    cursor: pointer;
+  }
+
+  img {
+    border: 1px solid #ddd; /* Gray border */
+    border-radius: 4px;  /* Rounded border */
+    padding: 5px; /* Some padding */
+    width: 150px; /* Set a small width */
+  }
+  
+  /* Add a hover effect (blue shadow) */
+  img:hover {
+    box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+  }
+
+/* input#q156 {
+    transform: scale(2);
+} */
+
+
+input[type=radio] {
+    border: 0px;
+    width: 20px;
+    height: 2em;
+}
+.column {
+    padding: 15px !important;
+}
+
+.delete-invoice {
+    padding-left: 1.5rem;
+    color: #000000 !important;
+    padding-right: 1.5rem;
+    font-size: 13px;
+    font-weight: 400
+}
