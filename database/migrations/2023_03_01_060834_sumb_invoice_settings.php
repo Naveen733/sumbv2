@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class SumbInvoiceSettingsCopy extends Migration
+class SumbInvoiceSettings extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class SumbInvoiceSettingsCopy extends Migration
      */
     public function up()
     {
-        Schema::create('sumb_invoice_settings_copy', function (Blueprint $table) {
+        Schema::create('sumb_invoice_settings', function (Blueprint $table) {
             $table->increments('id');
             $table->foreignId('user_id')->nullable()->index();
             $table->integer('invoice_count')->default(1);
@@ -25,6 +25,14 @@ class SumbInvoiceSettingsCopy extends Migration
             $table->text('invoice_phone')->nullable();
             $table->text('invoice_details')->nullable();
             $table->text('invoice_footer')->nullable();
+            $table->string('business_logo')->nullable();
+            $table->string('business_invoice_format')->nullable();
+            $table->string('business_name')->nullable();
+            $table->string('business_email')->nullable();
+            $table->string('business_phone')->nullable();
+            $table->string('business_abn')->nullable();
+            $table->string('business_address')->nullable();
+            $table->text('business_terms_conditions')->nullable();
             $table->timestamps();
         });
     }
@@ -36,6 +44,6 @@ class SumbInvoiceSettingsCopy extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sumb_invoice_settings_copy');
+        Schema::dropIfExists('sumb_invoice_settings');
     }
 }

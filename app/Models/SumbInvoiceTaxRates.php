@@ -28,6 +28,6 @@ class SumbInvoiceTaxRates extends Model
     }
 
     public function chartAccountsParts() {
-        return $this->hasMany(SumbChartAccountsTypeParticulars::class, 'chart_accounts_particulars_tax_rate_id');
+        return $this->hasMany(SumbChartAccountsTypeParticulars::class, 'accounts_tax_rate_id');
     }
 }
