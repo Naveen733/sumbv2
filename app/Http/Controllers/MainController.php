@@ -11,6 +11,7 @@ use App\Mail\SignupMail;
 
 use App\Models\SumbUsers;
 use App\Models\SumbInvoiceSettings;
+use App\Models\SumbExpenseSettings;
 
 
 class MainController extends Controller {
@@ -154,6 +155,9 @@ class MainController extends Controller {
         //===== creating invoice data
         SumbInvoiceSettings::insert(['user_id'=>$userid, 'created_at'=>$dtnow, 'updated_at'=>$dtnow]);
         
+        //===== creating expense data
+        SumbExpenseSettings::insert(['user_id'=>$userid, 'created_at'=>$dtnow, 'updated_at'=>$dtnow]);
+
         //===== sending emails
         $predata['URL'] = env('APP_URL');
         Mail::to($predata['email'])->send(new SignupMail($predata));

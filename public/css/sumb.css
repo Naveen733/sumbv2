@@ -1755,6 +1755,20 @@ input[class="no--btn"] + span::before,
     outline: none;
 }
 
+.sumb-del-btn {
+    cursor: pointer;
+    display: inline-block;
+    background: #f5c85b;
+    padding: 3px 5px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-weight: 200;
+    font-size: 10px;
+    min-width: 20px;
+    text-align: center;
+    outline: none;
+}
+
 .sumb--btn {
     color: #28282a;
     border: 0px;
@@ -2681,3 +2695,150 @@ a.ui-datepicker-next:hover::after {
         margin-bottom: 15px;
     }
 }
+
+/* File Upload Div in Expense Form */
+.sumb-expense-upload-container {
+    height: 100%;
+    width: 100%;
+}
+.sumb-expense-upload-container {
+    background-image: url(../images/organic-tiles.webp);
+}
+.sumb-expense-dropzone {
+    height: 100%;
+}
+.sumb-flex-justify-center {
+    justify-content: center;
+}
+.sumb-flex-column {
+    flex-direction: column;
+}
+.sumb-flex-align-center {
+    align-items: center;
+}
+.sumb-flex {
+    display: flex;
+}
+.sumb-padding-small {
+    padding: 12px;
+}
+.sumb-text-align-center {
+    text-align: center;
+}
+.sumb-padding-vertical {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+.sumb-heading-medium {
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 24px;
+}
+.sumb-textcolor-muted {
+    color: rgba(0,10,30,.75);
+}
+input[type="file" i] {
+    appearance: none;
+    background-color: initial;
+    cursor: default;
+    align-items: baseline;
+    color: inherit;
+    text-overflow: ellipsis;
+    white-space: pre;
+    text-align: start !important;
+    padding: initial;
+    border: initial;
+    overflow: hidden !important;
+}
+input {
+    writing-mode: horizontal-tb !important;
+    text-rendering: auto;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+   -webkit-rtl-ordering: logical;
+    margin: 0em;
+}
+.sumb-receipt-container {
+    margin-bottom: 50px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* background-image: url(../images/organic-tiles.webp); */
+    border: 1px solid #ccced2;
+    border-top: none;
+    overflow: hidden;
+}
+.sumb-expense-receipt-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    box-shadow: 0 0 0 1px rgb(0 10 30 / 20%), 0 3px 6px 0 rgb(0 10 30 / 20%);
+}
+.sumb-button-group-corners {
+    border-radius: 3px;
+}
+.sumb-margin {
+    margin: 16px;
+}
+.sumb-button:not(.sumb-button-icon) {
+    min-width: 40px;
+}
+.sumb-button-small {
+    font-size: 13px;
+    line-height: 20px;
+    min-height: 32px;
+    padding: 5px 12px;
+}
+.sumb-button-standard {
+    background-color: #fff;
+    border: 1px solid #a6a9b0;
+    border-radius: 3px;
+    color: #0078c8;
+    font-weight: 700;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    transition-duration: .1s;
+    transition-property: color,background,box-shadow;
+    transition-timing-function: ease;
+}
+.sumb-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: 0 0;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    display: inline-block;
+    font-family: inherit;
+    font-size: inherit;
+    margin: 0;
+    outline: 0;
+    padding: 0;
+    text-decoration: none;
+    text-align: center;
+}
+
+table tr {
+    cursor: pointer;
+}
+.expense_list a {
+    color: #000000 !important;
+}
+
+/* iframe {
+    overflow-clip-margin: content-box !important;
+    border-width: 2px;
+    border-style: inset;
+    border-color: initial;
+    border-image: initial;
+    overflow: clip !important;
+} */
