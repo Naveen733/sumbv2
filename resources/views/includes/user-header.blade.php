@@ -30,6 +30,7 @@
                         <li class="has-sub">
                             <a class="js-arrow" href="#"><i class="fa-solid fa-money-bill-transfer"></i>Transactions <i class="fas fa-angle-down"></i></a>
                             <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                <li><a href="/expense">Expense</a></li>
                                 <li><a href="/invoice">Invoice</a></li>
                                 <li><a href="#">Report</a></li>
                                 <li><a href="/invoice/settings">Invoice Settings</a></li>
@@ -74,6 +75,7 @@
                 <li class="has-sub">
                     <a class="js-arrow" href="#"><i class="fa-solid fa-money-bill-transfer"></i>Transactions <i class="fas fa-angle-down"></i></a>
                     <ul class="list-unstyled navbar__sub-list js-sub-list">
+                        <li><a href="/expense">Expense</a></li>
                         <li><a href="/invoice">Invoice</a></li>
                         <li><a href="#">Report</a></li>
                         <li><a href="/invoice/settings">Invoice Settings</a></li>
