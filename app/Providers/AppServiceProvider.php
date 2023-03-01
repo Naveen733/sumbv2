@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Providers;
-
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -16,7 +16,6 @@ class AppServiceProvider extends ServiceProvider
     {
         //
     }
-
     /**
      * Bootstrap any application services.
      *
@@ -24,8 +23,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Builder::macro('whereLike', function(array $column, string $search) {
-        //     return $this->orWhere($column, 'LIKE', '%'.$search.'%');
-        // });
+        
     }
 }

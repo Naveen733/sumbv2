@@ -61,9 +61,10 @@ Route::middleware('sumbauth')->group(function() {
         Route::get('/doc-edit', [App\Http\Controllers\DocumentUploadController::class, 'docedit'])->name('doc-edit');
         Route::patch('/doc-edit-process/{id}', [App\Http\Controllers\DocumentUploadController::class, 'doceditprocess'])->name('DocumentUploadController.doc-edit-process');
         Route::delete('/destroy', [App\Http\Controllers\DocumentUploadController::class, 'destroy'])->name('DocumentUploadController.destroy');
-        // Route::get('/downloadfile/{id}', [App\Http\Controllers\DocumentUploadController::class, 'downloadfile'])->name('DocumentUploadController.downloadfile');
         Route::get('/downloadfile', [App\Http\Controllers\DocumentUploadController::class, 'downloadFile'])->name('DocumentUploadController.downloadfile');
-    
+        Route::get('/docview', [App\Http\Controllers\DocumentUploadController::class, 'docview'])->name('docview');
+        
+        
         //testing
     Route::get('/testing', [App\Http\Controllers\InvoiceController::class, 'testing'])->name('testing');
     Route::get('/testpdf', [App\Http\Controllers\InvoiceController::class, 'testpdf'])->name('testpdf');
