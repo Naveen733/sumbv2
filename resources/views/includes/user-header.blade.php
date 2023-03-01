@@ -31,8 +31,10 @@
                             <a class="js-arrow" href="#"><i class="fa-solid fa-money-bill-transfer"></i>Transactions <i class="fas fa-angle-down"></i></a>
                             <ul class="list-unstyled navbar__sub-list js-sub-list">
                                 <li><a href="/expense">Expense</a></li>
+                                <li><a href="/invoice">Invoice</a></li>
                                 <li><a href="#">Report</a></li>
-                                <li><a href="#">Settings</a></li>
+                                <li><a href="/invoice/settings">Invoice Settings</a></li>
+                                <li><a href="/chart-accounts">Chart of Accounts</a></li>
                             </ul>
                         </li>
                         <li><a href="#"><i class="fas fa-folder"></i>Employment Docs</a></li>
@@ -74,8 +76,10 @@
                     <a class="js-arrow" href="#"><i class="fa-solid fa-money-bill-transfer"></i>Transactions <i class="fas fa-angle-down"></i></a>
                     <ul class="list-unstyled navbar__sub-list js-sub-list">
                         <li><a href="/expense">Expense</a></li>
+                        <li><a href="/invoice">Invoice</a></li>
                         <li><a href="#">Report</a></li>
-                        <li><a href="#">Settings</a></li>
+                        <li><a href="/invoice/settings">Invoice Settings</a></li>
+                        <li><a href="/chart-accounts">Chart of Accounts</a></li>
                     </ul>
                 </li>
                 <li><a href="#"><i class="fas fa-folder"></i>Employment Docs</a></li>

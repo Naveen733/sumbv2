@@ -18,11 +18,13 @@ class CreateDocumentsTable extends Migration
             $table->string('name'); 
             $table->string('originalname');
             $table->string('encryptname');
-            $table->string('extensionname');                   
-            $table->timestamps();
+            $table->string('extensionname');
+            $table->string('filesize'); 
+            $table->timestamps();                  
+            // $table->date('created_at');
+            // $table->date('updated_at');
         });
     }
-
     /**
      * Reverse the migrations.
      *

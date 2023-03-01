@@ -20,7 +20,6 @@
                             <div class="container md-8">
                                 <h3 class="text-center mb-8">Edit File</h3>
                             </div>
-
                             <div class="card push-top">
                                 <div class="card-header">
                                   Edit & Update
@@ -35,24 +34,22 @@
                                             <input type="hidden" class="form-control" name="id" value="{{$data->id}}"/>
                                             <input type="text" class="form-control" name="name" value="{{$data->name}}"/>
                                         </div>
-                                        <button type="submit" class="btn btn-block btn-danger">Update User</button>
+                                        <button type="submit" class="btn btn-block btn-primary">Save</button>                                        
+                                    </form>
+                                    <br>
+                                    <form>
+                                        <a href="{{url()->previous()}}" class="btn btn-block btn-success">Cancel</a>
                                     </form>
                                 </div>
                               </div> 
-
                         </div> 
                     </div>
-
-                     
-                      
-
                 </div>
             </div>
         </div>
     <!-- END MAIN CONTENT-->
 </div>
 <!-- END PAGE CONTAINER-->
-
 
 @include('includes.footer')
 </body>
