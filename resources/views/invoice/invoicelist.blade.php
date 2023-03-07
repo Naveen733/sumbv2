@@ -84,7 +84,7 @@
                             <div class="sumb--dashboardServices sumb--putShadowbox">
 
                                 <div class="sumb--fileAddbtn dropdown">
-                                    <a class="fileAddbtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-circle-plus"></i>add invoice or expenses</a>
+                                    <a class="fileAddbtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-circle-plus"></i>Add Item</a>
                 
                                     <div class="dropdown-menu dropdown-menu-left" aria-labelledby="mainlinkadd">
                                         <a class="dropdown-item" href="/invoice/create">Add an Invoice</a>
@@ -138,20 +138,18 @@
                             @endif
                             <form action="/invoice"  method="GET" enctype="multipart/form-data" id="search_form">
                                 <div class="row">
-                                    <div class="col-sm-3">
+                                    <div class="col-xl-4">
                                         <div class="form-input--wrap">
-                                            <label class="form-input--question" for="">Enter Number, Email, Amount</label>
-                                            <div class="form--inputbox ">
+                                            <label class="form-input--question" for="">Invoice No.</label>
+                                            <div class="form--inputbox row">
                                                 <div class="col-12">
-                                                    <input type="text" class="form-control" id="search_number_email_amount" name="search_number_email_amount" placeholder="Invoice no, Email, Amount"  value="{{!empty($search_number_email_amount) ? $search_number_email_amount : ''}}">
-                                                    <!-- <input type="hidden" id="search_email" name="search_email"  value="{{!empty($search_number_email_amount) ? $search_number_email_amount : ''}}">
-                                                    <input type="hidden" id="search_invoice_number" name="search_invoice_number"  value="{{!empty($search_number_email_amount) ? $search_number_email_amount : ''}}">
-                                                    <input type="hidden" id="search_amount" name="search_amount"  value="{{!empty($search_number_email_amount) ? $search_number_email_amount : ''}}"> -->
+                                                    <input type="text" id="search_number_email_amount" name="search_number_email_amount" placeholder="Invoice No., Email, Amount"  value="{{!empty($search_number_email_amount) ? $search_number_email_amount : ''}}">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-3">
+
+                                    <div class="col-xl-4">
                                         <div class="form-input--wrap">
                                             <label class="form-input--question" for="">Start Date</label>
                                             <div class="date--picker row">
@@ -159,14 +157,10 @@
                                                     <input type="text" id="start_date" name="start_date" placeholder="date('m/d/Y')"  readonly value="{{!empty($start_date) ? $start_date : ''}}">
                                                 </div>
                                             </div>
-                                        <!-- <div class="form--inputbox date--picker">
-                                            <div class="col-12">
-                                                <input type="number"  class="form-control" id="start_date" name="start_date" placeholder="Start date"  value="">
-                                            </div>
-                                        </div> -->
                                         </div>
                                     </div>
-                                    <div class="col-sm-3">
+
+                                    <div class="col-xl-4">
                                         <div class="form-input--wrap">
                                             <label class="form-input--question" for="">End Date</label>
                                             <div class="date--picker row">
@@ -176,12 +170,14 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-3">
-                                        <div class="form-input--wrap" style="margin-top:35px">
-                                        <button type="button" name="search_invoice" class="btn sumb--btn" value="Search" onclick="searchItems(null, null)">Search</button>
-                                            &nbsp; <span><b>or</b></span>&nbsp;
-                                            <a href="#" onclick="clearSearchItems()" style="font-size: 12px;font-weight:bold">Clear</a>
-                                        </div>
+
+                                    <div class="invoicelist--hideThis col-xl-6">
+                                        &nbsp;
+                                    </div>
+                                    
+                                    <div class="invoice-list--btns col-xl-6" style="text-align: right;">
+                                        <button type="button" name="search_invoice" class="btn sumb--btn " value="Search" onclick="searchItems(null, null)"><i class="fa-solid fa-magnifying-glass"></i>Search</button>
+                                        <button type="button" class="btn sumb--btn sumb-clear-btn" onclick="clearSearchItems()"><i class="fa-solid fa-circle-xmark"></i>Clear Search</button>
                                     </div>
                                 </div>
                             </form>
@@ -351,6 +347,7 @@
         $("#search_number_email_amount").val('');
         $("#start_date").val('');
         $("#end_date").val('');
+        return false;
     }
 
     function searchItems(orderBy, direction){

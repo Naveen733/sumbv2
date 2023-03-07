@@ -7,6 +7,15 @@ body, html {
 
 a {
     color: #175bfd;
+    outline: none !important;
+}
+
+.btn,
+.btn:focus,
+.btn:active,
+button {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 a:hover {
@@ -1755,6 +1764,15 @@ input[class="no--btn"] + span::before,
     outline: none;
 }
 
+.sumb--btn {
+    color: #28282a;
+    border: 0px;
+}
+
+.sumb--btn i {
+    margin-right: 5px;
+}
+
 .sumb-del-btn {
     cursor: pointer;
     display: inline-block;
@@ -1769,10 +1787,14 @@ input[class="no--btn"] + span::before,
     outline: none;
 }
 
-.sumb--btn {
-    color: #28282a;
-    border: 0px;
+.sumb-clear-btn {
+    background: #d5d5d5;
 }
+
+.sumb--btn.delepart i {
+    margin-right: 0px;
+}
+
 
 input[class="yes--btn"] + span::before {
     content: "Yes";
@@ -2341,12 +2363,27 @@ select[class="form-input--dropdown"] {
     font-size: 13px;
     padding: 7px 10px;
     text-align: right;
+    vertical-align: middle;
 }
 
 #partstable tbody tr.invoice-total--amountdue td {
     font-size: 15px;
     padding: 7px 10px;
     text-align: right;
+    vertical-align: middle;
+}
+
+#partstable tbody tr.invoice-total--amountdue td input.grandtotal {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+#partstable tbody tr.invoice-total--subamount td input,
+#partstable tbody tr.invoice-total--gst td input,
+#partstable tbody tr.invoice-total--amountdue td input {
+    border: 0px !important;
+    padding: 0px;
+    margin-top: 0px;
 }
 
 
@@ -2490,6 +2527,14 @@ a.ui-datepicker-next:hover::after {
     .path--bar {
         display: block;
         margin-bottom: 15px;
+    }
+
+    .invoicelist--hideThis {
+        display: none;
+    }
+
+    .invoice-list--btns {
+        padding-top: 10px;
     }
 
 }
@@ -2644,6 +2689,15 @@ a.ui-datepicker-next:hover::after {
 
     .preview--btn {
         margin: 0px;
+    }
+
+    .invoice-list--btns {
+        display: inline-block;
+        text-align: left !important;
+    }
+
+    .invoice-list--btns button {
+        width: 49.5%;
     }
 
 }

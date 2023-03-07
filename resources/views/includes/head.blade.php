@@ -54,5 +54,5 @@
 
 <body class="<?php if(strpos($_SERVER['REQUEST_URI'], "acct")) {echo 'sumb--accountant';} ?>" >
 
-<div id="thispage" class="animsition">
+<div id="thispage">
 

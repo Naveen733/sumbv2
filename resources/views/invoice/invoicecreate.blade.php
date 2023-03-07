@@ -560,9 +560,9 @@
                             <table id="partstable">
                                 <thead>
                                     <tr>
-                                        <th scope="col" style="width:120px; min-width:120px;">Item</th>
+                                        <th scope="col" style="width:100px; min-width:100px;">Item</th>
                                         <th scope="col" style="width:100px; min-width:100px;">QTY</th>
-                                        <th scope="col" style="width:320px; min-width:320px;">Description</th>
+                                        <th scope="col" style="width:220px; min-width:220px;">Description</th>
                                         <th scope="col" style="width:120px; min-width:120px;">Unit Price</th>
                                         <th scope="col" style="width:120px; min-width:120px;">Account</th>
                                         <th scope="col" style="width:120px; min-width:120px;">Tax Rate</th>
@@ -691,7 +691,7 @@
                                                 @enderror
                                             </td>
                                             <td class="tableOptions">
-                                                <button class="btn sumb--btn delepart" type="button" onclick="deleteInvoiceParts(<?php echo $row_index ?>)" ><i class="fa-solid fa-trash"></i></button>
+                                                <button class="btn sumb--btn delepart" type="button" onclick="deleteInvoiceParts(<?php echo $row_index ?>)" ><i class="fas fa-trash-alt"></i></button>
                                             </td>
                                         </tr>
                                         @php  $row_index++ @endphp
@@ -787,41 +787,40 @@
                                                     <input readonly id="invoice_parts_amount_0" name="invoice_parts_amount_0" type="number" value="">
                                                 </td>
                                                 <td class="tableOptions">
-                                                    <button class="btn sumb--btn delepart" type="button" onclick="deleteInvoiceParts(0)" ><i class="fa-solid fa-trash"></i></button>
+                                                    <button class="btn sumb--btn delepart" type="button" onclick="deleteInvoiceParts(0)" ><i class="fas fa-trash-alt"></i></button>
                                                 </td>
                                             </tr>
                                         @endif
                                     
                                         <tr class="add--new-line">
-                                            <td colspan="5">
+                                            <td colspan="8">
                                                 <button class="btn sumb--btn" type="button" id="addnewline" onclick="addInvoiceParts()" ><i class="fa-solid fa-circle-plus"></i>Add New Line</button> 
                                             </td>
                                         </tr>
                                         
                                         <tr class="invoice-separator">
-                                            <td colspan="5">hs</td>
+                                            <td colspan="8">hs</td>
                                         </tr>
 
                                         <tr class="invoice-total--subamount">
-                                            <td colspan="2" rowspan="3"></td>
-                                            <td>Subtotal (excl GST)</td>
+                                            <td colspan="4" rowspan="3"></td>
+                                            <td colspan="2">Subtotal (excl GST)</td>
                                             <td colspan="2">
-                                                <input type="text" id="invoice_sub_total" name="invoice_sub_total" readonly="" value="{{!empty($invoice_details) ? number_format($invoice_details['invoice_sub_total'], 2) : 0 }}">
+                                                <input type="text" id="invoice_sub_total" name="invoice_sub_total" readonly value="{{!empty($invoice_details) ? number_format($invoice_details['invoice_sub_total'], 2) : 0 }}">
                                             </td>
                                         </tr>
 
                                         <tr class="invoice-total--gst">
-                                            <td id="invoice_total_gst_text" >Total GST {{!empty($invoice_details)}}</td>
+                                            <td colspan="2" id="invoice_total_gst_text" >Total GST {{!empty($invoice_details)}}</td>
                                             <td colspan="2">
-                                                <input type="text" id="invoice_total_gst" name="invoice_total_gst" readonly="" value="{{!empty($invoice_details) ? number_format($invoice_details['invoice_total_gst'], 2) : 0 }}">
+                                                <input type="text" id="invoice_total_gst" name="invoice_total_gst" readonly value="{{!empty($invoice_details) ? number_format($invoice_details['invoice_total_gst'], 2) : 0 }}">
                                             </td>
                                         </tr>
 
                                         <tr class="invoice-total--amountdue">
-                                            <td><strong>Amount Due</strong></td>
+                                            <td colspan="2"><strong>Amount Due</strong></td>
                                             <td colspan="2">
-                                                <strong id="grandtotal"></strong>
-                                                <input type="text" id="invoice_total_amount" name="invoice_total_amount" readonly="" value="{{!empty($invoice_details) ? number_format($invoice_details['invoice_total_amount'], 2) : 0 }}">
+                                                <input class="grandtotal" type="text" id="invoice_total_amount" name="invoice_total_amount" readonly value="{{!empty($invoice_details) ? number_format($invoice_details['invoice_total_amount'], 2) : 0 }}">
                                             </td>
                                         </tr>
                                     </tbody>
@@ -1129,7 +1128,7 @@
                         success: function(result){
                             var rparse = JSON.parse(result);
                             if(rparse.chk == 'success') {
-                                var myhtml = '<tr id="part_'+rparse.id+'" data-type="'+rparse.type+'"><td scope="row" id="part_qty_'+rparse.id+'">'+rparse.qty+'</td><td id="part_desc_'+rparse.id+'" style="text-align: left;">'+rparse.desc+'</td><td id="part_uprice_'+rparse.id+'" data-amt="'+rparse.upriceno+'">'+rparse.uprice+'</td><td id="part_amount_'+rparse.id+'" data-amt="'+rparse.amountno+'">'+rparse.amount+'</td><td><button class="btn sumb--btn editpart" type="button" data-partid="'+rparse.id+'" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> <button class="btn sumb--btn delepart" type="button" data-partid="'+rparse.id+'"><i class="fa-solid fa-trash"></i></button></td></tr>';
+                                var myhtml = '<tr id="part_'+rparse.id+'" data-type="'+rparse.type+'"><td scope="row" id="part_qty_'+rparse.id+'">'+rparse.qty+'</td><td id="part_desc_'+rparse.id+'" style="text-align: left;">'+rparse.desc+'</td><td id="part_uprice_'+rparse.id+'" data-amt="'+rparse.upriceno+'">'+rparse.uprice+'</td><td id="part_amount_'+rparse.id+'" data-amt="'+rparse.amountno+'">'+rparse.amount+'</td><td><button class="btn sumb--btn editpart" type="button" data-partid="'+rparse.id+'" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> <button class="btn sumb--btn delepart" type="button" data-partid="'+rparse.id+'"><i class="fas fa-trash-alt"></i></button></td></tr>';
                                 $("#grandtotal").html('$'+rparse.grand_total);
                                 $("#gtotal").val(rparse.grand_total);
                                 $('#partstable tr:last').prev().after(myhtml);
@@ -1150,7 +1149,7 @@
                         success: function(result){
                             var rparse = JSON.parse(result);
                             if(rparse.chk == 'success') {
-                                var myhtml = '<td scope="row" id="part_qty_'+rparse.id+'">'+rparse.qty+'</td><td id="part_desc_'+rparse.id+'" style="text-align: left;">'+rparse.desc+'</td><td id="part_uprice_'+rparse.id+'" data-amt="'+rparse.upriceno+'">'+rparse.uprice+'</td><td id="part_amount_'+rparse.id+'" data-amt="'+rparse.amountno+'">'+rparse.amount+'</td><td ><button class="btn sumb--btn editpart" type="button" data-partid="'+rparse.id+'" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> <button class="btn sumb--btn delepart" type="button" data-partid="'+rparse.id+'"><i class="fa-solid fa-trash"></i></button></td>';
+                                var myhtml = '<td scope="row" id="part_qty_'+rparse.id+'">'+rparse.qty+'</td><td id="part_desc_'+rparse.id+'" style="text-align: left;">'+rparse.desc+'</td><td id="part_uprice_'+rparse.id+'" data-amt="'+rparse.upriceno+'">'+rparse.uprice+'</td><td id="part_amount_'+rparse.id+'" data-amt="'+rparse.amountno+'">'+rparse.amount+'</td><td ><button class="btn sumb--btn editpart" type="button" data-partid="'+rparse.id+'" data-toggle="modal" data-target="#particulars"><i class="fa-regular fa-pen-to-square"></i></button> <button class="btn sumb--btn delepart" type="button" data-partid="'+rparse.id+'"><i class="fas fa-trash-alt"></i></button></td>';
                                 $("#grandtotal").html('$'+rparse.grand_total);
                                 $("#gtotal").val(rparse.grand_total);
                                 $('#part_'+rparse.id).html(myhtml);
