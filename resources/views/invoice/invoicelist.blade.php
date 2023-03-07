@@ -32,7 +32,7 @@
             <div class="container-fluid">
 
                 <section>
-                    <h3 class="sumb--title">Invoice & Expenses</h3>
+                    <h3 class="sumb--title">Invoice</h3>
                 </section>
 
                 <section>
@@ -84,13 +84,7 @@
                             <div class="sumb--dashboardServices sumb--putShadowbox">
 
                                 <div class="sumb--fileAddbtn dropdown">
-                                    <a class="fileAddbtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-circle-plus"></i>Add Item</a>
-                
-                                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="mainlinkadd">
-                                        <a class="dropdown-item" href="/invoice/create">Add an Invoice</a>
-                                        <a class="dropdown-item" href="/expenses-create">Add an Expenses</a>
-                                        <!--<a class="dropdown-item" href="#">Add an Adjustment</a>-->
-                                    </div>
+                                    <a class="fileAddbtn" href="/invoice/create" role="button" id="mainlinkadd"><i class="fa-solid fa-circle-plus"></i>Add New Invoice</a>
                                 </div>
                             </div>
 
@@ -104,15 +98,15 @@
                                 <button id="btnGroupDrop_type" type="button" data-toggle="dropdown" aria-expanded="false">
                                     @if (app('request')->input('type') === 'invoice')
                                         Invoice
-                                    @elseif (app('request')->input('type') === 'expenses')
-                                        Expenses
+                                    <!-- @elseif (app('request')->input('type') === 'expenses')
+                                        Expenses -->
                                     @else
                                          Invoice & Expenses
                                     @endif
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="btnGroupDrop_type">
                                     <a class="dropdown-item" href="{{$paging['starpage']}}&type=invoice">Invoice</a>
-                                    <a class="dropdown-item" href="{{$paging['starpage']}}&type=expenses">Expenses</a>
+                                    <!-- <a class="dropdown-item" href="{{$paging['starpage']}}&type=expenses">Expenses</a> -->
                                     <a class="dropdown-item" href="/invoice">View All</a>
                                 </div>
                             </div>

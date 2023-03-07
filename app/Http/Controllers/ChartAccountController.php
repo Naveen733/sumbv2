@@ -110,16 +110,16 @@ class ChartAccountController extends Controller
     public function chartAccountsPartsList(Request $request)
     {
         if ($request->ajax())
-        {
+        { 
             $userinfo = $request->get('userinfo');
-            $chart_account_parts = $chart_account = SumbChartAccounts::with(['chartAccountsParticulars', 'chartAccountsTypes'])
+            $chart_account_parts = SumbChartAccounts::with(['chartAccountsParticulars', 'chartAccountsTypes'])
                         ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
                             $query->where('user_id', $userinfo[0]);
                         })
-                        ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
-                            $query->where('user_id', $userinfo[0]);
-                        })
-                        ->where('user_id', $userinfo[0])->get();
+                        // ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
+                        //     // $query->where('user_id', $userinfo[0]);
+                        // })
+                        ->get();
             if($chart_account_parts){
                 $response = [
                     'status' => 'success',

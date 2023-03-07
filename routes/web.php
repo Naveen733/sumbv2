@@ -103,5 +103,5 @@ Route::middleware('sumbauth')->group(function() {
     Route::get('/invoice-tax-rates', [App\Http\Controllers\InvoiceController::class, 'invoiceTaxRates'])->name('invoice-tax-rates');
     Route::get('/chart-accounts', [App\Http\Controllers\ChartAccountController::class, 'index'])->name('chart-accounts');
     Route::post('/edit-chart-account/{id}', [App\Http\Controllers\ChartAccountController::class, 'update'])->name('edit-chart-account/{id}');
-    
+    Route::get('/profit-loss', [App\Http\Controllers\ProfitAndLossController::class, 'index'])->name('profit-loss');
 });

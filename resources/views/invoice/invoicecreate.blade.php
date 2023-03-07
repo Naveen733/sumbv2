@@ -51,7 +51,7 @@
                     <div class="col-xl-6">
                         <label class="form-input--question" for="">Tax Rate</label>
                         <div class="input-group mb-3">
-                        @if(!empty($tax_rates))
+                            @if(!empty($tax_rates))
                             <select class="custom-select form-control" id="invoice_item_tax_rate" name="invoice_item_tax_rate" value="" required>
                                 <option selected value="">Choose...</option>
                                 @foreach($tax_rates as $tax_rate)
@@ -59,7 +59,7 @@
                                     <option value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
                                 @endforeach
                             </select>
-                        @endif
+                            @endif
                         </div>
                         <div class="" role="alert" id="invoice_item_tax_rate_error"></div>
                     </div>
@@ -626,7 +626,7 @@
                                                 @enderror
                                             </td>
                                             <td>
-                                                <input id="{{'invoice_parts_unit_price_'.$row_index}}" name="{{'invoice_parts_unit_price_'.$row_index}}" type="number" value="{{!empty($parts['invoice_parts_unit_price']) ? number_format($parts['invoice_parts_unit_price'], 2)  : ''}}" onchange="InvoicepartsQuantity('{{$row_index}}')" step=".01" required>
+                                                <input id="{{'invoice_parts_unit_price_'.$row_index}}" name="{{'invoice_parts_unit_price_'.$row_index}}" type="float" value="{{!empty($parts['invoice_parts_unit_price']) ? number_format($parts['invoice_parts_unit_price'], 2)  : ''}}" onchange="InvoicepartsQuantity('{{$row_index}}')" step=".01" required>
                                                 @error('invoice_parts_unit_price_'.$row_index)
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
@@ -677,7 +677,7 @@
                                                         <select class="custom-select form-control" id="{{'invoice_parts_tax_rate_'.$row_index}}" name="{{'invoice_parts_tax_rate_'.$row_index}}" value="" onchange="InvoicepartsQuantity('{{$row_index}}'); getTaxRates('{{$row_index}}');" value="{{$parts['invoice_parts_tax_rate']}}">
                                                             <option selected value="">Choose...</option>
                                                             @foreach($tax_rates as $tax_rate)
-                                                                <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_'.$row_index}}" value="{{ !empty($parts['invoice_parts_tax_rate_id']) ? $parts['invoice_parts_tax_rate_id'] : $tax_rate['id']}}" ></option>
+                                                                <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_'.$row_index}}" value="{{ !empty($tax_rate['id']) ? $tax_rate['id'] : ''}}" ></option>
                                                                 <option id="{{$tax_rate['id'].'_'.$row_index}}" value="{{$tax_rate['tax_rates']}}" {{ $parts['invoice_parts_tax_rate_id']==$tax_rate['id'] ? 'selected' : '' }}>{{$tax_rate['tax_rates_name']}}</option>
                                                             @endforeach
                                                         </select>
@@ -729,7 +729,7 @@
                                                     <textarea id="invoice_parts_description_0" name="invoice_parts_description_0" class="autoresizing" value=""></textarea>
                                                 </td>
                                                 <td>
-                                                    <input id="invoice_parts_unit_price_0" name="invoice_parts_unit_price_0" type="number" value="" onchange="InvoicepartsQuantity(0)">
+                                                    <input id="invoice_parts_unit_price_0" name="invoice_parts_unit_price_0" type="float" value="" onchange="InvoicepartsQuantity(0)">
                                                     <input type="hidden" id="invoice_parts_gst_0" name="invoice_parts_gst_0" value="">
                                                 </td>
                                                 <td>
