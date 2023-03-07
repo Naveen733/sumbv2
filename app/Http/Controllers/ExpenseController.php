@@ -224,6 +224,7 @@ class ExpenseController extends Controller {
             'userinfo'=>$userinfo,
             'pagetitle' => 'Create Expenses'
         );
+        $dtnow = Carbon::now();
         // $dtnow = Carbon::now();
         // if(!SumbExpenseSettings::where('user_id', $userinfo[0])->first()){
         //     SumbExpenseSettings::insert(['user_id'=>$userinfo[0], 'created_at'=>$dtnow, 'updated_at'=>$dtnow]);
@@ -240,6 +241,17 @@ class ExpenseController extends Controller {
         $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first();
         if(!empty($get_settings)){
             $pagedata['data'] = $get_settings->toArray();
+        }
+        else{
+            $user = SumbUsers::where('id', $userinfo[0])->first();
+            if(!empty($user)){
+               // echo $user['id'];die();
+                SumbExpenseSettings::insert(['user_id'=>$user['id'], 'created_at'=>$dtnow, 'updated_at'=>$dtnow]);
+                $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first();
+                if(!empty($get_settings)){
+                    $pagedata['data'] = $get_settings->toArray();
+                }
+            }
         }
         
        $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
