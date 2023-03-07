@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddChartAccountsParticularsTaxRateIdToSumbChartAccountsParticulars extends Migration
+class AddTaxRateIdToSumbChartAccountsParticulars extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddChartAccountsParticularsTaxRateIdToSumbChartAccountsParticulars extends
     public function up()
     {
         Schema::table('sumb_chart_accounts_particulars', function (Blueprint $table) {
-            $table->bigInteger('chart_accounts_particulars_tax_rate_id')->unsigned()->index();
+            $table->bigInteger('accounts_tax_rate_id')->unsigned()->index();
         });
     }
 
@@ -26,7 +26,7 @@ class AddChartAccountsParticularsTaxRateIdToSumbChartAccountsParticulars extends
     public function down()
     {
         Schema::table('sumb_chart_accounts_particulars', function (Blueprint $table) {
-            $table->dropColumn('chart_accounts_particulars_tax_rate_id');
+            $table->dropColumn('accounts_tax_rate_id');
         });
     }
 }

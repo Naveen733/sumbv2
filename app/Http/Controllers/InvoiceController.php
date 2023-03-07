@@ -220,7 +220,7 @@ class InvoiceController extends Controller {
         }
 
         $chart_accounts_types = SumbChartAccounts::with(['chartAccountsTypes'])
-                    ->where('user_id', $userinfo[0])->get();
+                ->get();
         if (!empty($chart_accounts_types)) {
             $pagedata['chart_accounts_types'] = $chart_accounts_types->toArray();
         }
@@ -230,9 +230,9 @@ class InvoiceController extends Controller {
                             $query->where('user_id', $userinfo[0]);
                         })
                         ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
-                            $query->where('user_id', $userinfo[0]);
+                            // $query->where('user_id', $userinfo[0]);
                         })
-                        ->where('user_id', $userinfo[0])->get();
+                        ->get();
         if (!empty($chart_account)) {
             $pagedata['chart_account'] = $chart_account->toArray();
         }
@@ -331,15 +331,14 @@ class InvoiceController extends Controller {
                     $query->where('user_id', $userinfo[0]);
                 })
                 ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
-                    $query->where('user_id', $userinfo[0]);
+                    // $query->where('user_id', $userinfo[0]);
                 })
                 ->where('user_id', $userinfo[0])->get();
                 if (!empty($chart_account)) {
                     $pagedata['chart_account'] = $chart_account->toArray();
                 }
 
-                $chart_accounts_types = SumbChartAccounts::with(['chartAccountsTypes'])
-                ->where('user_id', $userinfo[0])->get();
+                $chart_accounts_types = SumbChartAccounts::with(['chartAccountsTypes'])->get();
                 if (!empty($chart_accounts_types)) {
                     $pagedata['chart_accounts_types'] = $chart_accounts_types->toArray();
                 }
