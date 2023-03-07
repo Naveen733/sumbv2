@@ -24,7 +24,7 @@
                 <section>
                
                 @if($type == 'edit')
-                    <form id="expense-form-edit" action="/expense/{{ $expense_details['transaction_id'] }}/update" method="post" enctype="multipart/form-data">
+                    <form id="expense-form-edit" action="/expense/{{ $expense_details['id'] }}/update" method="post" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     {{ method_field('put') }}
                 @elseif($type == 'create')

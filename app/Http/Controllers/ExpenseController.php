@@ -480,7 +480,7 @@ class ExpenseController extends Controller {
         );
         $expense_particulars = [];
        
-        $pagedata['expense_details'] = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->where('status_paid','!=','unpaid')->where('inactive_status',0)->first();
+        $pagedata['expense_details'] = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','!=','unpaid')->where('inactive_status',0)->first();
         $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
         $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
        
@@ -527,7 +527,7 @@ class ExpenseController extends Controller {
         // }
         $expense_details = array("inactive_status" => 1);
 
-        $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first();
+        $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->first();
         $updateExpenseDetails->update($expense_details);
         
         //die();
@@ -638,7 +638,7 @@ class ExpenseController extends Controller {
         //    // return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
         // }
 
-        $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->where('status_paid','unpaid')->where('inactive_status',0)->first();;
+        $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','unpaid')->where('inactive_status',0)->first();;
         $updateExpenseDetails->update($expense_details);
 
         $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
@@ -720,7 +720,7 @@ class ExpenseController extends Controller {
                     $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->first();
                     
                     $account_code_name = explode('-', $request->item_account[$i]);
-
+                    echo "<pre>"; var_dump( $expense_item); echo "</pre>";die();
                     $expense_particular_new_item = array(
                         "user_id" => $userinfo[0],
                         "expense_description" => $request->expense_description[$i],
@@ -768,7 +768,7 @@ class ExpenseController extends Controller {
         //     return redirect()->route('expense', ['err'=>3]); die();
         // }
 
-        $chk_inv = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->where('inactive_status',0)->first();
+        $chk_inv = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('inactive_status',0)->first();
         if ($chk_inv->exists) {
             $chk_inv = $chk_inv->toArray();
         }
@@ -794,7 +794,7 @@ class ExpenseController extends Controller {
             'pagetitle' => 'Status Change'
         );
       
-        $chk_inv = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->where('status_paid','!=','void')->where('inactive_status',0)->first();
+        $chk_inv = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','!=','void')->where('inactive_status',0)->first();
         if ($chk_inv->exists) {
             $chk_inv = $chk_inv->toArray();
         }
