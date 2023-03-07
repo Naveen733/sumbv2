@@ -10,8 +10,6 @@
     <div class="main-content">
         <div class="section__content section__content--p30">
             <div class="container-fluid">
-
-
             <section> 
                 @if($type == 'create')
                 <h3 class="sumb--title">New Expense</h3>
@@ -38,105 +36,97 @@
                 @endif
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                           
-                          
-
-                                
-                                <div class="row">
-                                    <div class="col-xl-12">
-                                        <div class="form-input--wrap">
-                                            <label class="form-input--question">Expense Number <span>Read-Only</span></label>
-                                            <div class="form--inputbox readOnly row">
-                                                <div class="col-12">
-                                                    <input type="text" id="expense_number" name="expense_number" required readonly="" value="{{ !empty($expense_details['expense_number']) ? $expense_details['expense_number'] : 'EXP-'. str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
-                                                    @error('expense_number')
-                                                        <div class="alert alert-danger">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="form-input--wrap">
+                                        <label class="form-input--question">Expense Number <span>Read-Only</span></label>
+                                        <div class="form--inputbox readOnly row">
+                                            <div class="col-12">
+                                                <input type="text" id="expense_number" name="expense_number" required readonly="" value="{{ !empty($expense_details['expense_number']) ? $expense_details['expense_number'] : 'EXP-'. str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
+                                                @error('expense_number')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
+                            </div>
+                            <div class="row">
                                 <div class="col-xl-6">
-                                        <div class="form-input--wrap">
-                                            <label class="form-input--question" for="expense_date">Date <span>MM/DD/YYYY</span></label>
-                                            <div class="date--picker row">
-                                                <div class="col-12">
-                                                    <input type="text" id="expense_date" name="expense_date" required class="form-control" value="{{ !empty($expense_details['expense_date']) ? date('m/d/Y', strtotime($expense_details['expense_date'])) :  date("m/d/Y")  }}">
-                                                    @error('expense_date')
-                                                        <div class="alert alert-danger">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
+                                    <div class="form-input--wrap">
+                                        <label class="form-input--question" for="expense_date">Date <span>MM/DD/YYYY</span></label>
+                                        <div class="date--picker row">
+                                            <div class="col-12">
+                                                <input type="text" id="expense_date" name="expense_date" required class="form-control" value="{{ !empty($expense_details['expense_date']) ? date('m/d/Y', strtotime($expense_details['expense_date'])) :  date("m/d/Y")  }}">
+                                                @error('expense_date')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-xl-6">
-                                        <div class="form-input--wrap">
-                                            <label class="form-input--question" for="expense_due_date">Due Date <span>MM/DD/YYYY</span></label>
-                                            <div class="date--picker row">
-                                                <div class="col-12">
-                                                    <input type="text" id="expense_due_date" name="expense_due_date" required class="form-control" value="{{ !empty($expense_details['expense_due_date']) ? date('m/d/Y', strtotime($expense_details['expense_due_date'])) : '' }}" >
-                                                    @error('expense_due_date')
-                                                        <div class="alert alert-danger">{{ $message }}</div>
-                                                    @enderror
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="form-input--wrap">
+                                        <label class="form-input--question" for="expense_due_date">Due Date <span>MM/DD/YYYY</span></label>
+                                        <div class="date--picker row">
+                                            <div class="col-12">
+                                                <input type="text" id="expense_due_date" name="expense_due_date" required class="form-control" value="{{ !empty($expense_details['expense_due_date']) ? date('m/d/Y', strtotime($expense_details['expense_due_date'])) : '' }}" >
+                                                @error('expense_due_date')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="form-input--wrap">
+                                        <label for="client_name" class="form-input--question">
+                                            Recipient's Name
+                                        </label>
+                                        <div class="form--inputbox recentsearch--input row">
+                                            <div class="searchRecords col-12">
+                                                <input type="text" id="client_name" name="client_name" required class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" autocomplete="off"  value="{{ !empty($expense_details['client_name']) ? $expense_details['client_name'] : '' }}">
+                                                @error('client_name')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="form--recentsearch clientname row">
+                                            <div class="col-12">
+                                                <div class="form--recentsearch__result">
+                                                    <ul>
+                                                        @if (empty($exp_clients))
+                                                            <li>You dont have any clients at this time</li>
+                                                        @else
+                                                            @php $counter = 0; @endphp
+                                                            @foreach ($exp_clients as $ec)
+                                                                @php $counter ++; @endphp
+                                                                <li>
+                                                                    <button type="button" class="dcc_click" data-myid="{{ $counter }}">
+                                                                        <span id="data_name_{{ $counter }}">{{ $ec['client_name'] }}</span>
+                                                                    </button>
+                                                                </li>
+                                                            @endforeach
+                                                        @endif
+
+                                                        <li class="add--newactclnt">
+                                                            <label for="savethisrep">
+                                                                <input type="checkbox" id="savethisrep" name="savethisrep" value="yes" class="form-check-input" {{ !empty($form['save_client']) ? 'checked' : '' }}>
+                                                                <div class="option--title">
+                                                                    Add as a new active client?
+                                                                    <span>Note: When the name is existing it will overide the old one.</span>
+                                                                </div>
+                                                            </label>
+                                                        </li>
+                                                    </ul>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-xl-12">
-                                        <div class="form-input--wrap">
-                                            <label for="client_name" class="form-input--question">
-                                                Recipient's Name
-                                            </label>
-                                            <div class="form--inputbox recentsearch--input row">
-                                                <div class="searchRecords col-12">
-                                                    <input type="text" id="client_name" name="client_name" required class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" autocomplete="off"  value="{{ !empty($expense_details['client_name']) ? $expense_details['client_name'] : '' }}">
-                                                    @error('client_name')
-                                                        <div class="alert alert-danger">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                            <div class="form--recentsearch clientname row">
-                                                <div class="col-12">
-                                                    
-                                                    <div class="form--recentsearch__result">
-                                                        <ul>
-                                                            @if (empty($exp_clients))
-                                                                <li>You dont have any clients at this time</li>
-                                                            @else
-                                                                @php $counter = 0; @endphp
-                                                                @foreach ($exp_clients as $ec)
-                                                                    @php $counter ++; @endphp
-                                                                    <li>
-                                                                        <button type="button" class="dcc_click" data-myid="{{ $counter }}">
-                                                                            <span id="data_name_{{ $counter }}">{{ $ec['client_name'] }}</span>
-                                                                        </button>
-                                                                    </li>
-                                                                @endforeach
-                                                            @endif
-
-                                                            <li class="add--newactclnt">
-                                                                <label for="savethisrep">
-                                                                    <input type="checkbox" id="savethisrep" name="savethisrep" value="yes" class="form-check-input" {{ !empty($form['save_client']) ? 'checked' : '' }}>
-                                                                    <div class="option--title">
-                                                                        Add as a new active client?
-                                                                        <span>Note: When the name is existing it will overide the old one.</span>
-                                                                    </div>
-                                                                </label>
-                                                            </li>
-                                                        </ul>
-
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
+                            </div>
                                 <div class="row">
                                     <div class="table-responsive">
                                         <table id="partstable">
@@ -145,6 +135,7 @@
                                                     <th scope="col" style="width:150px; min-width:150px;">Description</th>
                                                     <th scope="col" style="width:40px; min-width:40px;">Qty</th>
                                                     <th scope="col" style="width:40px; min-width:40px;">Unit Price</th>
+                                                    <th scope="col" style="width:40px; min-width:40px;">Account</th>
                                                     <th scope="col" style="width:40px; min-width:40px;">Tax Rate</th>
                                                     <th scope="col" style="width:40px; min-width:40px;">Amount</th>
                                                     <th scope="col" style="width:40px; min-width:40px;">&nbsp;</th>
@@ -157,15 +148,40 @@
                                                             <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required></textarea>
                                                         </td>
                                                         <td>
-                                                           <input type="number" id="item_quantity" name="item_quantity[]" step="any"  required">
+                                                           <input type="number" id="item_quantity" name="item_quantity[]" step="any"  required>
                                                         </td>
                                                         <td>
-                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" step="any"  required">
+                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" step="any"  required>
                                                         </td>
                                                         <td>
-                                                            <!-- <input id="expense_tax" name="expense_tax[]" type="number"> -->
+                                                            <select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" required>
+                                                                <option value="">select</option>
+                                                                <option value="400-Advertising">400 - Advertising</option>
+                                                                <option value="404-Bank Fees">404 - Bank Fees</option>
+                                                                <option value="408-Cleaning">408 - Cleaning</option>
+                                                                <option value="412-Consulting & Accounting">412 - Consulting & Accounting</option>
+                                                                <option value="420-Entertainment">420 - Entertainment</option>
+                                                                <option value="425-Freight & Courier">425 - Freight & Courier</option>
+                                                                <option value="429-General Expenses">429 - General Expenses</option>
+                                                                <option value="433-Insurance">433 - Insurance</option>
+                                                                <option value="437-Interest Expense">437 - Interest Expense</option>
+                                                                <option value="441-Legal expenses">441 - Legal expenses</option>
+                                                                <option value="445-Light, Power, Heating">445 - Light, Power, Heating</option>
+                                                                <option value="449-Motor Vehicle Expenses">449 - Motor Vehicle Expenses</option>
+                                                                <option value="453-Office Expenses">453 - Office Expenses</option>
+                                                                <option value="461-Printing & Stationery">461 - Printing & Stationery</option>
+                                                                <option value="469-Rent">469 - Rent</option>
+                                                                <option value="473-Repairs and Maintenance">473 - Repairs and Maintenance</option>
+                                                                <option value="485-Subscriptions">485 - Subscriptions</option>
+                                                                <option value="489-Telephone & Internet">489 - Telephone & Internet</option>
+                                                                <option value="493-Travel National">493 - Travel - National</option>
+                                                                <option value="494-Travel International">494 - Travel - International</option>
+                                                                <option value="710-Office Equipment">710 - Office Equipment</option>
+                                                                <option value="720-Computer Equipment">720 - Computer Equipment</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
                                                             <select style="border: none;" name="expense_tax[]" id="expense_tax" >
-                                                                <!-- <option selected disabled>Select Tax Rate</option>     -->
                                                                 <option value="0">Tax Exempt</option>
                                                                 <option value="10">General Tax</option>
                                                             </select> 
@@ -189,8 +205,35 @@
                                                         <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['item_quantity']) ? $prts['item_quantity'] : '' }}"  required>
                                                     </td>
                                                     <td>
-                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['item_unit_price']) ? $prts['item_unit_price'] : '' }}" step="any"  required>
+                                                        <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['item_unit_price']) ? $prts['item_unit_price'] : '' }}" step="any"  required>
                                                     </td>
+                                                    <td>
+                                                        <select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" step="any" required>
+                                                                <option value="">select</option>
+                                                                <option value="400-Advertising">400 - Advertising</option>
+                                                                <option value="404-Bank Fees">404 - Bank Fees</option>
+                                                                <option value="408-Cleaning">408 - Cleaning</option>
+                                                                <option value="412-Consulting & Accounting">412 - Consulting & Accounting</option>
+                                                                <option value="420-Entertainment">420 - Entertainment</option>
+                                                                <option value="425-Freight & Courier">425 - Freight & Courier</option>
+                                                                <option value="429-General Expenses">429 - General Expenses</option>
+                                                                <option value="433-Insurance">433 - Insurance</option>
+                                                                <option value="437-Interest Expense">437 - Interest Expense</option>
+                                                                <option value="441-Legal expenses">441 - Legal expenses</option>
+                                                                <option value="445-Light, Power, Heating">445 - Light, Power, Heating</option>
+                                                                <option value="449-Motor Vehicle Expenses">449 - Motor Vehicle Expenses</option>
+                                                                <option value="453-Office Expenses">453 - Office Expenses</option>
+                                                                <option value="461-Printing & Stationery">461 - Printing & Stationery</option>
+                                                                <option value="469-Rent">469 - Rent</option>
+                                                                <option value="473-Repairs and Maintenance">473 - Repairs and Maintenance</option>
+                                                                <option value="485-Subscriptions">485 - Subscriptions</option>
+                                                                <option value="489-Telephone & Internet">489 - Telephone & Internet</option>
+                                                                <option value="493-Travel National">493 - Travel - National</option>
+                                                                <option value="494-Travel International">494 - Travel - International</option>
+                                                                <option value="710-Office Equipment">710 - Office Equipment</option>
+                                                                <option value="720-Computer Equipment">720 - Computer Equipment</option>
+                                                            </select>
+                                                        </td>
                                                     <td>
                                                             <!-- <input id="expense_tax" name="expense_tax[]" type="number"> -->
                                                             <select style="border: none;" name="expense_tax[]" id="expense_tax"  >
@@ -206,12 +249,9 @@
                                                     <td class="tableOptions">
                                                         <button class="btn sumb-del-btn delepart" type="button" ><i class="fa-solid fa-trash"></i></button>
                                                     </td>
-
-                                                   
                                                 </tr>
                                                     @endforeach
                                                 @endif
-                                                
                                                 
                                                 <tr class="add--new-line">
                                                     <td colspan="6">
@@ -499,6 +539,8 @@
 @include('includes.footer')
 
 <script>
+
+
     $(document).ready(function () {
         $(".bd-example-modal-lg").on("hidden.bs.modal", function () {
     // put your default event here
@@ -665,6 +707,33 @@
             '<tr><td><textarea name=\"expense_description[]\" id=\"expense_description\" class=\"autoresizing\" required></textarea></td>\n'+
             '<td><input type=\"number\" step="any" id=\"item_quantity\" name=\"item_quantity[]\" required \"></td>\n'+
             '<td><input type=\"number\" step="any" id=\"item_unit_price\" name=\"item_unit_price[]\" required \"></td>\n'+
+            '<td>'+
+                '<select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" step="any" required>\n'+
+                    '<option value="">select</option>\n'+
+                    '<option value="400-Advertising">400 - Advertising</option>\n'+
+                    '<option value="404-Bank Fees">404 - Bank Fees</option>\n'+
+                    '<option value="408-Cleaning">408 - Cleaning</option>\n'+
+                    '<option value="412-Consulting & Accounting">412 - Consulting & Accounting</option>\n'+
+                    '<option value="420-Entertainment">420 - Entertainment</option>\n'+
+                    '<option value="425-Freight & Courier">425 - Freight & Courier</option>\n'+
+                    '<option value="429-General Expenses">429 - General Expenses</option>\n'+
+                    '<option value="433-Insurance">433 - Insurance</option>\n'+
+                    '<option value="437-Interest Expense">437 - Interest Expense</option>\n'+
+                    '<option value="441-Legal expenses">441 - Legal expenses</option>\n'+
+                    '<option value="445-Light, Power, Heating">445 - Light, Power, Heating</option>\n'+
+                    '<option value="449-Motor Vehicle Expenses">449 - Motor Vehicle Expenses</option>\n'+
+                    '<option value="453-Office Expenses">453 - Office Expenses</option>\n'+
+                    '<option value="461-Printing & Stationery">461 - Printing & Stationery</option>\n'+
+                    '<option value="469-Rent">469 - Rent</option>\n'+
+                    '<option value="473-Repairs and Maintenance">473 - Repairs and Maintenance</option>\n'+
+                    '<option value="485-Subscriptions">485 - Subscriptions</option>\n'+
+                    '<option value="489-Telephone & Internet">489 - Telephone & Internet</option>\n'+
+                    '<option value="493-Travel National">493 - Travel - National</option>\n'+
+                    '<option value="494-Travel International">494 - Travel - International</option>\n'+
+                    '<option value="710-Office Equipment">710 - Office Equipment</option>\n'+
+                    '<option value="720-Computer Equipment">720 - Computer Equipment</option>\n'+
+                '</select>\n'+
+            '</td>'+
             '<td><select style=\"border: none;\" name=\"expense_tax[]\" id=\"expense_tax\" required><option value=\"0\">Tax Exempt</option><option value=\"10\">General Tax</option></select></td>\n'+
             '<td><input readonly id=\"expense_amount\" name=\"expense_amount[]\" type=\"number\" step="any" required></td>\n'+
             '<td class=\"tableOptions\">\n'+
@@ -720,7 +789,7 @@
             var cells = $(this).closest('tr').children('td');
             var value1 = cells.eq(1).find('input').val();
             var value2 = cells.eq(2).find('input').val();
-            var value3 = cells.eq(4).find('input').val(value1 * value2);
+            var value3 = cells.eq(5).find('input').val(value1 * value2);
 
             var calculated_total_sum = 0;
             var calculated_total_gst_amount = 0;

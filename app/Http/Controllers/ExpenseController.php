@@ -256,7 +256,6 @@ class ExpenseController extends Controller {
     //*
     //***********************************************
     public function save_expense(Request $request) {
-        
         $userinfo = $request->get('userinfo');
         $pagedata = array(
             'userinfo'=>$userinfo,
@@ -278,7 +277,8 @@ class ExpenseController extends Controller {
             'expense_total_amount.*' => 'bail|required|numeric',
             'total_gst.*' => 'bail|required|numeric',
             'total_amount.*' => 'bail|required|numeric',
-            'file_upload' =>  'mimes:jpg,jpeg,png,pdf'
+            'file_upload' =>  'mimes:jpg,jpeg,png,pdf',
+            'item_account.*' => 'bail|required',
         ]
         // ,
         // [
@@ -405,6 +405,10 @@ class ExpenseController extends Controller {
         $transaction_id = SumbExpenseDetails::insertGetId($expense_details);
         
         for ($i = 0; $i < count($request->item_quantity); $i++) {
+
+            $request->item_account[$i];
+            $account_code_name = explode('-', $request->item_account[$i]);
+
             $expense_details = array(
                 "user_id" => $userinfo[0],
                 "expense_description" => $request->expense_description[$i],
@@ -414,12 +418,13 @@ class ExpenseController extends Controller {
                 "expense_amount" => $request->expense_amount[$i],
                 "expense_id" => $transaction_id,
                 "expense_number" => $get_exp_settings['expenses_count'],
+                'expense_account_code' => $account_code_name[0],
+                'expense_account_name' => $account_code_name[1],
                 'created_at'            => $dtnow,
                 'updated_at'            => $dtnow
             );
             SumbExpenseParticulars::insert($expense_details);
         };
-
         $updatethis = SumbExpenseSettings::where('user_id', $userinfo[0])->first();
         $updatethis->increment('expenses_count');
         
@@ -441,7 +446,7 @@ class ExpenseController extends Controller {
         );
         $expense_particulars = [];
        
-        $pagedata['expense_details'] = SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->where('status_paid','unpaid')->where('inactive_status',0)->first();
+        $pagedata['expense_details'] = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','unpaid')->where('inactive_status',0)->first();
         $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
         $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
        
@@ -454,7 +459,7 @@ class ExpenseController extends Controller {
             $pagedata['exp_clients'] = $get_expclients->toArray();
         }
         $pagedata['type'] = 'edit';
-          return view('invoice.expensescreate', $pagedata);
+        return view('invoice.expensescreate', $pagedata);
 
         //  echo "<pre>"; var_dump($pagedata['expense_details']); echo "</pre>";
         //  die();
@@ -646,6 +651,8 @@ class ExpenseController extends Controller {
         if(count($request->item_quantity) == count($updateExpenseParticulars)){
             for ($i = 0; $i < count($request->item_quantity); $i++) {
             
+                $account_code_name = explode('-', $request->item_account[$i]);
+
                 $expense_particular_item = array(
                     "user_id" => $userinfo[0],
                     "expense_description" => $request->expense_description[$i],
@@ -653,6 +660,8 @@ class ExpenseController extends Controller {
                     "item_unit_price" => $request->item_unit_price[$i],
                     "expense_tax" => $request->expense_tax[$i],
                     "expense_amount" => $request->expense_amount[$i],
+                    "expense_account_code" => $account_code_name[0],
+                    "expense_account_name" => $account_code_name[1],
                     "updated_at" => $dtnow,
                 );
                 $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
@@ -661,6 +670,9 @@ class ExpenseController extends Controller {
         }else if(count($request->item_quantity) < count($updateExpenseParticulars)){
             for ($i = 0; $i < count($updateExpenseParticulars); $i++) {
                 if($i < count($request->item_quantity)){
+
+                    $account_code_name = explode('-', $request->item_account[$i]);
+
                     $expense_particular_item = array(
                         "user_id" => $userinfo[0],
                         "expense_description" => $request->expense_description[$i],
@@ -668,6 +680,8 @@ class ExpenseController extends Controller {
                         "item_unit_price" => $request->item_unit_price[$i],
                         "expense_tax" => $request->expense_tax[$i],
                         "expense_amount" => $request->expense_amount[$i],
+                        "expense_account_code" => $account_code_name[0],
+                        "expense_account_name" => $account_code_name[1],
                         "updated_at" => $dtnow,
                     );
                     $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
@@ -685,6 +699,8 @@ class ExpenseController extends Controller {
         }else{
             for ($i = 0; $i < count($request->item_quantity); $i++) {
                 if($i < count($updateExpenseParticulars)){
+
+                    $account_code_name = explode('-', $request->item_account[$i]);
                     $expense_particular_item = array(
                         "user_id" => $userinfo[0],
                         "expense_description" => $request->expense_description[$i],
@@ -692,6 +708,8 @@ class ExpenseController extends Controller {
                         "item_unit_price" => $request->item_unit_price[$i],
                         "expense_tax" => $request->expense_tax[$i],
                         "expense_amount" => $request->expense_amount[$i],
+                        "expense_account_code" => $account_code_name[0],
+                        "expense_account_name" => $account_code_name[1],
                         "updated_at" => $dtnow,
                     );
                     $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
@@ -701,6 +719,8 @@ class ExpenseController extends Controller {
                 }else{
                     $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->first();
                     
+                    $account_code_name = explode('-', $request->item_account[$i]);
+
                     $expense_particular_new_item = array(
                         "user_id" => $userinfo[0],
                         "expense_description" => $request->expense_description[$i],
@@ -710,6 +730,8 @@ class ExpenseController extends Controller {
                         "expense_amount" => $request->expense_amount[$i],
                         "expense_id" => $id,
                         "expense_number" => $expense_item['expense_number'],
+                        "expense_account_code" => $account_code_name[0],
+                        "expense_account_name" => $account_code_name[1],
                         'created_at'            => $dtnow,
                         'updated_at'            => $dtnow,
                     );
@@ -717,11 +739,9 @@ class ExpenseController extends Controller {
                 //    echo "insert";
                 //    echo "<pre>"; var_dump($expense_particular_new_item); echo "</pre>";
                 }
-                
             };
         }
-        
-         return redirect()->route('expense', ['err'=>6]); die();
+        return redirect()->route('expense', ['err'=>6]); die();
 
         //  echo "<pre>"; var_dump($updateExpenseParticulars); echo "</pre>";
         //  die();
