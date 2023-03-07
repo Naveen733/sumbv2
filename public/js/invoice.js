@@ -306,7 +306,7 @@ function addInvoiceParts(){
             </td>\
             <td><input type="number" id="invoice_parts_quantity_'+rowIndex+'" name="invoice_parts_quantity_'+rowIndex+'" value="" onchange=InvoicepartsQuantity('+rowIndex+') required></td>\
             <td><textarea class="autoresizing" id="invoice_parts_description_'+rowIndex+'" name="invoice_parts_description_'+rowIndex+'" value="" required></textarea></td>\
-            <td><input type="number" id="invoice_parts_unit_price_'+rowIndex+'" name="invoice_parts_unit_price_'+rowIndex+'" value="" onchange=InvoicepartsQuantity('+rowIndex+') required>\
+            <td><input type="float" id="invoice_parts_unit_price_'+rowIndex+'" name="invoice_parts_unit_price_'+rowIndex+'" value="" onchange=InvoicepartsQuantity('+rowIndex+') required>\
                 <input type="hidden" id="invoice_parts_gst_'+rowIndex+'" name="invoice_parts_gst_'+rowIndex+'" value="">\
             </td>\
             <td>\
@@ -791,5 +791,6 @@ function getTaxRates(rowId){
         const selected_option = $("#invoice_parts_tax_rate_"+rowId+" option:selected").attr('id');
         $("#invoice_parts_tax_rate_id_"+rowId).val('');
         $("#invoice_parts_tax_rate_id_"+rowId).val($("#tax_rate_id_"+selected_option).val());
+
     }
 }
