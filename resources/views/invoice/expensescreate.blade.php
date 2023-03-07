@@ -36,7 +36,7 @@
                 @endif
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                            <div class="row">
+                           <div class="row">
                                 <div class="col-xl-12">
                                     <div class="form-input--wrap">
                                         <label class="form-input--question">Expense Number <span>Read-Only</span></label>
