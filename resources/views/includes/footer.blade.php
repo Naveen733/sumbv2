@@ -27,6 +27,9 @@
 <!-- Main JS-->
 <script src="/js/main.js?v1.0.11"></script>
 
+<link  href="/css/multiselect.css" rel="stylesheet" />
+<script src="/js/multiselect.min.js"></script>
+
 <script type="text/javascript">
 $(function() {
   // for now, there is something adding a click handler to 'a'
@@ -44,7 +47,6 @@ $(function() {
       start: moment().hour(9).add(2, 'days').toISOString(),
       url: '#'
     }
-
   ];
 
   var trivia_nights = []
@@ -69,10 +71,10 @@ $(function() {
     },
     events: events.concat(trivia_nights)
   });
-  
-  
-  
+
+
 });
     
+
 </script>
 

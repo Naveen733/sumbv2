@@ -720,7 +720,7 @@ class ExpenseController extends Controller {
                     $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->first();
                     
                     $account_code_name = explode('-', $request->item_account[$i]);
-                    echo "<pre>"; var_dump( $expense_item); echo "</pre>";die();
+
                     $expense_particular_new_item = array(
                         "user_id" => $userinfo[0],
                         "expense_description" => $request->expense_description[$i],

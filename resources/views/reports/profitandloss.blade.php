@@ -49,15 +49,14 @@
                                     </ul>
                                 </div>
                             @endif
-                            <form action="/invoice"  method="GET" enctype="multipart/form-data" id="search_form">
+                            <form action="/profit-loss"  method="GET" enctype="multipart/form-data" id="search_form">
                                 <div class="row">
-                                    
                                     <div class="col-sm-3">
                                         <div class="form-input--wrap">
                                             <label class="form-input--question" for="">Start Date</label>
                                             <div class="date--picker row">
                                                 <div class="col-12">
-                                                    <input type="text" id="start_date" name="start_date" placeholder="date('m/d/Y')"  readonly value="">
+                                                    <input type="text" id="start_date" name="start_date" placeholder="date('m/d/Y')"  readonly value="{{!empty($start_date) ? $start_date : '' }}">
                                                 </div>
                                             </div>
                                         <!-- <div class="form--inputbox date--picker">
@@ -72,25 +71,22 @@
                                             <label class="form-input--question" for="">End Date</label>
                                             <div class="date--picker row">
                                                 <div class="col-12">
-                                                    <input type="text" id="end_date" name="end_date" placeholder="date('m/d/Y')"  readonly value="">
+                                                    <input type="text" id="end_date" name="end_date" placeholder="date('m/d/Y')"  readonly value="{{!empty($end_date) ? $end_date : '' }}">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
                                         <div class="form-input--wrap" style="margin-top:35px">
-                                        <button type="button" name="search_invoice" class="btn sumb--btn" value="Search" onclick="searchItems(null, null)">Search</button>
-                                            &nbsp; <span><b>or</b></span>&nbsp;
-                                            <a href="#" onclick="clearSearchItems()" style="font-size: 12px;font-weight:bold">Clear</a>
+                                            <button type="button" name="search_invoice" class="btn sumb--btn" value="Search" onclick="searchItems()">Update</button>
                                         </div>
                                     </div>
                                 </div>
                             </form>
                             <!-- <div> <h3>Profit and Loss</h3></div> -->
                             <div class="sumb--recentlogdements sumb--putShadowbox">
-                                
                                 <div class="table-responsive">
-                                    <table class="invoice_list">
+                                    <table class="">
                                         <thead>
                                             <tr>
                                                 <h5>Cost of Sales</h5>
@@ -101,7 +97,7 @@
                                             @foreach($invoice_list as $list)
                                             <tr>
                                                 <td>
-                                                   {{$list['chart_accounts_particulars_name']}} 
+                                                {{$list['chart_accounts_particulars_name']}} 
                                                 </td>
                                                 <?php
                                                     $total = 0;
@@ -109,19 +105,18 @@
                                                         $total += $parts['invoice_parts_amount'];
                                                         $total_cost_of_sales += $parts['invoice_parts_amount'];
                                                     }
-                                                    ?>
+                                                ?>
                                                 <td>
-                                                    {{$total}}     
+                                                    <a href="/reports?code={{$list['chart_accounts_particulars_code']}}" style="font-size: 13px;">{{number_format($total, 2)}} </a>
                                                 </td>
                                             </tr>
                                             @endforeach
                                             <tr>
-                                                <td><b>Total Cost of Sales</b> </td>
+                                                <td><b>Total Cost of Sales</b></td>
                                                 <td>
-                                                    {{$total_cost_of_sales}}                                         
+                                                    {{number_format($total_cost_of_sales, 2)}}                                         
                                                 </td>
                                             </tr>
-                                            
                                         </tbody>
                                     </table>
                                 </div>
@@ -149,9 +144,11 @@
 </html>
 
 <script>
-    function deleteInvoice(invoice_number, id){
-        console.log(invoice_number);
-        
+    $(function() {
+        // $('#start_date').datepicker().datepicker('setDate', 'today');
+        // $('#end_date').datepicker().datepicker('setDate', 'month');
+    })
+    function deleteInvoice(invoice_number, id){        
         $("#delete_invoice_number").text('');
         $("#delete_invoice_number").text(invoice_number);
         $("#delete_invoice").val('');
@@ -186,11 +183,6 @@
         <?php }?> 
     <?php }?>
 
-    function clearSearchItems(){
-        $("#search_number_email_amount").val('');
-        $("#start_date").val('');
-        $("#end_date").val('');
-    }
 
     function searchItems(orderBy, direction){
         if(orderBy && direction){

@@ -1105,9 +1105,16 @@
         <?php if(!empty($invoice_details) && (isset($invoice_details['invoice_sent']) && $invoice_details['invoice_sent'] || $invoice_details['invoice_status'] == 'Voided' || $invoice_details['invoice_status'] == 'Paid') ){ ?>
             $("#invoice_form :input").prop('disabled', true);
         <?php }?>
-        $('#invoice_issue_date').datepicker().datepicker('setDate', 'today');
+        <?php if(!empty($invoice_details) && ($invoice_details['invoice_issue_date'])) {
+            $invoice_details['invoice_issue_date'] = date('d/m/Y', strtotime($invoice_details['invoice_issue_date']));
+            ?>
+            $('#invoice_issue_date').datepicker().val('{{$invoice_details['invoice_issue_date']}}');
+        <?php }else{ ?>
+            $('#invoice_issue_date').datepicker().datepicker('setDate', 'today');
+        <?php } ?>
         
-        $( "#invoice_date" ).datepicker();
+        
+        $( "#invoice_issue_date" ).datepicker();
         $( "#invoice_duedate" ).datepicker();
       
         $('#part_save_button').on('click', function () {
@@ -1292,11 +1299,7 @@
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
         });
-    });
-
-    
-
-    
+    });   
 </script>
 </body>
 

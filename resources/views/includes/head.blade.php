@@ -10,7 +10,8 @@
     <meta name="keywords" content="SUMBv2 Template">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Title Page-->
+ 
+  <!-- Title Page-->
     <title>@if (!empty($pagetitle)) {{ $pagetitle }} @endif | SUMBv2 - Set Up My Business Australia</title>
     
     <link rel="icon" type="image/x-icon" href="/img/sumb-icon2.png">
@@ -51,8 +52,12 @@
 
     <!-- Docfiles CSS-->
     <link href="/css/docfiles.css?v=1.11" rel="stylesheet" media="all">     
-    <style>
-    </style>
+  
+    <!-- <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+     -->
+
+    
 </head>
 
 <body class="<?php if(strpos($_SERVER['REQUEST_URI'], "acct")) {echo 'sumb--accountant';} ?>" >
