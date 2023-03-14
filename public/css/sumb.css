@@ -7,6 +7,25 @@ body, html {
 
 a {
     color: #175bfd;
+    outline: none !important;
+}
+
+.btn,
+.btn:focus,
+.btn:active,
+button {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn:disabled,
+button:disabled,
+.form--inputbox input:disabled,
+.form--inputbox.readOnly input:disabled,
+select.form-input--dropdown:disabled,
+.date--picker input:disabled {
+    cursor: not-allowed;
+    pointer-events: all !important;
 }
 
 a:hover {
@@ -397,6 +416,7 @@ ul.social-button li a.google {
 }
 
 .sumb--title {
+    position: relative;
     font-weight: 600;
 }
 
@@ -591,6 +611,10 @@ ul.social-button li a.google {
 
 /** Calendar style on Dashboard ONLY end **/
 
+.table-responsive {
+    min-height: 130px;
+}
+
 .sumb--recentlogdements {
     position: relative;
     background: #fff;
@@ -606,6 +630,7 @@ ul.social-button li a.google {
 }
 
 .sumb--recentlogdements table thead th {
+    position: relative;
     font-size: 14px;
     font-weight: 600;
     text-transform: capitalize;
@@ -613,6 +638,16 @@ ul.social-button li a.google {
     white-space: nowrap;
     background: #e5e5e5;
     color: #28282a;
+}
+
+.sumb--recentlogdements table thead th i.fa-sort-down {
+    position: absolute;
+    top: 12px;
+}
+
+.sumb--recentlogdements table thead th i.fa-sort-up {
+    position: absolute;
+    top: 18px;
 }
 
 .sumb--recentlogdements table tbody tr:nth-child(even) {
@@ -650,16 +685,36 @@ ul.social-button li a.google {
 
 .sumb--recentlogdements table tbody td.sumb--recentlogdements__actions a {
     font-weight: 500;
-    background: #f5c85b;
+    background: #fdb917;
     border-radius: 5px;
     padding: 4px 15px;
     margin: 0px 2px;
-    color: #666;
+    color: #28282a;
 }
 .sumb--recentlogdements table tbody td.sumb--recentlogdements__actions a:hover {
     background: #666;
     color: #fafafa;
 }
+
+/** Void Transactions **/
+
+td.sumb--recentlogdements__actions .sumb--fileSharebtn.Voided a {
+    display: none !important;
+}
+
+td.sumb--recentlogdements__actions .sumb--fileSharebtn.Voided::after {
+    font-family: "FontAwesome";
+    font-size: 14px;
+    content: "\f05e";
+    font-weight: 500;
+    background: #d5d5d5;
+    border-radius: 5px;
+    padding: 6px 15px;
+    margin: 0px 2px;
+    color: #838383;
+}
+
+/** Void Transactions End **/
 
 .sumb--recentlogdements__status_proc {
     color: #666;
@@ -828,12 +883,15 @@ tr.sumb--recentlogdements__pagination .dropdown-menu,
 /** Dashboard Dropdown **/
 
 .sumb--dashboardDropdown {
+    background: #fff;
     width: 100%;
     position: relative;
-    border: 1px solid #e5e5e5;
-    border-radius: 7px;
-    padding: 9px 15px;
+    border: 1px solid #666;
+    border-radius: 5px;
+    padding: 6px 12px;
     transition: all 0.3s ease;
+    font-size: 13px;
+    color: #28282a;
 }
 
 .sumb--dashboardDropdown button {
@@ -858,7 +916,8 @@ tr.sumb--recentlogdements__pagination .dropdown-menu,
 
 .sumb--dashboardDropdown::after {
     font-family: FontAwesome;
-    content: '\f063';
+    content: '\f0b0';
+    color: #666;
 }
 
 .sumb--dashboardDropdown .dropdown-menu.show {
@@ -1744,7 +1803,7 @@ input[class="no--btn"] + span::before,
 .sumb--btn {
     cursor: pointer;
     display: inline-block;
-    background: #f5c85b;
+    background: #fdb917;
     padding: 5px 15px;
     border-radius: 5px;
     transition: all 0.3s ease;
@@ -1755,10 +1814,19 @@ input[class="no--btn"] + span::before,
     outline: none;
 }
 
+.sumb--btn {
+    color: #28282a;
+    border: 0px;
+}
+
+.sumb--btn i {
+    margin-right: 5px;
+}
+
 .sumb-del-btn {
     cursor: pointer;
     display: inline-block;
-    background: #f5c85b;
+    background: #fdb917;
     padding: 3px 5px;
     border-radius: 5px;
     transition: all 0.3s ease;
@@ -1769,10 +1837,14 @@ input[class="no--btn"] + span::before,
     outline: none;
 }
 
-.sumb--btn {
-    color: #28282a;
-    border: 0px;
+.sumb-clear-btn {
+    background: #d5d5d5;
 }
+
+.sumb--btn.delepart i {
+    margin-right: 0px;
+}
+
 
 input[class="yes--btn"] + span::before {
     content: "Yes";
@@ -1812,6 +1884,12 @@ select[class="form-input--dropdown"] {
     margin-bottom: 8px;
 }
 
+.for--tables select[class="form-input--dropdown"] {
+    margin-bottom: 0px;
+    padding: 8px 30px 8px 12px;
+    border-color: #d5d5d5;
+}
+
 .date--picker,
 .form--inputbox,
 .form--textarea {
@@ -1822,9 +1900,11 @@ select[class="form-input--dropdown"] {
 .form--inputbox input,
 .form--textarea textarea,
 .form--dropimg .img--box__input_wrap,
-.form--recentsearch .form--recentsearch__result {
+.form--recentsearch .form--recentsearch__result,
+.invoice-expenses--input,
+.modal-reskin textarea {
     position: relative;
-    padding: 8px 12px 8px 12px;
+    padding: 9px 12px 9px 12px;
     border-radius: 5px;
     border: 1px solid #666;
     font-size: 13px;
@@ -1859,6 +1939,8 @@ select[class="form-input--dropdown"] {
     padding: 12px;
 }
 
+.form-control:disabled,
+.form-control[readonly]
 .form--inputbox.readOnly input {
     background: #f2f2f2;
     cursor: default;
@@ -1913,7 +1995,7 @@ select[class="form-input--dropdown"] {
 }
 
 .form--recentsearch__result ul li button:hover {
-    background: #f5c85b;
+    background: #fdb917;
     transition: all 0.3s ease;
 }
 
@@ -2246,9 +2328,105 @@ select[class="form-input--dropdown"] {
 
 /** Invoice Table Skin **/
 
+a.transaction--Addbtn {
+    background: #fdb917;
+    padding: 6.5px 14px;
+    border: 5px;
+    color: #28282a;
+    border-radius: 5px;
+    font-size: 14px;
+    display: inline-block;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+a.transaction--Addbtn i {
+    margin-right: 5px;
+}
+
+a.transaction--Addbtn:hover {
+    background: #666;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+
+.invoice--status-icon {
+    position: relative;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    top: -4px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    border-radius: 4px;
+}
+
+.invoice--status-icon.Paid {
+    background: #b1dd65;
+    border: 1px solid #8fc72c;
+}
+
+.invoice--status-icon.Voided {
+    background: #f1aab1;
+    border: 1px solid #e87883; 
+}
+
+.invoice--status-deets {
+    background: #fff;
+    border: 1px solid #d5d5d5;
+    border-radius: 5px;
+    padding: 7px 12px;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #28282a;
+    font-weight: 500;
+}
+
+.invoice--status-deets u {
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.invoice-list--btns button {
+    padding: 6px 12px;
+}
+
 #partstable {
     position: relative;
     width: 100%;
+}
+
+#partstable tbody tr,
+.invoice_list tbody tr,
+.invoice_list thead tr {
+    cursor: pointer;
+}
+
+.invoice_list tbody span.email2client_pending,
+.invoice_list tbody span.payment--status-Unpaid {
+    color: #666;
+    font-weight: 600;
+}
+
+.invoice_list tbody span.email2client_sent,
+.invoice_list tbody span.payment--status-Paid {
+    color: #8fc72c;
+    font-weight: 600;
+}
+
+.invoice_list tbody span.payment--status-Voided {
+    color: #e87883;
+    font-weight: 600;
+}
+
+.invoice_list tbody span.email2client_pending::after {
+    content: "Pending";
+}
+
+.invoice_list tbody span.email2client_sent::after {
+    content: "Sent";
 }
 
 #partstable tbody td input,
@@ -2265,6 +2443,12 @@ select[class="form-input--dropdown"] {
 #partstable tbody td:hover input {
     border-bottom: 1px solid #f9ab30;
     transition: all 0.3s ease;
+}
+
+#partstable tbody td input.input--readonly,
+#partstable tbody td input.input--readonly:focus,
+#partstable tbody td input.input--readonly:hover {
+    border-bottom: 0px !important;
 }
 
 #partstable thead th {
@@ -2294,13 +2478,13 @@ select[class="form-input--dropdown"] {
 }
 
 #partstable tbody td .autoresizing {
-    margin-top: 7px;
     display: block;
     overflow: hidden;
     resize: none;
     height: 42px;
     padding: 0px 10px;
 }
+
 
 #partstable tbody td input[type=number]::-webkit-inner-spin-button,
 #partstable tbody td input[type=number]::-webkit-outer-spin-button {
@@ -2341,12 +2525,99 @@ select[class="form-input--dropdown"] {
     font-size: 13px;
     padding: 7px 10px;
     text-align: right;
+    vertical-align: middle;
 }
 
 #partstable tbody tr.invoice-total--amountdue td {
     font-size: 15px;
     padding: 7px 10px;
     text-align: right;
+    vertical-align: middle;
+}
+
+#partstable tbody tr.invoice-total--amountdue td input.grandtotal {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+#partstable tbody tr.invoice-total--subamount td input,
+#partstable tbody tr.invoice-total--gst td input,
+#partstable tbody tr.invoice-total--amountdue td input {
+    border: 0px !important;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+/** When table items are disabled **/
+
+#partstable tbody td *:disabled {
+    background: #fff;
+    border: 0px !important;
+}
+
+#partstable tbody td.tableOptions button:disabled,
+#partstable tbody tr.add--new-line button:disabled {
+    display: none;
+}
+
+
+ul.invoice-expenses--dropdown {
+    padding: 5px;
+    font-size: 13px;
+}
+
+ul.invoice-expenses--dropdown li {
+    margin-bottom: 5px;
+}
+
+ul.invoice-expenses--dropdown li:last-child {
+    margin: 0px;
+}
+
+ul.invoice-expenses--dropdown li:nth-child(2) {
+    border-top: 1px dotted #d5d5d5;
+    padding-top: 5px;
+}
+
+ul.invoice-expenses--dropdown li.add-new--btn a {
+    color: #28282a;
+    background: #fdb917;
+    display: block;
+    padding: 5px 7px;
+    border-radius: 3px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+ul.invoice-expenses--dropdown li.add-new--btn a i {
+    margin-right: 5px;
+}
+
+ul.invoice-expenses--dropdown li.add-new--btn a:hover {
+    background: #666;
+    color: #fafafa;
+    transition: all 0.3s ease;
+}
+
+ul.invoice-expenses--dropdown .invoice_item {
+    background: #f2f2f2;
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 5px 8px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+ul.invoice-expenses--dropdown .invoice_item:hover {
+    background: #fdb917;
+    transition: all 0.3s ease;
+}
+
+ul.invoice-expenses--dropdown li.accounts-group--label {
+    font-weight: 600;
+    padding: 5px 8px 0px;
+    color: #28282a;
 }
 
 
@@ -2420,7 +2691,7 @@ select[class="form-input--dropdown"] {
 .ui-widget-content .ui-state-focus,
 .ui-widget-header .ui-state-focus {
 	border: 1px solid #666;
-	background: #f5c85b;
+	background: #fdb917;
 }
 
 a.ui-datepicker-prev,
@@ -2476,6 +2747,190 @@ a.ui-datepicker-next:hover::after {
     transition: all 0.3s ease;
 }
 
+/** Modal Reskin **/
+
+.modal-reskin .document--header::before {
+    font-family: "FontAwesome";
+    content: "\f56f";
+    margin-right: 8px;
+}
+
+.modal-reskin .invoiceprev--header::before {
+    font-family: "FontAwesome";
+    content: "\f570";
+    margin-right: 8px;
+}
+
+.modal-reskin .sending--header::before,
+.modal-reskin .btn.send--btn::before {
+    font-family: "FontAwesome";
+    content: "\f1d8";
+    margin-right: 8px;
+}
+
+.modal-reskin .btn {
+    font-weight: 600;
+    font-size: 14px;
+    padding: 5px 15px !important;
+    border: 0px;
+}
+
+.modal-reskin .btn.btn-primary {
+    background: #fdb917;
+    color: #28282a;
+    transition: all 0.3s ease;
+}
+
+.modal-reskin .btn.btn-primary:hover {
+    background: #666;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.modal-reskin .btn.btn-secondary {
+    background: #d5d5d5;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.modal-reskin .btn.btn-secondary:hover {
+    background: #fdb917;
+    color: #28282a;
+    transition: all 0.3s ease;
+}
+
+.modal-reskin .btn.save--btn::before {
+    font-family: "Font Awesome 6 Free";
+    content: "\f0c7";
+    margin-right: 5px;
+    font-weight: 900 !important;
+}
+
+.modal-reskin .btn.close--btn::before {
+    font-family: "FontAwesome";
+    content: "\f00d";
+    margin-right: 5px;
+}
+
+.modal-reskin .modal-header,
+.modal-reskin .modal-footer {
+    border-color: #f2f2f2;
+}
+
+/** Invoice Preview Skin **/
+
+.modal-reskin .invoice--preview {
+    width: 90%;
+    max-width: none;
+}
+
+.invoice--preview .modal-body {
+    font-size: 14px;
+    color: #28282a;
+}
+
+.invoice--preview table.table-striped td ,
+.invoice--preview table.table-striped thead th{
+    border-color: #d5d5d5;
+}
+
+.invoice--preview table.table-striped tr:nth-of-type(even) {
+    background: #fafafa;
+}
+
+.invoice--preview .invoicetable--header {
+    background: #fafafa;
+    padding: 20px;
+    border-radius: 5px 5px 0px 0px;
+    color: #28282a;
+}
+
+.invoice--preview .invoicetable--header li {
+    margin-bottom: 4px;
+}
+
+.invoice--preview .invoicetable--header li:last-child {
+    margin-bottom: 0px;
+}
+
+.invoice--preview thead th:nth-child(2),
+.invoice--preview thead th:nth-child(4),
+.invoice--preview thead th:nth-child(7),
+.invoice--preview tbody td:nth-child(2),
+.invoice--preview tbody td:nth-child(4),
+.invoice--preview tbody td:nth-child(7) {
+    text-align: center;
+}
+
+.invoice--preview tbody td:nth-child(3) {
+    font-size: 13px;
+}
+
+.invoice--preview p.invoice--paymentnotes {
+    font-size: 12px;
+    width: 96%;
+}
+
+.invoice--preview .invoice--paymentinfo,
+.invoice--preview .invoice--paymentinfo td {
+    background: #fafafa;
+    border: 1px solid #d5d5d5;
+    text-align: right;
+}
+
+.invoice--preview .invoice--paymentinfo tr.invoice--paymentinfo-total_amount td {
+    font-size: 18px;
+}
+
+.invoice--preview .invoice--paymentinfo tr.invoice--paymentinfo-total_amount td:nth-child(2) {
+    font-weight: 700;
+}
+
+/** Send Invoice Modal **/
+
+.modal-invoice--send .form--inputbox {
+    margin-bottom: 0px;
+}
+
+
+/** Error Message Re-Skin from Bootstrap **/
+
+.alert {
+    padding: 5px 13px;
+    font-size: 12px;
+}
+
+.alert-danger,
+.alert-success {
+    position: relative;
+    overflow: hidden;
+}
+
+.alert-danger::after {
+    position: absolute;
+    font-family: "FontAwesome";
+    content: "\f071";
+    font-size: 60px;
+    bottom: -30px;
+    right: -5px;
+    opacity: 0.09;
+}
+
+.alert-success {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.alert-success::after {
+    position: absolute;
+    font-family: "FontAwesome";
+    content: "\f164";
+    font-size: 60px;
+    bottom: -45px;
+    right: 0px;
+    opacity: 0.09;
+}
+
 
 /** X-Large devices (large desktops, less than 1400px) **/
 @media (max-width: 1399.98px) {
@@ -2490,6 +2945,19 @@ a.ui-datepicker-next:hover::after {
     .path--bar {
         display: block;
         margin-bottom: 15px;
+    }
+
+    .invoicelist--hideThis {
+        display: none;
+    }
+
+    .invoice-list--btns,
+    a.transaction--Addbtn {
+        margin-top: 20px;
+    }
+
+    .transaction--filter {
+        margin-top: 5px;
     }
 
 }
@@ -2573,6 +3041,7 @@ a.ui-datepicker-next:hover::after {
         flex-direction: row;
     }
     
+    .docu-item-forms-nav,
     .register-link {
         display: none;
     }
@@ -2591,10 +3060,6 @@ a.ui-datepicker-next:hover::after {
         margin-left: 0px;
     }
 
-    .docu-item-forms-nav {
-        display: none;
-    }
-
     .docu-item-forms-panel {
         padding-left: 15px;
     }
@@ -2606,6 +3071,23 @@ a.ui-datepicker-next:hover::after {
 
     .mobile--nav {
         display: block !important;
+    }
+
+    .invoicetable--header_from {
+        padding-top: 15px;
+    }
+
+    .invoice--paymentinfo {
+        margin-bottom: 20px;
+    }
+
+    .invoice--extrainfo {
+        display: flex;
+        flex-flow: column-reverse;
+    }
+
+    .transaction--filter {
+        margin-top: 10px;
     }
 
 }
@@ -2645,6 +3127,23 @@ a.ui-datepicker-next:hover::after {
     .preview--btn {
         margin: 0px;
     }
+
+
+    .invoice-list--btns {
+        display: inline-block;
+        text-align: left !important;
+    }
+
+    .invoice-list--btns button {
+        width: 49.5%;
+    }
+
+    a.transaction--Addbtn {
+        display: block;
+        text-align: center;
+        padding: 10px 10px;
+    }
+
 
 }
 
@@ -2694,6 +3193,15 @@ a.ui-datepicker-next:hover::after {
     .sumb--dashboardAcctUsers .addNewUser {
         margin-bottom: 15px;
     }
+
+    .modal-reskin {
+        padding-right: 0px !important;
+    }
+
+    .modal-reskin .invoice--preview {
+        width: 97%;
+    }
+
 }
 
 /* File Upload Div in Expense Form */
@@ -2827,9 +3335,6 @@ input {
     text-align: center;
 }
 
-table tr {
-    cursor: pointer;
-}
 .expense_list a {
     color: #000000 !important;
 }
