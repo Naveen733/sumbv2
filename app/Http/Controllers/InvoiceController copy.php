@@ -766,7 +766,8 @@ class InvoiceController extends Controller {
         $pagedata['inv']['logoimgdet'] = getimagesize(url($pagedata['inv']['logo']));
         $pagedata['inv']['logobase64'] = 'data:'.$pagedata['inv']['logoimgdet']['mime'].';charset=utf-8;base64,' . base64_encode(file_get_contents(url($pagedata['inv']['logo'])));
         
-        $pagedata['inv']['inv_parts'] = SumbInvoiceParticulars::where('user_id', $pagedata['inv']['user_id'])->where('invoice_number', $pagedata['inv']['transaction_id'])->get()->toArray();
+        $pagedata['inv']['inv_parts'] = SumbInvoiceParticulars::where('user_id', $pagedata['inv']['user_id'])->where('invoice_number', $pagedata['inv']['
+        '])->get()->toArray();
         //echo "<pre>" ;print_r($pagedata);die();
         
         if ($pdf == 1) {

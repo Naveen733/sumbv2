@@ -19,6 +19,9 @@ function openPopUpModel(id, from){
 }
 
 function openNewAddAccountPopUpModel(id, from){
+    $("#invoice_chart_accounts_type_id").val('');
+    // $("#invoice_account_part_row_id").val('');
+
     $("#invoice_account_part_row_id").val('');
     $("#invoice_account_part_row_id").val(id);
     $("#invoice_chart_accounts_code").val('');
@@ -112,7 +115,7 @@ function addNewAccount(id){
                         }else{
                             $("#invoice_chart_account_list_"+id).empty();
                             var counter = 0;
-                            $("#invoice_chart_account_list_"+id).append('<li id="add_new_invoice_chart_accoun_'+id+'" class="add-new--btn"><a href="#" data-toggle="modal" data-target="#newAddAccountModal" onclick=openNewAddAccountPopUpModel('+id+')><i class="fa-solid fa-circle-plus"></i>New Account</a></li')
+                            $("#invoice_chart_account_list_"+id).append('<li id="add_new_invoice_chart_account_'+id+'" class="add-new--btn"><a href="#" data-toggle="modal" data-target="#newAddAccountModal" onclick=openNewAddAccountPopUpModel('+id+')><i class="fa-solid fa-circle-plus"></i>New Account</a></li')
 
                             $.each(response.data,function(key,value){
                                 $("#invoice_chart_account_list_"+id).append(
@@ -252,7 +255,7 @@ function getChartAccountsParticularsList(id){
                 // $("#client_details").show();
                 $("#invoice_chart_account_list_"+id).empty();
                 var counter = 0;
-                $("#invoice_chart_account_list_"+id).append('<li id="add_new_invoice_chart_accoun_'+id+'" class="add-new--btn"><a href="#" data-toggle="modal" data-target="#newAddAccountModal" onclick=openNewAddAccountPopUpModel('+id+')><i class="fa-solid fa-circle-plus"></i>New Account</a></li>')
+                $("#invoice_chart_account_list_"+id).append('<li id="add_new_invoice_chart_account_'+id+'" class="add-new--btn"><a href="#" data-toggle="modal" data-target="#newAddAccountModal" onclick=openNewAddAccountPopUpModel('+id+')><i class="fa-solid fa-circle-plus"></i>New Account</a></li>')
                 
                 $.each(response.data,function(key,value){
                     $("#invoice_chart_account_list_"+id).append(

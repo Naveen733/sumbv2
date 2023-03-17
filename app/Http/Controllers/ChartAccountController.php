@@ -52,10 +52,7 @@ class ChartAccountController extends Controller
                     ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
                         $query->where('user_id', $userinfo[0]);
                     })
-                    ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
-                        $query->where('user_id', $userinfo[0]);
-                    })
-                    ->where('user_id', $userinfo[0])->get();
+                    ->get();
                     if($chart_account){
                         $response = [
                             'status' => 'success',

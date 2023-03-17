@@ -105,14 +105,14 @@ class InvoiceController extends Controller {
                     }
                 }
                 $userinfo = $request->get('userinfo');
-                $invoicedata = TransactionCollections::where('user_id', $userinfo[0])->where('is_active', 1);
+                $invoicedata = SumbInvoiceDetails::where('user_id', $userinfo[0])->where('is_active', 1);
                                 if($request->search_number_email_amount){
-                                    $invoicedata->where('transaction_number', 'LIKE', "%{$invoice_number}%");
+                                    $invoicedata->where('invoice_number', 'LIKE', "%{$invoice_number}%");
                                     $invoicedata->orWhere('client_email', 'LIKE', "%{$request->search_number_email_amount}%");
-                                    $invoicedata->orWhere('total_amount', $total_amount);
+                                    $invoicedata->orWhere('invoice_total_amount', $total_amount);
                                 }
                                 if($request->start_date && $request->end_date){
-                                    $invoicedata->whereBetween('issue_date',array($start_date, $end_date));
+                                    $invoicedata->whereBetween('invoice_issue_date',array($start_date, $end_date));
                                 }
                                 if($request->orderBy){
                                     $invoicedata->orderBy($request->orderBy, $request->direction);
@@ -134,11 +134,11 @@ class InvoiceController extends Controller {
             }
             else
             {
-                $pagedata['orderBy'] = 'issue_date';
+                $pagedata['orderBy'] = 'invoice_issue_date';
                 $pagedata['direction'] = 'ASC';
 
-                $invoicedata = TransactionCollections::where('user_id', $userinfo[0])->where('is_active', 1)
-                        ->orderBy('issue_date', 'DESC')
+                $invoicedata = SumbInvoiceDetails::where('user_id', $userinfo[0])->where('is_active', 1)
+                        ->orderBy('invoice_issue_date', 'DESC')
                         ->paginate($itemsperpage)->toArray();
             }
         }
@@ -166,14 +166,13 @@ class InvoiceController extends Controller {
         $request->invoice_id = '';
         
         $pagedata = $this->invoiceForm($request);
-       
+        // echo "<pre>"; var_dump($pagedata); echo "</pre>";die();
         return view('invoice.invoicecreate', $pagedata);
     }
 
     public function update(Request $request) {
         $request->type = 'edit';
         $pagedata = $this->invoiceForm($request);
-        // echo "<pre>"; var_dump($pagedata); echo "</pre>";die();
         return view('invoice.invoicecreate', $pagedata);
     }
 
@@ -188,7 +187,7 @@ class InvoiceController extends Controller {
         $pagedata['invoice_id'] = $request->id ? $request->id : '';
         $pagedata['type'] = $request->type;
         if($request->type == 'edit' && $request->id){
-            $invoice_details = TransactionCollections::with(['particulars', 'particulars.chartAccountsParticulars'])
+            $invoice_details = SumbInvoiceDetails::with(['particulars', 'particulars.invoiceChartAccountsParticulars'])
                                 ->whereHas('particulars', function($query) use($userinfo) {
                                     $query->where('user_id', $userinfo[0]);
                                 })
@@ -198,7 +197,9 @@ class InvoiceController extends Controller {
                 $invoice_details['parts'] = $invoice_details['particulars'];
                 $invoice_details['invoice_part_total_count'] = "[]";
                 unset($invoice_details['particulars']);
-                $pagedata['invoice_details'] = $invoice_details;                
+                $pagedata['invoice_details'] = $invoice_details;
+
+                // echo "<pre>"; var_dump($invoice_details['parts']); echo "</pre>";die();
             }
         }else{
             $invoice_details = SumbInvoiceDetails::where('user_id', $userinfo[0])->orderBy('invoice_number', 'desc')->first();
@@ -207,13 +208,7 @@ class InvoiceController extends Controller {
             }else{
                 $pagedata['invoice_number'] = 000001;
             }
-
-            $invoice_details = TransactionCollections::where('user_id', $userinfo[0])->orderBy('transaction_number', 'desc')->first();
-            if (!empty($invoice_details)) {
-                $pagedata['transaction_number'] = 000001 + $invoice_details->toArray()['transaction_number'];
-            }else{
-                $pagedata['transaction_number'] = 000001;
-            }
+           
         }
         $get_clients = SumbClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
         if (!empty($get_clients)) {
@@ -225,7 +220,8 @@ class InvoiceController extends Controller {
             $pagedata['invoice_items'] = $get_items->toArray();
         }
 
-        $chart_accounts_types = SumbChartAccounts::with(['chartAccountsTypes'])->get();
+        $chart_accounts_types = SumbChartAccounts::with(['chartAccountsTypes'])
+                ->get();
         if (!empty($chart_accounts_types)) {
             $pagedata['chart_accounts_types'] = $chart_accounts_types->toArray();
         }
@@ -246,6 +242,7 @@ class InvoiceController extends Controller {
         if (!empty($tax_rates)) {
             $pagedata['tax_rates'] = $tax_rates->toArray();
         }
+
         return $pagedata;
     }
 
@@ -274,14 +271,13 @@ class InvoiceController extends Controller {
                 "client_name" => $request->client_name,
                 "client_email" => $request->client_email,
                 "client_phone" => $request->client_phone,
-                "due_date" => $request->invoice_due_date,
-                "issue_date" => $request->invoice_issue_date,
-                "transaction_number" => $request->invoice_number,
-                "default_tax" => $request->invoice_default_tax,
-                "sub_total" => $request->invoice_sub_total,
-                "total_gst" => $request->invoice_total_gst,
-                "total_amount" => $request->invoice_total_amount,
-                "transaction_type" => 'invoice',
+                "invoice_due_date" => $request->invoice_due_date,
+                "invoice_issue_date" => $request->invoice_issue_date,
+                "invoice_number" => $request->invoice_number,
+                "invoice_default_tax" => $request->invoice_default_tax,
+                "invoice_sub_total" => $request->invoice_sub_total,
+                "invoice_total_gst" => $request->invoice_total_gst,
+                "invoice_total_amount" => $request->invoice_total_amount,
             );
             
             if(count(json_decode(trim($request->invoice_part_total_count), true)) >= 0){
@@ -289,17 +285,17 @@ class InvoiceController extends Controller {
                 foreach($ids as $id){
                     $parts[] = array(
                         'id' => trim($request->input('invoice_parts_id_'.$id)),
-                        'parts_quantity' => trim($request->input('invoice_parts_quantity_'.$id)),
-                        'parts_unit_price' => trim($request->input('invoice_parts_unit_price_'.$id)),
-                        'parts_description' => trim($request->input('invoice_parts_description_'.$id)),
-                        'parts_amount' => trim($request->input('invoice_parts_amount_'.$id)),
-                        'parts_tax_rate' => trim($request->input('invoice_parts_tax_rate_'.$id)),
-                        'parts_code' => $request->input('invoice_parts_code_'.$id),
-                        'parts_name' => $request->input('invoice_parts_name_'.$id),
-                        'parts_name_code' => $request->input('invoice_parts_name_code_'.$id),
-                        'parts_chart_accounts_id' => $request->input('invoice_parts_chart_accounts_parts_id_'.$id),
-                        'parts_chart_accounts' => trim($request->input('invoice_parts_chart_accounts_'.$id)),
-                        'parts_tax_rate_id' => trim($request->input('invoice_parts_tax_rate_id_'.$id)),
+                        'invoice_parts_quantity' => trim($request->input('invoice_parts_quantity_'.$id)),
+                        'invoice_parts_unit_price' => trim($request->input('invoice_parts_unit_price_'.$id)),
+                        'invoice_parts_description' => trim($request->input('invoice_parts_description_'.$id)),
+                        'invoice_parts_amount' => trim($request->input('invoice_parts_amount_'.$id)),
+                        'invoice_parts_tax_rate' => trim($request->input('invoice_parts_tax_rate_'.$id)),
+                        'invoice_parts_code' => $request->input('invoice_parts_code_'.$id),
+                        'invoice_parts_name' => $request->input('invoice_parts_name_'.$id),
+                        'invoice_parts_name_code' => $request->input('invoice_parts_name_code_'.$id),
+                        'invoice_chart_accounts_parts_id' => $request->input('invoice_parts_chart_accounts_parts_id_'.$id),
+                        'invoice_parts_chart_accounts' => trim($request->input('invoice_parts_chart_accounts_'.$id)),
+                        'invoice_parts_tax_rate_id' => trim($request->input('invoice_parts_tax_rate_id_'.$id)),
                         'invoice_parts_id' => $id
                     );
                     $invoice_details['parts'] = $parts;
@@ -315,11 +311,11 @@ class InvoiceController extends Controller {
                     // ]);
                 }
             }
-            // echo "<pre>"; var_dump($invoice_details['parts']); echo "</pre>";die();
-            $invoice_details['invoice_part_total_count'] = trim($request->input('invoice_part_total_count'));
-            $invoice_details['status'] = $request->invoice_status;
-            $pagedata['invoice_details'] = $invoice_details;
             
+            $invoice_details['invoice_part_total_count'] = trim($request->input('invoice_part_total_count'));
+            $invoice_details['invoice_status'] = $request->invoice_status;
+            $pagedata['invoice_details'] = $invoice_details;
+
             if ($validator->fails()) {
                 $get_items = SumbInvoiceItems::where('user_id', $userinfo[0])->orderBy('invoice_item_name')->get();
                 if (!empty($get_items)) {
@@ -375,19 +371,18 @@ class InvoiceController extends Controller {
                     'client_phone' => $request->client_phone,
                 ]);
             }
-             
-            $invoice_details['issue_date'] =  Carbon::createFromFormat('m/d/Y', $request->invoice_issue_date)->format('Y-m-d');
-            $invoice_details['due_date'] =  Carbon::createFromFormat('m/d/Y', $request->invoice_due_date)->format('Y-m-d');
+            // 
+            $invoice_details['invoice_issue_date'] =  Carbon::createFromFormat('m/d/Y', $request->invoice_issue_date)->format('Y-m-d');
+            $invoice_details['invoice_due_date'] =  Carbon::createFromFormat('m/d/Y', $request->invoice_due_date)->format('Y-m-d');
+            
            
             $particlars = $invoice_details['parts'];
             
             unset($invoice_details['parts']);
             unset($invoice_details['invoice_part_total_count']);
             $ids = [];
-
-            // 
             if($request->invoice_id && $request->type=='edit'){
-                $invoice_update = TransactionCollections::where('user_id', trim($userinfo[0]))
+                $invoice_update = SumbInvoiceDetails::where('user_id', trim($userinfo[0]))
                                 ->where('id', $request->invoice_id)
                                 ->update(
                                     [
@@ -395,76 +390,72 @@ class InvoiceController extends Controller {
                                         'client_name' => trim($request->client_name),
                                         'client_email' => trim($request->client_email),
                                         'client_phone' => trim($request->client_phone),
-                                        'issue_date' => trim($invoice_details['issue_date']),
-                                        'due_date' => trim($invoice_details['due_date']),
-                                        'transaction_number' => trim($invoice_details['transaction_number']),
-                                        'default_tax' => trim($invoice_details['default_tax']),
-                                        'sub_total' => trim($request->invoice_sub_total),
-                                        'total_gst' => trim($request->invoice_total_gst),
-                                        'total_amount' => trim($request->invoice_total_amount),
-                                        'transaction_type' => 'invoice',
+                                        'invoice_issue_date' => trim($invoice_details['invoice_issue_date']),
+                                        'invoice_due_date' => trim($invoice_details['invoice_due_date']),
+                                        'invoice_number' => trim($invoice_details['invoice_number']),
+                                        'invoice_default_tax' => trim($invoice_details['invoice_default_tax']),
+                                        'invoice_sub_total' => trim($request->invoice_sub_total),
+                                        'invoice_total_gst' => trim($request->invoice_total_gst),
+                                        'invoice_total_amount' => trim($request->invoice_total_amount),
                                     ]
                                 );
                 if($invoice_update){
                     foreach($particlars as $key=>$value){
-                        $newParticulars = Transactions::create(
+                        $newParticulars = SumbInvoiceParticulars::create(
                             [
                                 'user_id' => trim($userinfo[0]), 
-                                'transaction_collection_id' => $request->invoice_id,
-                                'parts_quantity' => trim($value['parts_quantity']),
-                                'parts_description' => trim($value['parts_description']),
-                                'parts_unit_price' => trim($value['parts_unit_price']),
-                                'parts_amount' => trim($value['parts_amount']),
-                                'parts_code' => (!empty($value['parts_code']) ? $value['parts_code'] : $value['parts_name']),
-                                'parts_name' => trim($value['parts_name']),
-                                // 'parts_tax_rate' => trim($value['invoice_parts_tax_rate']),
-                                'parts_chart_accounts_id' => trim($value['parts_chart_accounts_id']),
-                                'parts_tax_rate_id' => trim($value['parts_tax_rate_id']),
-                                'parts_gst_amount' => 1,
+                                'invoice_id' => $request->invoice_id,
+                                'invoice_parts_quantity' => trim($value['invoice_parts_quantity']),
+                                'invoice_parts_description' => trim($value['invoice_parts_description']),
+                                'invoice_parts_unit_price' => trim($value['invoice_parts_unit_price']),
+                                'invoice_parts_amount' => trim($value['invoice_parts_amount']),
+                                'invoice_parts_code' => (!empty($value['invoice_parts_code']) ? $value['invoice_parts_code'] : $value['invoice_parts_name_code']),
+                                'invoice_parts_name' => trim($value['invoice_parts_name']),
+                                'invoice_parts_tax_rate' => trim($value['invoice_parts_tax_rate']),
+                                'invoice_chart_accounts_parts_id' => trim($value['invoice_chart_accounts_parts_id']),
+                                'invoice_parts_tax_rate_id' => trim($value['invoice_parts_tax_rate_id'])
                             ]);
                         array_push($ids,  $newParticulars->id);
                     }
                     if(!empty($ids)){
-                        Transactions::whereNotIn('id', $ids)
-                                        ->where('transaction_collection_id', $request->invoice_id)
+                        SumbInvoiceParticulars::whereNotIn('id', $ids)
+                                        ->where('invoice_id', $request->invoice_id)
                                         ->where('user_id', trim($userinfo[0]))
                                         ->delete();
                     }
                     DB::commit();
                 }
             }else{
-                $invoice = TransactionCollections::create(
+                $invoice = SumbInvoiceDetails::create(
                     [
                         'user_id' => trim($userinfo[0]), 
                         'client_name' => trim($request->client_name),
                         'client_email' => trim($request->client_email),
                         'client_phone' => trim($request->client_phone),
-                        'issue_date' => trim($invoice_details['issue_date']),
-                        'due_date' => trim($invoice_details['due_date']),
-                        'transaction_number' => trim($invoice_details['transaction_number']),
-                        'default_tax' => trim($invoice_details['default_tax']),
-                        'sub_total' => trim($request->invoice_sub_total),
-                        'total_gst' => trim($request->invoice_total_gst),
-                        'total_amount' => trim($request->invoice_total_amount),
-                        'transaction_type' => 'invoice',
+                        'invoice_issue_date' => trim($invoice_details['invoice_issue_date']),
+                        'invoice_due_date' => trim($invoice_details['invoice_due_date']),
+                        'invoice_number' => trim($invoice_details['invoice_number']),
+                        'invoice_default_tax' => trim($invoice_details['invoice_default_tax']),
+                        'invoice_sub_total' => trim($request->invoice_sub_total),
+                        'invoice_total_gst' => trim($request->invoice_total_gst),
+                        'invoice_total_amount' => trim($request->invoice_total_amount),
                     ]
                 );
                 if($invoice->id){
                     foreach($particlars as $key=>$value){
-                        Transactions::create(
+                        SumbInvoiceParticulars::create(
                         [
                             'user_id' => trim($userinfo[0]), 
-                            'transaction_collection_id' => $invoice->id,
-                            'parts_quantity' => trim($value['parts_quantity']),
-                            'parts_description' => trim($value['parts_description']),
-                            'parts_unit_price' => trim($value['parts_unit_price']),
-                            'parts_amount' => trim($value['parts_amount']),
-                            'parts_code' => (!empty($value['parts_code']) ? $value['parts_code'] : $value['parts_name']),
-                            'parts_name' => trim($value['parts_name']),
-                            // 'parts_tax_rate' => trim($value['invoice_parts_tax_rate']),
-                            'parts_chart_accounts_id' => trim($value['parts_chart_accounts_id']),
-                            'parts_tax_rate_id' => trim($value['parts_tax_rate_id']),
-                            'parts_gst_amount' => 1,
+                            'invoice_id' => $invoice->id,
+                            'invoice_parts_quantity' => trim($value['invoice_parts_quantity']),
+                            'invoice_parts_description' => trim($value['invoice_parts_description']),
+                            'invoice_parts_unit_price' => trim($value['invoice_parts_unit_price']),
+                            'invoice_parts_amount' => trim($value['invoice_parts_amount']),
+                            'invoice_parts_code' => (!empty($value['invoice_parts_code']) ? $value['invoice_parts_code'] : $value['invoice_parts_name_code']),
+                            'invoice_parts_name' => trim($value['invoice_parts_name']),
+                            'invoice_parts_tax_rate' => trim($value['invoice_parts_tax_rate']),
+                            'invoice_chart_accounts_parts_id' =>trim($value['invoice_chart_accounts_parts_id']),
+                            'invoice_parts_tax_rate_id' => trim($value['invoice_parts_tax_rate_id'])
                         ]);
                     }
                 }

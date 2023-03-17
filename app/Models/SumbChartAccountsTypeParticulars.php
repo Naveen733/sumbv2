@@ -33,3 +33,4 @@ class SumbChartAccountsTypeParticulars extends Model
         return $this->hasMany(SumbInvoiceItems::class, 'invoice_item_chart_accounts_parts_id');
     }
 }
+?>

@@ -164,12 +164,12 @@
                                     <table class="invoice_list">
                                         <thead>
                                             <tr>
-                                                <th style="border-top-left-radius: 7px;" id="invoice_issue_date" onclick="searchItems('invoice_issue_date', '{{!empty($orderBy) && $orderBy == 'invoice_issue_date' ? $direction  : 'ASC'}}')"> Invoice date </th>
-                                                <th id="invoice_number" onclick="searchItems('invoice_number', '{{!empty($orderBy) && $orderBy == 'invoice_number' ? $direction  : 'ASC'}}')">Number</th>
+                                                <th style="border-top-left-radius: 7px;" id="invoice_issue_date" onclick="searchItems('issue_date', '{{!empty($orderBy) && $orderBy == 'issue_date' ? $direction  : 'ASC'}}')"> Invoice date </th>
+                                                <th id="invoice_number" onclick="searchItems('transaction_number', '{{!empty($orderBy) && $orderBy == 'transaction_number' ? $direction  : 'ASC'}}')">Number</th>
                                                 <th id="client_name" onclick="searchItems('client_name', '{{!empty($orderBy) && $orderBy == 'client_name' ? $direction  : 'ASC'}}')">Client</th>
                                                 <th id="client_email" onclick="searchItems('client_email', '{{!empty($orderBy) && $orderBy == 'client_email' ? $direction  : 'ASC'}}')">Client Email</th>
-                                                <th id="invoice_status" onclick="searchItems('invoice_status', '{{!empty($orderBy) && $orderBy == 'invoice_status' ? $direction  : 'ASC'}}')">Status</th>
-                                                <th id="invoice_total_amount" onclick="searchItems('invoice_total_amount', '{{!empty($orderBy) && $orderBy == 'invoice_total_amount' ? $direction  : 'ASC'}}')">Amount</th>
+                                                <th id="invoice_status" onclick="searchItems('status', '{{!empty($orderBy) && $orderBy == 'status' ? $direction  : 'ASC'}}')">Status</th>
+                                                <th id="invoice_total_amount" onclick="searchItems('total_amount', '{{!empty($orderBy) && $orderBy == 'total_amount' ? $direction  : 'ASC'}}')">Amount</th>
                                                 <th>Email</th>
                                                 <!-- <th>Edit</th> -->
                                                 <th class="sumb--recentlogdements__actions" style="border-top-right-radius: 7px;">options</th>
@@ -183,29 +183,25 @@
                                             @else
                                                 @foreach ($invoicedata['data'] as $invoice)
                                             <tr>
-                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">{{ date('d-m-Y', strtotime($invoice['invoice_issue_date'])); }}</td>
-                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">{{ 'INV-'. str_pad($invoice['invoice_number'], 6, '0', STR_PAD_LEFT); }}</td>
+                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">{{ date('d-m-Y', strtotime($invoice['issue_date'])); }}</td>
+                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">{{ 'INV-'. str_pad($invoice['transaction_number'], 6, '0', STR_PAD_LEFT); }}</td>
                                                 <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">{{ $invoice['client_name'] }}</td>
                                                 <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">@if (!empty($invoice['client_email'])) <a href="mailto:{{ $invoice['client_email'] }}">{{ $invoice['client_email'] }}</a> @else &nbsp; @endif</td>
-                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'"><span class="payment--status-{{$invoice['invoice_status']}}">{{$invoice['invoice_status']}}</span></td>
-                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">${{ number_format((float)$invoice['invoice_total_amount'], 2, '.', ',') }}</td>
+                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'"><span class="payment--status-{{$invoice['status']}}">{{$invoice['status']}}</span></td>
+                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">${{ number_format((float)$invoice['total_amount'], 2, '.', ',') }}</td>
                                                 <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'"><span class="{{ $invoice['invoice_sent'] ? 'email2client_sent' : 'email2client_pending' }}"></span></td>
                                                 <!-- <td><a class="btn" href="/invoice/{{$invoice['id']}}/edit"><i class='far fa-edit'></i></a> <a class="btn" href="/invoice/{{$invoice['id']}}/edit"><i class='far fa-edit'></i></a></td> -->
                                                 <td class="sumb--recentlogdements__actions" style="text-align:right;">
-                                                    <div class="sumb--fileSharebtn dropdown <?php echo $invoice['invoice_status'] ?>">
+                                                    <div class="sumb--fileSharebtn dropdown <?php echo $invoice['status'] ?>">
                                                         <a class="fileSharebtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear"></i></a>
                                                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="mainlinkadd">
-                                                            @if($invoice['invoice_status'] == 'Paid')
+                                                            @if($invoice['status'] == 'Paid')
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Unpaid">Flag as UNPAID</a> 
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Voided">Flag as VOID</a> 
-                                                            @elseif($invoice['invoice_status'] == 'Unpaid')
+                                                            @elseif($invoice['status'] == 'Unpaid')
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Voided">Flag as VOID</a> 
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Paid">Flag as PAID</a>
-                                                                <a class="dropdown-item" onclick="deleteInvoice({{ str_pad($invoice['invoice_number'], 6, '0', STR_PAD_LEFT); }}, {{$invoice['id']}});">Delete</a>
-                                                            
-                                                            <!-- <a class="dropdown-item" onclick="deleteInvoice({{ str_pad($invoice['invoice_number'], 6, '0', STR_PAD_LEFT); }}, {{$invoice['id']}});">Delete</a> -->
-
-                                                            <!-- <span class="btn btn-primary" data-toggle="modal" data-target="#delete_invoice_modal" onclick="deleteInvoice({{ str_pad($invoice['invoice_number'], 6, '0', STR_PAD_LEFT); }});">Delete</span> -->
+                                                                <a class="dropdown-item" onclick="deleteInvoice({{ str_pad($invoice['transaction_number'], 6, '0', STR_PAD_LEFT); }}, {{$invoice['id']}});">Delete</a>
                                                             @endif
                                                         </div>
                                                     </div>
@@ -283,11 +279,9 @@
 </html>
 
 <script>
-    function deleteInvoice(invoice_number, id){
-        console.log(invoice_number);
-        
+    function deleteInvoice(transaction_number, id){        
         $("#delete_invoice_number").text('');
-        $("#delete_invoice_number").text(invoice_number);
+        $("#delete_invoice_number").text(transaction_number);
         $("#delete_invoice").val('');
         $("#delete_invoice").val(id);
         
@@ -332,7 +326,7 @@
             $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value='+orderBy+' >');
             $("#search_form").append('<input id="direction" type="hidden" name="direction" value='+direction+' >');
         }else{
-            $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value="invoice_issue_date" >');
+            $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value="issue_date" >');
             $("#search_form").append('<input id="direction" type="hidden" name="direction" value="ASC">');
         }
 
