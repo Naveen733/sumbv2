@@ -84,7 +84,7 @@ class InvoiceController extends Controller {
             $invoicedata = SumbInvoiceDetails::where('user_id', $userinfo[0])->where('is_active', 1)->paginate($itemsperpage)->toArray();  
             $ptype = $request->input('type');
         } else {
-            if($request->search_number_email_amount || $request->start_date || $request->end_date || $request->orderBy){
+            if($request->search_number_email_amount || $request->start_date || $request->end_date || $request->orderBy || $request->filterBy){
                 if($request->start_date){
                     $start_date = Carbon::createFromFormat('m/d/Y', $request->start_date)->format('Y-m-d');
                 }
@@ -107,15 +107,20 @@ class InvoiceController extends Controller {
                 $userinfo = $request->get('userinfo');
                 $invoicedata = TransactionCollections::where('user_id', $userinfo[0])->where('is_active', 1);
                                 if($request->search_number_email_amount){
-                                    $invoicedata->where('transaction_number', 'LIKE', "%{$invoice_number}%");
-                                    $invoicedata->orWhere('client_email', 'LIKE', "%{$request->search_number_email_amount}%");
-                                    $invoicedata->orWhere('total_amount', $total_amount);
+                                    $invoicedata->where(function($query) use($invoice_number, $request, $total_amount){
+                                        $query->where('transaction_number', 'LIKE', "%{$invoice_number}%")
+                                       ->orWhere('client_email', 'LIKE', "%{$request->search_number_email_amount}%")
+                                       ->orWhere('total_amount', 'LIKE', "%{$total_amount}%");
+                                    });
                                 }
                                 if($request->start_date && $request->end_date){
-                                    $invoicedata->whereBetween('issue_date',array($start_date, $end_date));
+                                    $invoicedata->whereBetween('issue_date', [$start_date, $end_date]);
                                 }
                                 if($request->orderBy){
                                     $invoicedata->orderBy($request->orderBy, $request->direction);
+                                }
+                                if($request->filterBy){
+                                    $invoicedata->where('status', $request->filterBy);
                                 }
                                 $invoicedata = $invoicedata->paginate($itemsperpage)->toArray();
 
@@ -123,6 +128,7 @@ class InvoiceController extends Controller {
                 $pagedata['start_date'] = $request->start_date;
                 $pagedata['end_date'] = $request->end_date;
                 $pagedata['orderBy'] = $request->orderBy;
+                $pagedata['filterBy'] = $request->filterBy;
                 if($request->direction == 'ASC')
                 {
                     $pagedata['direction'] = 'DESC';
@@ -136,7 +142,7 @@ class InvoiceController extends Controller {
             {
                 $pagedata['orderBy'] = 'issue_date';
                 $pagedata['direction'] = 'ASC';
-
+                $pagedata['filterBy'] = '';
                 $invoicedata = TransactionCollections::where('user_id', $userinfo[0])->where('is_active', 1)
                         ->orderBy('issue_date', 'DESC')
                         ->paginate($itemsperpage)->toArray();
@@ -237,7 +243,7 @@ class InvoiceController extends Controller {
                         ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
                             // $query->where('user_id', $userinfo[0]);
                         })
-                        ->get();
+                    ->get();
         if (!empty($chart_account)) {
             $pagedata['chart_account'] = $chart_account->toArray();
         }

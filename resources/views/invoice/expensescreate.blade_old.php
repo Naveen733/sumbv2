@@ -156,33 +156,35 @@
                                                         <td>
                                                             <select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" required>
                                                                 <option value="">select</option>
-                                                                @if(!empty($chart_account))
-                                                                    @foreach ($chart_account as $item)
-                                                                        @foreach ($item['chart_accounts_particulars'] as $particulars)
-                                                                            <option value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
-                                                                        @endforeach
-                                                                    @endforeach
-                                                                @endif
+                                                                <option value="400-Advertising">400 - Advertising</option>
+                                                                <option value="404-Bank Fees">404 - Bank Fees</option>
+                                                                <option value="408-Cleaning">408 - Cleaning</option>
+                                                                <option value="412-Consulting & Accounting">412 - Consulting & Accounting</option>
+                                                                <option value="420-Entertainment">420 - Entertainment</option>
+                                                                <option value="425-Freight & Courier">425 - Freight & Courier</option>
+                                                                <option value="429-General Expenses">429 - General Expenses</option>
+                                                                <option value="433-Insurance">433 - Insurance</option>
+                                                                <option value="437-Interest Expense">437 - Interest Expense</option>
+                                                                <option value="441-Legal expenses">441 - Legal expenses</option>
+                                                                <option value="445-Light, Power, Heating">445 - Light, Power, Heating</option>
+                                                                <option value="449-Motor Vehicle Expenses">449 - Motor Vehicle Expenses</option>
+                                                                <option value="453-Office Expenses">453 - Office Expenses</option>
+                                                                <option value="461-Printing & Stationery">461 - Printing & Stationery</option>
+                                                                <option value="469-Rent">469 - Rent</option>
+                                                                <option value="473-Repairs and Maintenance">473 - Repairs and Maintenance</option>
+                                                                <option value="485-Subscriptions">485 - Subscriptions</option>
+                                                                <option value="489-Telephone & Internet">489 - Telephone & Internet</option>
+                                                                <option value="493-Travel National">493 - Travel - National</option>
+                                                                <option value="494-Travel International">494 - Travel - International</option>
+                                                                <option value="710-Office Equipment">710 - Office Equipment</option>
+                                                                <option value="720-Computer Equipment">720 - Computer Equipment</option>
                                                             </select>
                                                         </td>
                                                         <td>
-                                                            @if(!empty($tax_rates))
-                                                                <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="">
-                                                                <input type="hidden" name="expense_parts_tax_rate_name[]" id="expense_parts_tax_rate_name" value="">
-                                                                <div class="form-input--wrap">
-                                                                    <div class="row">
-                                                                        <div class="col-12 for--tables">
-                                                                            <select  id="expense_tax" name="expense_tax[]" onchange="getTaxRates(0);" value="">
-                                                                                <option selected value="">Tax Rate Option</option>    
-                                                                                @foreach($tax_rates as $tax_rate)
-                                                                                    <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
-                                                                                    <option id="{{$tax_rate['id'].'_0'}}" value="{{$tax_rate['tax_rates']}}">{{$tax_rate['tax_rates_name']}}</option>
-                                                                                @endforeach
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            @endif
+                                                            <select style="border: none;" name="expense_tax[]" id="expense_tax" >
+                                                                <option value="0">Tax Exempt</option>
+                                                                <option value="10">General Tax</option>
+                                                            </select> 
                                                         </td>
                                                         <td>
                                                             <input readonly id="expense_amount" name="expense_amount[]" type="number" step="any" required>
@@ -206,41 +208,39 @@
                                                         <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['item_unit_price']) ? $prts['item_unit_price'] : '' }}" step="any"  required>
                                                     </td>
                                                     <td>
-                                                        <select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" required>
-                                                            <option value="">select</option>
-                                                            @if(!empty($chart_account))
-                                                                @foreach ($chart_account as $item)
-                                                                    @foreach ($item['chart_accounts_particulars'] as $particulars)
-                                                                        <option value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
-                                                                    @endforeach
-                                                                @endforeach
-                                                            @endif
-                                                        </select>
-                                                    </td>
+                                                        <select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" step="any" required>
+                                                                <option value="">select</option>
+                                                                <option value="400-Advertising">400 - Advertising</option>
+                                                                <option value="404-Bank Fees">404 - Bank Fees</option>
+                                                                <option value="408-Cleaning">408 - Cleaning</option>
+                                                                <option value="412-Consulting & Accounting">412 - Consulting & Accounting</option>
+                                                                <option value="420-Entertainment">420 - Entertainment</option>
+                                                                <option value="425-Freight & Courier">425 - Freight & Courier</option>
+                                                                <option value="429-General Expenses">429 - General Expenses</option>
+                                                                <option value="433-Insurance">433 - Insurance</option>
+                                                                <option value="437-Interest Expense">437 - Interest Expense</option>
+                                                                <option value="441-Legal expenses">441 - Legal expenses</option>
+                                                                <option value="445-Light, Power, Heating">445 - Light, Power, Heating</option>
+                                                                <option value="449-Motor Vehicle Expenses">449 - Motor Vehicle Expenses</option>
+                                                                <option value="453-Office Expenses">453 - Office Expenses</option>
+                                                                <option value="461-Printing & Stationery">461 - Printing & Stationery</option>
+                                                                <option value="469-Rent">469 - Rent</option>
+                                                                <option value="473-Repairs and Maintenance">473 - Repairs and Maintenance</option>
+                                                                <option value="485-Subscriptions">485 - Subscriptions</option>
+                                                                <option value="489-Telephone & Internet">489 - Telephone & Internet</option>
+                                                                <option value="493-Travel National">493 - Travel - National</option>
+                                                                <option value="494-Travel International">494 - Travel - International</option>
+                                                                <option value="710-Office Equipment">710 - Office Equipment</option>
+                                                                <option value="720-Computer Equipment">720 - Computer Equipment</option>
+                                                            </select>
+                                                        </td>
                                                     <td>
-
-                                                    @if(!empty($tax_rates))
-                                                        <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="">
-                                                        <input type="hidden" name="expense_parts_tax_rate_name[]" id="expense_parts_tax_rate_name" value="">
-                                                        <div class="form-input--wrap">
-                                                            <div class="row">
-                                                                <div class="col-12 for--tables">
-                                                                    <select id="expense_tax" name="expense_tax[]" onchange="" value="">
-                                                                        <option selected value="">Tax Rate Option</option>    
-                                                                        @foreach($tax_rates as $tax_rate)
-                                                                            <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
-                                                                            <option id="{{$tax_rate['id'].'_0'}}" value="{{$tax_rate['tax_rates']}}">{{$tax_rate['tax_rates_name']}}</option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @endif
                                                             <!-- <input id="expense_tax" name="expense_tax[]" type="number"> -->
-                                                        <!-- <select style="border: none;" name="expense_tax[]" id="expense_tax"  >
-                                                            <option <?php echo ($prts['expense_tax']) ==  '0' ? ' selected="selected"' : '';?>  value="0">Tax Exempt</option>
-                                                            <option <?php echo ($prts['expense_tax']) ==  '10' ? ' selected="selected"' : '';?> value="10">General Tax</option>
-                                                        </select>  -->
+                                                            <select style="border: none;" name="expense_tax[]" id="expense_tax"  >
+                                                                <!-- <option selected disabled>Select Tax Rate</option>     -->
+                                                                <option <?php echo ($prts['expense_tax']) ==  '0' ? ' selected="selected"' : '';?>  value="0">Tax Exempt</option>
+                                                                <option <?php echo ($prts['expense_tax']) ==  '10' ? ' selected="selected"' : '';?> value="10">General Tax</option>
+                                                            </select> 
                                                     </td>
                                                    
                                                     <td>
@@ -540,30 +540,31 @@
 
 <script>
 
-var counts = 0;
+
     $(document).ready(function () {
         $(".bd-example-modal-lg").on("hidden.bs.modal", function () {
     // put your default event here
             $("#expense_preview_to").text($("#client_name").val());
-            $("#expense_preview_expense_number").text();
-            $("#expense_preview_issue_date").text();
-            $("#expense_preview_due_date").text();
+                    $("#expense_preview_expense_number").text();
+                    $("#expense_preview_issue_date").text();
+                    $("#expense_preview_due_date").text();
 
-                // $("#expense_preview_parts_rows").last().remove();
-            $("#expense_preview_parts_rows").empty()
-            $("#expense_preview_sub_total").text();
-            $("#expense_preview_total_tax").text();
-            $("#expense_preview_total_amount").text();
+                   // $("#expense_preview_parts_rows").last().remove();
+                   $("#expense_preview_parts_rows").empty()
+
+                    $("#expense_preview_sub_total").text();
+                    $("#expense_preview_total_tax").text();
+                    $("#expense_preview_total_amount").text();
         });
     });
 
      function previewExpense(){
         var to = $("#client_name").val();
         
-            $("#expense_preview_to").text($("#client_name").val());
-            $("#expense_preview_expense_number").text($("#expense_number").val());
-            $("#expense_preview_issue_date").text($("#expense_date").val());
-            $("#expense_preview_due_date").text($("#expense_due_date").val());
+             $("#expense_preview_to").text($("#client_name").val());
+             $("#expense_preview_expense_number").text($("#expense_number").val());
+             $("#expense_preview_issue_date").text($("#expense_date").val());
+             $("#expense_preview_due_date").text($("#expense_due_date").val());
 
             expense_description_array = [];
             expense_item_quantity_array = [];
@@ -671,6 +672,8 @@ var counts = 0;
                     $('.clientname li.add--newactclnt').hide();
                 }
             }
+
+            
         });
 
         //New Record -- Add New Icon
@@ -700,63 +703,44 @@ var counts = 0;
      //Add new row on Table Particulars
 
     $('#addnewline').on('click', function(){
-        counts++;
         $('#partstable tr.add--new-line').before(
             '<tr><td><textarea name=\"expense_description[]\" id=\"expense_description\" class=\"autoresizing\" required></textarea></td>\n'+
             '<td><input type=\"number\" step="any" id=\"item_quantity\" name=\"item_quantity[]\" required \"></td>\n'+
             '<td><input type=\"number\" step="any" id=\"item_unit_price\" name=\"item_unit_price[]\" required \"></td>\n'+
-            '<td id="testing">'+
-                '<select style=\"border: none;\" class=\"selectpicker\" data-live-search="true" id=\"item_account_'+counts+'\" name=\"item_account[]\" required></select>\n'+
+            '<td>'+
+                '<select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" step="any" required>\n'+
+                    '<option value="">select</option>\n'+
+                    '<option value="400-Advertising">400 - Advertising</option>\n'+
+                    '<option value="404-Bank Fees">404 - Bank Fees</option>\n'+
+                    '<option value="408-Cleaning">408 - Cleaning</option>\n'+
+                    '<option value="412-Consulting & Accounting">412 - Consulting & Accounting</option>\n'+
+                    '<option value="420-Entertainment">420 - Entertainment</option>\n'+
+                    '<option value="425-Freight & Courier">425 - Freight & Courier</option>\n'+
+                    '<option value="429-General Expenses">429 - General Expenses</option>\n'+
+                    '<option value="433-Insurance">433 - Insurance</option>\n'+
+                    '<option value="437-Interest Expense">437 - Interest Expense</option>\n'+
+                    '<option value="441-Legal expenses">441 - Legal expenses</option>\n'+
+                    '<option value="445-Light, Power, Heating">445 - Light, Power, Heating</option>\n'+
+                    '<option value="449-Motor Vehicle Expenses">449 - Motor Vehicle Expenses</option>\n'+
+                    '<option value="453-Office Expenses">453 - Office Expenses</option>\n'+
+                    '<option value="461-Printing & Stationery">461 - Printing & Stationery</option>\n'+
+                    '<option value="469-Rent">469 - Rent</option>\n'+
+                    '<option value="473-Repairs and Maintenance">473 - Repairs and Maintenance</option>\n'+
+                    '<option value="485-Subscriptions">485 - Subscriptions</option>\n'+
+                    '<option value="489-Telephone & Internet">489 - Telephone & Internet</option>\n'+
+                    '<option value="493-Travel National">493 - Travel - National</option>\n'+
+                    '<option value="494-Travel International">494 - Travel - International</option>\n'+
+                    '<option value="710-Office Equipment">710 - Office Equipment</option>\n'+
+                    '<option value="720-Computer Equipment">720 - Computer Equipment</option>\n'+
+                '</select>\n'+
             '</td>'+
             '<td><select style=\"border: none;\" name=\"expense_tax[]\" id=\"expense_tax\" required><option value=\"0\">Tax Exempt</option><option value=\"10\">General Tax</option></select></td>\n'+
             '<td><input readonly id=\"expense_amount\" name=\"expense_amount[]\" type=\"number\" step="any" required></td>\n'+
             '<td class=\"tableOptions\">\n'+
                 '<button class=\"btn sumb-del-btn delepart\" type=\"button\" ><i class=\"fa-solid fa-trash\"></i></button>\n'+
             '</td></tr>');
-
-        getChartAccountsParticularsList(counts);
     });
-       
-    function getChartAccountsParticularsList(id){
-    $.ajaxSetup({
-        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-    });
-    $.ajax({
-    method: "GET",
-    url: "/chart-accounts-parts",
-    // data: post_data,
-    success:function(response){
-        try{
-            response = JSON.parse(response);
-            if(response && response.status == "success"){
-                // $("#client_details").show();
-                $("#item_account_"+id).empty();
-                var counter = 0;
-                $("#item_account_"+id).append('<option value="">select</option>')
-                
-                $.each(response.data,function(key,value){
-                    $.each(value['chart_accounts_particulars'],function(k,val){
-                        console.log(val);
-                        // counter++;
-                        $("#item_account_"+id).append('\n\<option value='+val['id']+'>'+val['chart_accounts_particulars_code']+' - '+val['chart_accounts_particulars_name']+'</option>');
-                    });
-                });
-            }else if(response.status == "error"){
-                alert(esponse.err);
-                // $("#client_details").show();
-                // $("#invoice_item_list").empty();
-                // $("#invoice_item_list").append('<input type="checkbox" onclick=closeClientSuggestionBox() name="add_new_client"><label for="add_new_client">Add as a new active client?</label></br>');
-            }
-        }catch(error){
-            // alertBottom(null,'Something went wrong, try again later');
-        }
-    },
-    error:function(error){ 
-        // alertBottom(null,"Something went wrong, please try again later");
-    }
-});
-}
-
+        
     $('#partstable').on('input', '.autoresizing', function () {
         this.style.height = 'auto';
         this.style.height = (this.scrollHeight) + 'px';
@@ -818,7 +802,7 @@ var counts = 0;
             $('[name="expense_tax[]"]').each(function() {
                 expense_tax_array.push(Number(this.value));
             })
-            
+
             if($("#tax_type").val() == 0)
             {
                 $("#partstable #expense_amount").each(function (index) {
@@ -857,17 +841,11 @@ var counts = 0;
             var calculated_total_gst_amount = 0;
             expense_amount_array = [];
             expense_tax_array = [];
-            expense_tax_id_array = [];
 
             $('[name="expense_amount[]"]').each(function() {
                 expense_amount_array.push(Number(this.value));
             })
             $('[name="expense_tax[]"]').each(function() {
-
-                if($("#expense_tax option:selected").attr('id')){
-                    const selected_option = $("#expense_tax option:selected").attr('id');
-                    expense_tax_id_array.push($("#tax_rate_id_"+selected_option).val());
-                }
                 expense_tax_array.push(Number(this.value));
             })
 
@@ -987,7 +965,7 @@ var counts = 0;
                     calculated_total_sum += parseFloat(expense_amount_array[index]);
                     if(expense_tax_array[index] > 0)
                     {
-                        calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
                     }   
                 });
                     

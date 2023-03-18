@@ -808,7 +808,7 @@
                                                             ?>
                                                             <li>
                                                                 <button type="button" class="invoice_item" data-myid="{{ $counter }}" onclick="addInvoiceChartAccount('{{ $particulars['id'] }}', 0)">
-                                                                    <span id="data_name_{{ $counter }}">{{ $particulars['chart_accounts_particulars_code'] }} : {{ $particulars['chart_accounts_particulars_name'] }} </span>
+                                                                    <span id="data_name_{{ $counter }}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }} </span>
                                                                     <input type="hidden" id="invoice_parts_chart_accounts_type_id_0" name="invoice_parts_chart_accounts_type_id_0" value="{{$item['chart_accounts_types'][$user]['chart_accounts_type']}}">
                                                                     <input type="hidden" id="invoice_item_id_{{ $counter }}" name="invoice_item_id" value="{{ $particulars['id'] }}">
                                                                 </button>
@@ -942,7 +942,7 @@
             });
             var total = parseFloat('{{ $invoice_details['total_amount'] }}').toFixed(2);
             var due_date = $.datepicker.formatDate( "D dd-M-yy", new Date());
-            console.log(new Date());
+
             $("#send_invoice_to_emails").val('{{$invoice_details['client_email']}}');
             $("#send_invoice_from").val('{{$userinfo[1]}}');
             $("#send_invoice_subject").val("Invoice INV-00000"+'{{$invoice_details['transaction_number'] }}' + ' from '+ '{{$userinfo[1]}}'+ ' for '+ '{{$invoice_details['client_email']}}');

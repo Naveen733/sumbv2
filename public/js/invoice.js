@@ -799,6 +799,5 @@ function getTaxRates(rowId){
         const selected_option = $("#invoice_parts_tax_rate_"+rowId+" option:selected").attr('id');
         $("#invoice_parts_tax_rate_id_"+rowId).val('');
         $("#invoice_parts_tax_rate_id_"+rowId).val($("#tax_rate_id_"+selected_option).val());
-
     }
 }

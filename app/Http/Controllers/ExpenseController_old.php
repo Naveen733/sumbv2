@@ -18,8 +18,6 @@ use App\Models\SumbExpensesClients;
 use App\Models\SumbExpenseDetails;
 use App\Models\SumbExpenseParticulars;
 use App\Models\SumbExpenseSettings;
-use App\Models\SumbChartAccounts;
-use App\Models\SumbInvoiceTaxRates;
 
 class ExpenseController extends Controller {
 
@@ -240,24 +238,6 @@ class ExpenseController extends Controller {
         // );
         // $pagedata['errors'] = $errors;
         // if (!empty($request->input('err'))) { $pagedata['err'] = $request->input('err'); }
-        $chart_account = SumbChartAccounts::with(['chartAccountsParticulars', 'chartAccountsTypes'])
-                    ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
-                        $query->where('user_id', $userinfo[0]);
-                    })
-                    ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
-                        // $query->where('user_id', $userinfo[0]);
-                    })
-                    ->where('chart_accounts_name', 'Expenses')
-                ->get();
-        if (!empty($chart_account)) {
-            $pagedata['chart_account'] = $chart_account->toArray();
-        }
-
-        $tax_rates = SumbInvoiceTaxRates::get();
-        if (!empty($tax_rates)) {
-            $pagedata['tax_rates'] = $tax_rates->toArray();
-        }
-
         $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first();
         if(!empty($get_settings)){
             $pagedata['data'] = $get_settings->toArray();

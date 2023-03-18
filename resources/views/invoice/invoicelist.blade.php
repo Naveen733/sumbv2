@@ -137,25 +137,24 @@
                                                 @endif
                                             </button>
                                             <div class="dropdown-menu" aria-labelledby="btnGroupDrop_type">
-                                                <a class="dropdown-item" href="">Paid</a>
-                                                <a class="dropdown-item" href="">Unpaid</a>
-                                                <a class="dropdown-item" href="">Void</a>
+                                                <a class="dropdown-item" href="javascript:void(0)" type="button" onclick="searchItems(null, null, 'Paid')">Paid</a>
+                                                <a class="dropdown-item" href="javascript:void(0)" type="button" onclick="searchItems(null, null, 'Unpaid')">Unpaid</a>
+                                                <a class="dropdown-item" href="javascript:void(0)" type="button" onclick="searchItems(null, null, 'Void')">Void</a>
                                                 <a class="dropdown-item" href="/invoice">View All</a>
                                             </div>
                                         </div>
-
                                     </div>
+                                    <input id="filter_by" type="hidden" name="filterBy" value='{{!empty($filterBy) ? $filterBy : "" }}'>
 
                                     <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 order-xl-5 order-lg-1 order-md-1 order-sm-2 order-2">
                                         <a class="transaction--Addbtn" href="/invoice/create"><i class="fa-solid fa-circle-plus"></i>Add New Invoice</a>
                                     </div>
                                     
                                     <div class="invoice-list--btns col-xl-4 col-lg-6 col-md-6 col-sm-12 order-xl-6 order-lg-2 order-md-2 order-sm-1 order-1" style="text-align: right;">
-                                        <button type="button" name="search_invoice" class="btn sumb--btn " value="Search" onclick="searchItems(null, null)"><i class="fa-solid fa-magnifying-glass"></i>Search</button>
+                                        <button type="button" name="search_invoice" class="btn sumb--btn " value="Search" onclick="searchItems(null, null, '{{$filterBy}}')"><i class="fa-solid fa-magnifying-glass"></i>Search</button>
                                         <button type="button" class="btn sumb--btn sumb-clear-btn" onclick="clearSearchItems()"><i class="fa-solid fa-circle-xmark"></i>Clear Search</button>
                                     </div>
 
-                                    
                                 </div>
                             </form>
 
@@ -321,7 +320,8 @@
         return false;
     }
 
-    function searchItems(orderBy, direction){
+    function searchItems(orderBy, direction, filterBy){
+        // $("#filter_by").val('');
         if(orderBy && direction){
             $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value='+orderBy+' >');
             $("#search_form").append('<input id="direction" type="hidden" name="direction" value='+direction+' >');
@@ -329,7 +329,9 @@
             $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value="issue_date" >');
             $("#search_form").append('<input id="direction" type="hidden" name="direction" value="ASC">');
         }
-
+        if(filterBy){
+            $("#filter_by").val(filterBy);
+        }
         $("#search_form").submit();
     }
 </script>
