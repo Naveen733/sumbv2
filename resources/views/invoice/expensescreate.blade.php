@@ -14,9 +14,9 @@
                 @if($type == 'create')
                 <h3 class="sumb--title">New Expense</h3>
                 @elseif($type == 'edit')
-                <h3 class="sumb--title">Edit Expense({{ $expense_details['expense_number'] }})</h3>
+                <h3 class="sumb--title">Edit Expense({{ 'EXP-000000000'. $expense_details['transaction_number'] }})</h3>
                 @elseif($type == 'view')
-                <h3 class="sumb--title">Expense({{ $expense_details['expense_number'] }})</h3>
+                <h3 class="sumb--title">Expense({{ 'EXP-000000000'. $expense_details['transaction_number'] }})</h3>
                 <p style="color: red;"><small>This expense entry is on Read Only mode. Entries flagged as VOID or PAID cannot be edited.</small></p>
                 @endif
             </section>
@@ -42,7 +42,9 @@
                                         <label class="form-input--question">Expense Number <span>Read-Only</span></label>
                                         <div class="form--inputbox readOnly row">
                                             <div class="col-12">
-                                                <input type="text" id="expense_number" name="expense_number" required readonly="" value="{{ !empty($expense_details['expense_number']) ? $expense_details['expense_number'] : 'EXP-'. str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
+                                                <input type="text" id="expense_number" name="" required readonly="" value="{{ !empty($expense_details['transaction_number']) ? 'EXP-'. str_pad($expense_details['transaction_number'], 10, '0', STR_PAD_LEFT)  : 'EXP-'. str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
+                                                <input type="text" id="expense_number" name="expense_number" required readonly="" value="{{ !empty($expense_details['transaction_number']) ? $expense_details['transaction_number']  : $data['expenses_count'] }}">
+
                                                 @error('expense_number')
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
@@ -57,7 +59,7 @@
                                         <label class="form-input--question" for="expense_date">Date <span>MM/DD/YYYY</span></label>
                                         <div class="date--picker row">
                                             <div class="col-12">
-                                                <input type="text" id="expense_date" name="expense_date" required class="form-control" value="{{ !empty($expense_details['expense_date']) ? date('m/d/Y', strtotime($expense_details['expense_date'])) :  date("m/d/Y")  }}">
+                                                <input type="text" id="expense_date" name="expense_date" required class="form-control" value="{{ !empty($expense_details['issue_date']) ? date('m/d/Y', strtotime($expense_details['issue_date'])) :  date("m/d/Y")  }}">
                                                 @error('expense_date')
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
@@ -70,7 +72,7 @@
                                         <label class="form-input--question" for="expense_due_date">Due Date <span>MM/DD/YYYY</span></label>
                                         <div class="date--picker row">
                                             <div class="col-12">
-                                                <input type="text" id="expense_due_date" name="expense_due_date" required class="form-control" value="{{ !empty($expense_details['expense_due_date']) ? date('m/d/Y', strtotime($expense_details['expense_due_date'])) : '' }}" >
+                                                <input type="text" id="expense_due_date" name="expense_due_date" required class="form-control" value="{{ !empty($expense_details['due_date']) ? date('m/d/Y', strtotime($expense_details['due_date'])) : '' }}" >
                                                 @error('expense_due_date')
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
@@ -172,11 +174,11 @@
                                                                 <div class="form-input--wrap">
                                                                     <div class="row">
                                                                         <div class="col-12 for--tables">
-                                                                            <select  id="expense_tax" name="expense_tax[]" onchange="getTaxRates(0);" value="">
+                                                                            <select  id="expense_tax" name="expense_tax[]" value="" onchange="getTaxRates()">
                                                                                 <option selected value="">Tax Rate Option</option>    
                                                                                 @foreach($tax_rates as $tax_rate)
                                                                                     <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
-                                                                                    <option id="{{$tax_rate['id'].'_0'}}" value="{{$tax_rate['tax_rates']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                                                                    <option id="{{$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
                                                                                 @endforeach
                                                                             </select>
                                                                         </div>
@@ -196,14 +198,14 @@
                                                     @foreach ($expense_particulars as $prts)
                                                     
                                                     <td>
-                                                        <input name="expense_description[]" id="expense_description" class="autoresizing" value="{{ !empty($prts['expense_description']) ? $prts['expense_description'] : '' }}"  required>
+                                                        <input name="expense_description[]" id="expense_description" class="autoresizing" value="{{ !empty($prts['parts_description']) ? $prts['parts_description'] : '' }}"  required>
                                                     </td>
                                                    
                                                     <td>
-                                                        <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['item_quantity']) ? $prts['item_quantity'] : '' }}"  required>
+                                                        <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['parts_quantity']) ? $prts['parts_quantity'] : '' }}"  required>
                                                     </td>
                                                     <td>
-                                                        <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['item_unit_price']) ? $prts['item_unit_price'] : '' }}" step="any"  required>
+                                                        <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['parts_unit_price']) ? $prts['parts_unit_price'] : '' }}" step="any"  required>
                                                     </td>
                                                     <td>
                                                         <select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" required>
@@ -211,7 +213,7 @@
                                                             @if(!empty($chart_account))
                                                                 @foreach ($chart_account as $item)
                                                                     @foreach ($item['chart_accounts_particulars'] as $particulars)
-                                                                        <option value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
+                                                                        <option {{!empty($prts['chart_accounts_particulars']) && $prts['chart_accounts_particulars']['id'] == $particulars['id'] ? 'selected="selected"' : '' }} value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
                                                                     @endforeach
                                                                 @endforeach
                                                             @endif
@@ -225,26 +227,22 @@
                                                         <div class="form-input--wrap">
                                                             <div class="row">
                                                                 <div class="col-12 for--tables">
-                                                                    <select id="expense_tax" name="expense_tax[]" onchange="" value="">
+                                                                    <select id="expense_tax" name="expense_tax[]" onchange="getTaxRates()" value="">
                                                                         <option selected value="">Tax Rate Option</option>    
                                                                         @foreach($tax_rates as $tax_rate)
                                                                             <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
-                                                                            <option id="{{$tax_rate['id'].'_0'}}" value="{{$tax_rate['tax_rates']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                                                            <option id="{{$tax_rate['id'].'_0'}}"  value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
                                                                         @endforeach
                                                                     </select>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     @endif
-                                                            <!-- <input id="expense_tax" name="expense_tax[]" type="number"> -->
-                                                        <!-- <select style="border: none;" name="expense_tax[]" id="expense_tax"  >
-                                                            <option <?php echo ($prts['expense_tax']) ==  '0' ? ' selected="selected"' : '';?>  value="0">Tax Exempt</option>
-                                                            <option <?php echo ($prts['expense_tax']) ==  '10' ? ' selected="selected"' : '';?> value="10">General Tax</option>
-                                                        </select>  -->
+
                                                     </td>
                                                    
                                                     <td>
-                                                        <input type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['expense_amount']) ? $prts['expense_amount'] : '' }}"  required>
+                                                        <input type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['parts_amount']) ? $prts['parts_amount'] : '' }}"  required>
                                                     </td>
                                                     <td class="tableOptions">
                                                         <button class="btn sumb-del-btn delepart" type="button" ><i class="fa-solid fa-trash"></i></button>
@@ -288,14 +286,14 @@
                                                             <option value="0">Incl. Tax</option>
                                                             <option value="1">Excl. Tax</option>
                                                         @else
-                                                            <option <?php echo ($expense_details['tax_type']) ==  '0' ? ' selected="selected"' : '';?> value="0">Incl. Tax</option>
-                                                            <option <?php echo ($expense_details['tax_type']) ==  '1' ? ' selected="selected"' : '';?> value="1">Excl. Tax</option>
+                                                            <option <?php echo ($expense_details['tax_type']) ==  'tax_inclusive' ? ' selected="selected"' : '';?> value="0">Incl. Tax</option>
+                                                            <option <?php echo ($expense_details['tax_type']) ==  'tax_exclusive' ? ' selected="selected"' : '';?> value="1">Excl. Tax</option>
                                                         @endif
                                                         </select> </span>
                                                     </td>
                                                     
                                                     <td  colspan="2">
-                                                    <input readonly required id="expense_total_amount" step="any" name="expense_total_amount" type="number" value="{{ !empty($expense_details['expense_total_amount']) ? $expense_details['expense_total_amount'] : '' }}">
+                                                    <input readonly required id="expense_total_amount" step="any" name="expense_total_amount" type="number" value="{{ !empty($expense_details['sub_total']) ? $expense_details['sub_total'] : '' }}">
                                                     @error('expense_total_amount')
                                                         <div class="alert alert-danger">{{ $message }}</div>
                                                     @enderror    
@@ -483,54 +481,6 @@
   </div>
 </div>
 
-<!-- Modal -->
-<!-- <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Saved Recipients</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="replist" style="overflow-x: auto; max-height:600px;">
-                    
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">Name</th>
-                                <th scope="col">Description</th>
-                                <th scope="col">Options</th>
-    
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (empty($exp_clients))
-                            <tr>
-                                <td colspan="3">You dont have any client recipient at this time</td>
-                            </tr>
-                            @endif
-                            @php $counter = 0; @endphp
-                            @foreach ($exp_clients as $ec)
-                            @php $counter ++; @endphp
-                            <tr>
-                                <th scope="row" id="data_name_{{ $counter }}">{{ $ec['client_name'] }}</th>
-                                <td id="data_desc_{{ $counter }}">{{ $ec['client_description'] }}</td>
-                                <td><button type="button" class="btn btn-primary btn-sm dcc_click" data-dismiss="modal" data-myid="{{ $counter }}">Use This</button></td>
-                            </tr>
-                            @endforeach
-                            
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div> -->
   
 
 <!-- END PAGE CONTAINER-->
@@ -557,7 +507,7 @@ var counts = 0;
         });
     });
 
-     function previewExpense(){
+    function previewExpense(){
         var to = $("#client_name").val();
         
             $("#expense_preview_to").text($("#client_name").val());
@@ -718,44 +668,44 @@ var counts = 0;
     });
        
     function getChartAccountsParticularsList(id){
-    $.ajaxSetup({
-        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-    });
-    $.ajax({
-    method: "GET",
-    url: "/chart-accounts-parts",
-    // data: post_data,
-    success:function(response){
-        try{
-            response = JSON.parse(response);
-            if(response && response.status == "success"){
-                // $("#client_details").show();
-                $("#item_account_"+id).empty();
-                var counter = 0;
-                $("#item_account_"+id).append('<option value="">select</option>')
-                
-                $.each(response.data,function(key,value){
-                    $.each(value['chart_accounts_particulars'],function(k,val){
-                        console.log(val);
-                        // counter++;
-                        $("#item_account_"+id).append('\n\<option value='+val['id']+'>'+val['chart_accounts_particulars_code']+' - '+val['chart_accounts_particulars_name']+'</option>');
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        });
+        $.ajax({
+        method: "GET",
+        url: "/chart-accounts-parts",
+        // data: post_data,
+        success:function(response){
+            try{
+                response = JSON.parse(response);
+                if(response && response.status == "success"){
+                    // $("#client_details").show();
+                    $("#item_account_"+id).empty();
+                    var counter = 0;
+                    $("#item_account_"+id).append('<option value="">select</option>')
+                    
+                    $.each(response.data,function(key,value){
+                        $.each(value['chart_accounts_particulars'],function(k,val){
+                            console.log(val);
+                            // counter++;
+                            $("#item_account_"+id).append('\n\<option value='+val['id']+'>'+val['chart_accounts_particulars_code']+' - '+val['chart_accounts_particulars_name']+'</option>');
+                        });
                     });
-                });
-            }else if(response.status == "error"){
-                alert(esponse.err);
-                // $("#client_details").show();
-                // $("#invoice_item_list").empty();
-                // $("#invoice_item_list").append('<input type="checkbox" onclick=closeClientSuggestionBox() name="add_new_client"><label for="add_new_client">Add as a new active client?</label></br>');
+                }else if(response.status == "error"){
+                    alert(esponse.err);
+                    // $("#client_details").show();
+                    // $("#invoice_item_list").empty();
+                    // $("#invoice_item_list").append('<input type="checkbox" onclick=closeClientSuggestionBox() name="add_new_client"><label for="add_new_client">Add as a new active client?</label></br>');
+                }
+            }catch(error){
+                // alertBottom(null,'Something went wrong, try again later');
             }
-        }catch(error){
-            // alertBottom(null,'Something went wrong, try again later');
-        }
-    },
-    error:function(error){ 
-        // alertBottom(null,"Something went wrong, please try again later");
+        },
+            error:function(error){ 
+                // alertBottom(null,"Something went wrong, please try again later");
+            }
+        });
     }
-});
-}
 
     $('#partstable').on('input', '.autoresizing', function () {
         this.style.height = 'auto';
@@ -798,10 +748,14 @@ var counts = 0;
             $('#file_upload').val("");
             $('#sumb-file-upload-container').show();
         })
-                       
+              
+        
         //row total Amount,form total amoount, total tax
         var body = $('#partstable').children('tbody').first();
         body.on('change', 'input[type="number"]', function() {
+
+            
+            
             var cells = $(this).closest('tr').children('td');
             var value1 = cells.eq(1).find('input').val();
             var value2 = cells.eq(2).find('input').val();
@@ -811,14 +765,18 @@ var counts = 0;
             var calculated_total_gst_amount = 0;
             expense_amount_array = [];
             expense_tax_array = [];
-
+            expense_tax_array_id = [];
+            
             $('[name="expense_amount[]"]').each(function() {
                 expense_amount_array.push(Number(this.value));
             })
             $('[name="expense_tax[]"]').each(function() {
-                expense_tax_array.push(Number(this.value));
+                expense_tax_array_id.push(Number(this.value));
             })
-            
+
+            expense_tax_array = $('[name="expense_tax_id[]"]').val();
+            expense_tax_array = JSON.parse(expense_tax_array);
+                      
             if($("#tax_type").val() == 0)
             {
                 $("#partstable #expense_amount").each(function (index) {
@@ -841,6 +799,7 @@ var counts = 0;
                     calculated_total_sum += parseFloat(expense_amount_array[index]);
                     if(expense_tax_array[index] > 0)
                     {
+                    console.log((expense_amount_array[index] * expense_tax_array[index])/100);
                     calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
                     }   
                 });
@@ -863,13 +822,14 @@ var counts = 0;
                 expense_amount_array.push(Number(this.value));
             })
             $('[name="expense_tax[]"]').each(function() {
-
-                if($("#expense_tax option:selected").attr('id')){
-                    const selected_option = $("#expense_tax option:selected").attr('id');
-                    expense_tax_id_array.push($("#tax_rate_id_"+selected_option).val());
-                }
-                expense_tax_array.push(Number(this.value));
+                // if($("#expense_tax option:selected").attr('id')){
+                //     const selected_option = $("#expense_tax option:selected").attr('id');
+                //     expense_tax_id_array.push($("#tax_rate_id_"+selected_option).val());
+                // }
+                expense_tax_id_array.push(Number(this.value));
             })
+            expense_tax_array = $('[name="expense_tax_id[]"]').val();
+            expense_tax_array = JSON.parse(expense_tax_array);
 
             if($("#tax_type").val() == 0)
             {
@@ -909,13 +869,17 @@ var counts = 0;
             var calculated_total_gst_amount = 0;
             expense_amount_array = [];
             expense_tax_array = [];
+            expense_tax_id_array = [];
 
             $('[name="expense_amount[]"]').each(function() {
                 expense_amount_array.push(Number(this.value));
             })
             $('[name="expense_tax[]"]').each(function() {
-                expense_tax_array.push(Number(this.value));
+                expense_tax_id_array.push(Number(this.value));
             })
+
+            expense_tax_array = $('[name="expense_tax_id[]"]').val();
+            expense_tax_array = JSON.parse(expense_tax_array);
 
             if($("#tax_type").val() == 0)
             {
@@ -949,21 +913,29 @@ var counts = 0;
                 $("#total_amount").val(Number(total_amount.toFixed(2)));
             }
         });
-
+       
         body.on('click', '.delepart', function(){ 
-        $(this).parents('tr').remove();
+        var deleteIndex =  $('#partstable tr').index(this);
+        // $(this).parents('tr').remove();
+        
+      
 
+        console.log(deleteIndex);
         var calculated_total_sum = 0;
             var calculated_total_gst_amount = 0;
             expense_amount_array = [];
             expense_tax_array = [];
+            expense_tax_id_array = [];
 
             $('[name="expense_amount[]"]').each(function() {
                 expense_amount_array.push(Number(this.value));
             })
             $('[name="expense_tax[]"]').each(function() {
-                expense_tax_array.push(Number(this.value));
+                expense_tax_id_array.push(Number(this.value));
             })
+
+            expense_tax_array = $('[name="expense_tax_id[]"]').val();
+            expense_tax_array = JSON.parse(expense_tax_array);
 
             if($("#tax_type").val() == 0)
             {
@@ -999,6 +971,51 @@ var counts = 0;
         });
 
     });
+
+    function getTaxRates(ids){
+        var expense_tax_array_id =[];
+        $('[name="expense_tax[]"]').each(function() {
+            expense_tax_array_id.push(Number(this.value));
+        })
+        // alert(expense_tax_array_id);
+        var post_data = {
+            tax_ids : expense_tax_array_id
+        }
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        });
+        $.ajax({
+        method: "POST",
+        url: "/expense-tax-rates",
+        data: post_data,
+        success:function(response){
+            try{
+                response = JSON.parse(response);
+                
+                if(response && response.status == "success"){
+                    var expense_tax_ids = [];
+                    // $("#client_details").show();
+                    // $('#expense_tax_id').val([]);
+                    $.each(response.data,function(key,value){
+                        expense_tax_ids.push(value['tax_rates']);
+                    });
+                    
+                    $('#expense_tax_id').val(JSON.stringify(expense_tax_ids));
+                    console.log($('#expense_tax_id').val());
+                    // updateTaxRates(expense_tax_ids)
+                    // return response.data;
+                }else if(response.status == "error"){
+                    alert(esponse.err);
+                }
+            }catch(error){
+                // alertBottom(null,'Something went wrong, try again later');
+            }
+        },
+            error:function(error){ 
+                // alertBottom(null,"Something went wrong, please try again later");
+            }
+        });
+    }
 
         // $("input[name='item_quantity[]']").change(function() {
         //     var arrayOfVar = []

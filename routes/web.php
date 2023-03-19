@@ -42,6 +42,8 @@ Route::middleware('sumbauth')->group(function() {
         Route::post('/expense-save', [App\Http\Controllers\ExpenseController::class, 'save_expense'])->name('expense-create-save');
         Route::get('/expense-void', [App\Http\Controllers\ExpenseController::class, 'expense_void'])->name('expense-void');
         Route::get('/expense-status-change/', [App\Http\Controllers\ExpenseController::class, 'status_change'])->name('expense-status-change');
+        Route::post('/expense-tax-rates', [App\Http\Controllers\ExpenseController::class, 'ExpenseTaxRates'])->name('expense-tax-rates');
+
 
         Route::get('/invoice-create', [App\Http\Controllers\InvoiceController::class, 'create_invoice'])->name('invoice-create');
         Route::get('/expenses-create', [App\Http\Controllers\InvoiceController::class, 'create_expenses'])->name('expenses-create');

@@ -20,6 +20,8 @@ use App\Models\SumbExpenseParticulars;
 use App\Models\SumbExpenseSettings;
 use App\Models\SumbChartAccounts;
 use App\Models\SumbInvoiceTaxRates;
+use App\Models\Transactions;
+use App\Models\TransactionCollections;
 
 class ExpenseController extends Controller {
 
@@ -374,48 +376,8 @@ class ExpenseController extends Controller {
         );
 
         $pagedata['expense_details'] = $expense_details;
-        // if ($validator->fails()) {
-        //     // return response()->json([
-        //     //     'status' => false,
-        //     //     'message' => 'validation error',
-        //     //     'errors' => $validator->errors()
-        //     // ], 401);
-        //     // echo "sds";
-        //     // die();
-        //    // return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
-        //    //return Redirect::back()->withErrors($validator);
-        //    return view('invoice.expensescreate')->withErrors($validator)->with($pagedata);
-        // }
 
-        //echo "<pre>"; var_dump( $expense_details); echo "</pre>";
-       // die();
-      
-        // echo "<pre>";
-        // print_r($request->all());
-        
-        //check form data
-        // if (empty($request->invoice_date) || empty($request->client_name) || empty($request->amount)) {
-        //     $oriform['err'] = 1;
-        //     return redirect()->route('expenses-create', $oriform); die();
-        // }
-        
-        // $oriform = ['err'=>0, 'invoice_date'=>$request->invoice_date, 'client_name'=>$request->client_name, 'invoice_details'=>$request->invoice_details, 'amount'=>$request->amount];
-        
-        // if (!empty($request->savethisrep)) {
-        //     $oriform['savethisrep'] = $request->savethisrep;
-        // } else {
-        //     $oriform['savethisrep'] = 0;
-        // }
-        
-        // //print_r(is_numeric($request->amount));
-        // if (!is_numeric($request->amount)) {
-        //     $oriform['err'] = 2;
-        //     return redirect()->route('expenses-create', $oriform); die();
-        // }
-        
-
-        
-        
+        DB::beginTransaction();
         //if save reciepient is on
         if (!empty($request->savethisrep)) {
             $getexp_clients = SumbExpensesClients::where(DB::raw('UPPER(client_name)'), strtoupper($request->client_name))
@@ -434,31 +396,71 @@ class ExpenseController extends Controller {
         }
         
         //saving data
-        $transaction_id = SumbExpenseDetails::insertGetId($expense_details);
+        $expense_transaction_collection = TransactionCollections::create(
+            [
+                'user_id' => trim($userinfo[0]), 
+                'client_name' => trim($request->client_name),
+                'client_email' => trim('Test@gmail.com'),
+                // 'client_phone' => trim($request->client_phone),
+                'issue_date' => trim($carbon_expense_date),
+                'due_date' => trim($carbon_expense_due_date),
+                'transaction_number' => trim($get_exp_settings['expenses_count']),
+                'default_tax' => trim($request->tax_type) == "0" ? 'tax_inclusive' : 'tax_exclusive',
+                'sub_total' => trim($request->expense_total_amount),
+                'total_gst' => trim($request->total_gst),
+                'total_amount' => trim($request->total_amount),
+                'transaction_type' => 'expense',
+            ]
+        );
+
+        // $transaction_id = SumbExpenseDetails::insertGetId($expense_transaction_collection);
         
-        for ($i = 0; $i < count($request->item_quantity); $i++) {
+       
+            for ($i = 0; $i < count($request->item_quantity); $i++) {
+               
+                Transactions::create(
+                [
+                    'user_id' => trim($userinfo[0]), 
+                    'transaction_collection_id' => $expense_transaction_collection->id,
+                    'parts_quantity' => trim($request->item_quantity[$i]),
+                    'parts_description' => trim($request->expense_description[$i]),
+                    'parts_unit_price' => trim($request->item_unit_price[$i]),
+                    'parts_amount' => trim($request->expense_amount[$i]),
+                    // 'parts_code' => (!empty($value['parts_code']) ? $value['parts_code'] : $value['parts_name']),
+                    // 'parts_name' => trim($value['parts_name']),
+                    // 'parts_tax_rate' => trim($value['invoice_parts_tax_rate']),
+                    'parts_chart_accounts_id' => trim($request->item_account[$i]),
+                    'parts_tax_rate_id' => trim($request->expense_tax[$i]),
+                    'parts_gst_amount' => 1,
+                ]);
+            }
 
-            $request->item_account[$i];
-            $account_code_name = explode('-', $request->item_account[$i]);
+            $updatethis = SumbExpenseSettings::where('user_id', $userinfo[0])->first();
+            $updatethis->increment('expenses_count');
 
-            $expense_details = array(
-                "user_id" => $userinfo[0],
-                "expense_description" => $request->expense_description[$i],
-                "item_quantity" => $request->item_quantity[$i],
-                "item_unit_price" => $request->item_unit_price[$i],
-                "expense_tax" => $request->expense_tax[$i],
-                "expense_amount" => $request->expense_amount[$i],
-                "expense_id" => $transaction_id,
-                "expense_number" => $get_exp_settings['expenses_count'],
-                'expense_account_code' => $account_code_name[0],
-                'expense_account_name' => $account_code_name[1],
-                'created_at'            => $dtnow,
-                'updated_at'            => $dtnow
-            );
-            SumbExpenseParticulars::insert($expense_details);
-        };
-        $updatethis = SumbExpenseSettings::where('user_id', $userinfo[0])->first();
-        $updatethis->increment('expenses_count');
+            DB::commit();
+            
+            // $request->item_account[$i];
+
+            // $account_code_name = explode('-', $request->item_account[$i]);
+
+            // $expense_details = array(
+            //     "user_id" => $userinfo[0],
+            //     "expense_description" => $request->expense_description[$i],
+            //     "item_quantity" => $request->item_quantity[$i],
+            //     "item_unit_price" => $request->item_unit_price[$i],
+            //     "expense_tax" => $request->expense_tax[$i],
+            //     "expense_amount" => $request->expense_amount[$i],
+            //     "expense_id" => $transaction_id,
+            //     "expense_number" => $get_exp_settings['expenses_count'],
+            //     'expense_account_code' => $account_code_name[0],
+            //     'expense_account_name' => $account_code_name[1],
+            //     'created_at'            => $dtnow,
+            //     'updated_at'            => $dtnow
+            // );
+            // SumbExpenseParticulars::insert($expense_details);
+        //};
+       
         
         return redirect()->route('expense', ['err'=>1]); die();
     }
@@ -478,12 +480,47 @@ class ExpenseController extends Controller {
         );
         $expense_particulars = [];
        
-        $pagedata['expense_details'] = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','unpaid')->where('inactive_status',0)->first();
-        $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
+
+        $pagedata['expense_details'] = TransactionCollections::with(['particulars', 'particulars.chartAccountsParticulars'])
+                                ->whereHas('particulars', function($query) use($userinfo) {
+                                    $query->where('user_id', $userinfo[0]);
+                                })
+                                ->where('id', $id)
+                                ->where('status','Unpaid')->where('is_active', 1)
+                                ->where('user_id', $userinfo[0])->first()->toArray();
+            if (!empty($pagedata['expense_details'])) {
+                $pagedata['expense_particulars'] = $pagedata['expense_details']['particulars'];
+                // echo "<pre>"; var_dump($pagedata['expense_details']); echo "</pre>";die();
+                // $invoice_details['invoice_part_total_count'] = "[]";
+                // unset($invoice_details['particulars']);
+                // $pagedata['invoice_details'] = $invoice_details;                
+            }
+
+
+        // $pagedata['expense_details'] = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','unpaid')->where('inactive_status',0)->first();
+        // $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
+        
         $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
        
-        if(!empty($expense_particulars)){
-            $pagedata['expense_particulars'] = $expense_particulars->toArray();
+        // if(!empty($expense_particulars)){
+        //     $pagedata['expense_particulars'] = $expense_particulars->toArray();
+        // }
+
+        $chart_account = SumbChartAccounts::with(['chartAccountsParticulars', 'chartAccountsTypes'])
+                ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
+                    $query->where('user_id', $userinfo[0]);
+                })
+                ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
+                    // $query->where('user_id', $userinfo[0]);
+                })
+            ->get();
+        if (!empty($chart_account)) {
+        $pagedata['chart_account'] = $chart_account->toArray();
+        }
+
+        $tax_rates = SumbInvoiceTaxRates::get();
+        if (!empty($tax_rates)) {
+        $pagedata['tax_rates'] = $tax_rates->toArray();
         }
 
         $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
@@ -643,7 +680,7 @@ class ExpenseController extends Controller {
             $url = Storage::url($path);
         }
 
-
+        DB::beginTransaction();
         $expense_details = array(
             "user_id" => $userinfo[0],
             "expense_number" => $request->expense_number,
@@ -669,108 +706,64 @@ class ExpenseController extends Controller {
         //     // die();
         //    // return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
         // }
+        // var_dump($request->expense_number);die();
+        $ids = [];
+        $updateExpenseDetails = TransactionCollections::where('user_id', trim($userinfo[0]))
+            ->where('id', $id)->where('is_active', 1)
+            ->update(
+                [
+                    'user_id' => trim($userinfo[0]), 
+                    'client_name' => trim($request->client_name),
+                    'client_email' => trim('test@gmail.com'),
+                    // 'client_phone' => trim($request->client_phone),
+                    'issue_date' => trim($carbon_expense_date),
+                    'due_date' => trim($carbon_expense_due_date),
+                    'transaction_number' => trim($request->expense_number),
+                    'default_tax' => trim($request->tax_type) == "0" ? 'tax_inclusive' : 'tax_exclusive',
+                    'sub_total' => trim($request->expense_total_amount),
+                    'total_gst' => trim($request->total_gst),
+                    'total_amount' => trim($request->total_amount),
+                    'transaction_type' => 'expense',
+                ]
+            );
+        // $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','unpaid')->where('inactive_status',0)->first();;
+        // $updateExpenseDetails->update($expense_details);
 
-        $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','unpaid')->where('inactive_status',0)->first();;
-        $updateExpenseDetails->update($expense_details);
-
-        $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
-        if(!empty($expense_particulars)){
-            $updateExpenseParticulars = $expense_particulars->toArray();
-        }
+        // $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
+        // if(!empty($expense_particulars)){
+        //     $updateExpenseParticulars = $expense_particulars->toArray();
+        // }
         //echo count($request->item_quantity);
         //echo count($updateExpenseParticulars);
-
-        if(count($request->item_quantity) == count($updateExpenseParticulars)){
+        if($updateExpenseDetails){
             for ($i = 0; $i < count($request->item_quantity); $i++) {
-            
-                $account_code_name = explode('-', $request->item_account[$i]);
-
-                $expense_particular_item = array(
-                    "user_id" => $userinfo[0],
-                    "expense_description" => $request->expense_description[$i],
-                    "item_quantity" => $request->item_quantity[$i],
-                    "item_unit_price" => $request->item_unit_price[$i],
-                    "expense_tax" => $request->expense_tax[$i],
-                    "expense_amount" => $request->expense_amount[$i],
-                    "expense_account_code" => $account_code_name[0],
-                    "expense_account_name" => $account_code_name[1],
-                    "updated_at" => $dtnow,
-                );
-                $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
-                $expense_item->update($expense_particular_item);
+                $newParticulars = Transactions::create(
+                    [
+                        'user_id' => trim($userinfo[0]), 
+                        'transaction_collection_id' => $id,
+                        'parts_quantity' => trim($request->item_quantity[$i]),
+                        'parts_description' => trim($request->expense_description[$i]),
+                        'parts_unit_price' => trim($request->item_unit_price[$i]),
+                        'parts_amount' => trim($request->expense_amount[$i]),
+                        // 'parts_code' => (!empty($value['parts_code']) ? $value['parts_code'] : $value['parts_name']),
+                        // 'parts_name' => trim($value['parts_name']),
+                        'parts_tax_rate_id' => trim($request->expense_tax[$i]),
+                        'parts_chart_accounts_id' => trim($request->item_account[$i]),
+                        // 'parts_tax_rate_id' => trim($value['parts_tax_rate_id']),
+                        'parts_gst_amount' => 1,
+                    ]);
+                array_push($ids,  $newParticulars->id);
+                // $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
+                // $expense_item->update($expense_particular_item);
             };
-        }else if(count($request->item_quantity) < count($updateExpenseParticulars)){
-            for ($i = 0; $i < count($updateExpenseParticulars); $i++) {
-                if($i < count($request->item_quantity)){
-
-                    $account_code_name = explode('-', $request->item_account[$i]);
-
-                    $expense_particular_item = array(
-                        "user_id" => $userinfo[0],
-                        "expense_description" => $request->expense_description[$i],
-                        "item_quantity" => $request->item_quantity[$i],
-                        "item_unit_price" => $request->item_unit_price[$i],
-                        "expense_tax" => $request->expense_tax[$i],
-                        "expense_amount" => $request->expense_amount[$i],
-                        "expense_account_code" => $account_code_name[0],
-                        "expense_account_name" => $account_code_name[1],
-                        "updated_at" => $dtnow,
-                    );
-                    $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
-                   $expense_item->update($expense_particular_item);
-                //     echo "update";
-                //   echo "<pre>"; var_dump($expense_particular_item); echo "</pre>";
-                }else{
-                    $expense_del_old_extra_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
-                   $expense_del_old_extra_item->delete();
-                //   echo "delete";
-                //   echo "<pre>"; var_dump($expense_del_old_extra_item); echo "</pre>";
-                }
-                
-            };
-        }else{
-            for ($i = 0; $i < count($request->item_quantity); $i++) {
-                if($i < count($updateExpenseParticulars)){
-
-                    $account_code_name = explode('-', $request->item_account[$i]);
-                    $expense_particular_item = array(
-                        "user_id" => $userinfo[0],
-                        "expense_description" => $request->expense_description[$i],
-                        "item_quantity" => $request->item_quantity[$i],
-                        "item_unit_price" => $request->item_unit_price[$i],
-                        "expense_tax" => $request->expense_tax[$i],
-                        "expense_amount" => $request->expense_amount[$i],
-                        "expense_account_code" => $account_code_name[0],
-                        "expense_account_name" => $account_code_name[1],
-                        "updated_at" => $dtnow,
-                    );
-                    $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
-                    $expense_item->update($expense_particular_item);
-                //     echo "update";
-                //   echo "<pre>"; var_dump($expense_particular_item); echo "</pre>";
-                }else{
-                    $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->first();
-                    
-                    $account_code_name = explode('-', $request->item_account[$i]);
-                    $expense_particular_new_item = array(
-                        "user_id" => $userinfo[0],
-                        "expense_description" => $request->expense_description[$i],
-                        "item_quantity" => $request->item_quantity[$i],
-                        "item_unit_price" => $request->item_unit_price[$i],
-                        "expense_tax" => $request->expense_tax[$i],
-                        "expense_amount" => $request->expense_amount[$i],
-                        "expense_id" => $id,
-                        "expense_number" => $expense_item['expense_number'],
-                        "expense_account_code" => $account_code_name[0],
-                        "expense_account_name" => $account_code_name[1],
-                        'created_at'            => $dtnow,
-                        'updated_at'            => $dtnow,
-                    );
-                    SumbExpenseParticulars::insert($expense_particular_new_item);
-                //    echo "insert";
-                //    echo "<pre>"; var_dump($expense_particular_new_item); echo "</pre>";
-                }
-            };
+           
+            if(!empty($ids)){
+                Transactions::whereNotIn('id', $ids)
+                                ->where('transaction_collection_id', $id)
+                                ->where('user_id', trim($userinfo[0]))
+                                ->delete();
+            }
+            DB::commit();
         }
         return redirect()->route('expense', ['err'=>6]); die();
 
@@ -839,6 +832,44 @@ class ExpenseController extends Controller {
         }else{
             return redirect()->route('expense', ['err'=>5]); die();
         }
-        
+    }
+
+    public function ExpenseTaxRates(Request $request)
+    {
+        if ($request->ajax())
+        {
+            $userinfo = $request->get('userinfo');
+            $tax_rates = SumbInvoiceTaxRates::select('tax_rates')->whereIn('id', $request->tax_ids)
+                ->orderBy('id')
+                ->get();
+
+            if($tax_rates)
+            {
+                $response = [
+                    'status' => 'success',
+                    'err' => '',
+                    'data' => $tax_rates
+                ];
+                echo json_encode($response);
+            }
+            else
+            {
+                $response = [
+                    'status' => 'error',
+                    'err' => 'No items found',
+                    'data' => ''
+                ];
+                echo json_encode($response);
+            }
+        }
+        else
+        {
+            $response = [
+                'status' => 'error',
+                'err' => 'Something went wrong',
+                'data' => ''
+            ];
+            echo json_encode($response);
+        }
     }
 }
