@@ -6,8 +6,23 @@ body, html {
 }
 
 a {
-    color: #175bfd;
     outline: none !important;
+}
+
+.sumb--dashboardAnn ul li a,
+.sumb--dashboardRequest ul li a,
+.sumb--recentlogdements table tbody td a {
+    color: #28282a;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.sumb--dashboardAnn ul li a:hover,
+.sumb--dashboardRequest ul li a:hover,
+.sumb--recentlogdements table tbody td a:hover {
+    text-decoration: underline;
+    transition: all 0.3s ease;
 }
 
 .btn,
@@ -671,14 +686,6 @@ ul.social-button li a.google {
     text-transform: uppercase;
 }
 
-.sumb--recentlogdements table tbody td a {
-    color: #175bfd;
-}
-
-.sumb--recentlogdements table tbody td a:hover {
-    color: #012f9d;
-}
-
 .sumb--recentlogdements__actions {
     text-align: center;
 }
@@ -698,21 +705,25 @@ ul.social-button li a.google {
 
 /** Void Transactions **/
 
-td.sumb--recentlogdements__actions .sumb--fileSharebtn.Voided a {
+td.sumb--recentlogdements__actions .sumb--fileSharebtn.Voided a,
+td.sumb--recentlogdements__actions .sumb--fileSharebtn.expenses--void a.fileSharebtn {
     display: none !important;
 }
 
-td.sumb--recentlogdements__actions .sumb--fileSharebtn.Voided::after {
+
+td.sumb--recentlogdements__actions .sumb--fileSharebtn.Voided::after,
+td.sumb--recentlogdements__actions .sumb--fileSharebtn.expenses--void::after {
     font-family: "FontAwesome";
     font-size: 14px;
     content: "\f05e";
     font-weight: 500;
     background: #d5d5d5;
     border-radius: 5px;
-    padding: 6px 15px;
+    padding: 7px 15px 8px;
     margin: 0px 2px;
     color: #838383;
 }
+
 
 /** Void Transactions End **/
 
@@ -805,8 +816,6 @@ tr.sumb--recentlogdements__pagination .dropdown-menu,
 .sumb--dashboardDropdown .dropdown-menu.show a.dropdown-item {
     font-size: 13px;
 }
-
-
 
 .sumb--dashboardAnn ul,
 .sumb--dashboardRequest ul {
@@ -1804,7 +1813,7 @@ input[class="no--btn"] + span::before,
     cursor: pointer;
     display: inline-block;
     background: #fdb917;
-    padding: 5px 15px;
+    padding: 6px 15px;
     border-radius: 5px;
     transition: all 0.3s ease;
     font-weight: 500;
@@ -1940,7 +1949,7 @@ select[class="form-input--dropdown"] {
 }
 
 .form-control:disabled,
-.form-control[readonly]
+.form-control[readonly],
 .form--inputbox.readOnly input {
     background: #f2f2f2;
     cursor: default;
@@ -2328,9 +2337,10 @@ select[class="form-input--dropdown"] {
 
 /** Invoice Table Skin **/
 
-a.transaction--Addbtn {
+a.transaction--Addbtn,
+a.transaction--Addbtn_expenses {
     background: #fdb917;
-    padding: 6.5px 14px;
+    padding: 6px 15px;
     border: 5px;
     color: #28282a;
     border-radius: 5px;
@@ -2340,18 +2350,20 @@ a.transaction--Addbtn {
     transition: all 0.3s ease;
 }
 
-a.transaction--Addbtn i {
+a.transaction--Addbtn i,
+a.transaction--Addbtn_expenses i {
     margin-right: 5px;
 }
 
-a.transaction--Addbtn:hover {
+a.transaction--Addbtn:hover,
+a.transaction--Addbtn_expenses:hover{
     background: #666;
     color: #fff;
     transition: all 0.3s ease;
 }
 
-
-.invoice--status-icon {
+.invoice--status-icon,
+.expense--status-icon {
     position: relative;
     display: inline-block;
     font-size: 13px;
@@ -2363,12 +2375,14 @@ a.transaction--Addbtn:hover {
     border-radius: 4px;
 }
 
-.invoice--status-icon.Paid {
+.invoice--status-icon.Paid,
+.expense--status-icon.paid {
     background: #b1dd65;
     border: 1px solid #8fc72c;
 }
 
-.invoice--status-icon.Voided {
+.invoice--status-icon.Voided,
+.expense--status-icon.void {
     background: #f1aab1;
     border: 1px solid #e87883; 
 }
@@ -2515,25 +2529,36 @@ a.transaction--Addbtn:hover {
     border: 0px;
 }
 
-#partstable tbody tr.invoice-total--subamount td:first-child {
+#partstable tbody tr.invoice-total--subamount td:first-child,
+#partstable tbody tr.expenses-tax--option td:first-child {
     background: #fafafa;
     border: 0px;
 }
 
 #partstable tbody tr.invoice-total--subamount td,
-#partstable tbody tr.invoice-total--gst td {    
+#partstable tbody tr.invoice-total--gst td,
+#partstable tbody tr.expenses-tax--option td:nth-child(2) {    
     font-size: 13px;
     padding: 7px 10px;
     text-align: right;
     vertical-align: middle;
 }
 
-#partstable tbody tr.invoice-total--amountdue td {
+#partstable tbody tr.expenses-tax--option td:nth-child(3) {
+    padding: 10px 0px !important;
+    vertical-align: middle;
+}
+#partstable tbody tr.expenses-tax--option td:nth-child(3) .form-input--wrap {
+    margin-bottom: 0px !important;
+}
+
+#partstable tbody tr.invoice-total--amountdue td{
     font-size: 15px;
     padding: 7px 10px;
     text-align: right;
     vertical-align: middle;
 }
+
 
 #partstable tbody tr.invoice-total--amountdue td input.grandtotal {
     font-size: 18px;
@@ -2648,8 +2673,8 @@ ul.invoice-expenses--dropdown li.accounts-group--label {
 }
 
 .preview--btn:hover {
-    background: #bac5c8;
-    border: 1px solid #bac5c8;
+    background: #dbdbdb;
+    border: 1px solid #dbdbdb;
     color: #28282a;
 }
 
@@ -2761,6 +2786,12 @@ a.ui-datepicker-next:hover::after {
     margin-right: 8px;
 }
 
+.modal-reskin .deleteicon--header::before {
+    font-family: "FontAwesome";
+    content: "\f2ed";
+    margin-right: 8px;
+}
+
 .modal-reskin .sending--header::before,
 .modal-reskin .btn.send--btn::before {
     font-family: "FontAwesome";
@@ -2809,6 +2840,12 @@ a.ui-datepicker-next:hover::after {
 .modal-reskin .btn.close--btn::before {
     font-family: "FontAwesome";
     content: "\f00d";
+    margin-right: 5px;
+}
+
+.modal-reskin .btn.delete--btn::before {
+    font-family: "FontAwesome";
+    content: "\f2ed";
     margin-right: 5px;
 }
 
@@ -2901,7 +2938,8 @@ a.ui-datepicker-next:hover::after {
 }
 
 .alert-danger,
-.alert-success {
+.alert-success,
+.alert-primary {
     position: relative;
     overflow: hidden;
 }
@@ -2916,12 +2954,14 @@ a.ui-datepicker-next:hover::after {
     opacity: 0.09;
 }
 
-.alert-success {
+.alert-success,
+.alert-primary {
     font-size: 14px;
     font-weight: 500;
 }
 
-.alert-success::after {
+.alert-success::after,
+.alert-primary::after {
     position: absolute;
     font-family: "FontAwesome";
     content: "\f164";
@@ -2929,6 +2969,82 @@ a.ui-datepicker-next:hover::after {
     bottom: -45px;
     right: 0px;
     opacity: 0.09;
+}
+
+/* File Upload Div in Expense Form */
+
+.expsenses--table {
+    padding-top: 20px;
+}
+
+.sumb-expense-upload-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background-image: url('../img/random-grey-variations@30.png');
+    background-position: center center;
+    border-radius: 5px;
+    border: 1px solid #666;
+    color: #28282a;
+    transition: all 0.3s ease;
+}
+
+.sumb-expense-upload-container:hover {
+    transition: all 0.3s ease;
+    background: #fffaed url('../img/random-grey-variations@30.png') center center;
+}
+
+.sumb-expense-dropzone {
+    position: relative;
+    text-align: center;
+    margin: 100px 20px;
+    z-index: 1;
+}
+
+.sumb-expense-dropzone i {
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+
+.sumb-expense-dropzone p {
+    margin: 5px 0px 0px;
+    font-weight: 600;
+}
+
+.sumb-expense-dropzone .muted {
+    font-size: 12px;
+    margin: 0px;
+    font-weight: 400;
+    color: #666;
+}
+
+input[type="file" i].sumb-expense-dropzone-input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.sumb-expense-receipt-actions {
+    position: absolute;
+    bottom: 25px;
+    left: 12px;
+    z-index: 4;
+}
+
+iframe#pdf-preview {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    border: 0px;
 }
 
 
@@ -2956,8 +3072,26 @@ a.ui-datepicker-next:hover::after {
         margin-top: 20px;
     }
 
+    .invoice-list--btns_expenses,
+    a.transaction--Addbtn_expenses {
+        margin-top: 0px;
+    }
+
     .transaction--filter {
         margin-top: 5px;
+    }
+
+    .expsenses--table table {
+        margin-top: 25px;
+    }
+
+    #sumb-receipt-container {
+        min-height: 500px;
+    }
+
+    .sumb-expense-upload-container {
+        position: relative;
+        margin: 15px 0px;
     }
 
 }
@@ -3128,20 +3262,31 @@ a.ui-datepicker-next:hover::after {
         margin: 0px;
     }
 
-
-    .invoice-list--btns {
+    .invoice-list--btns,
+    .invoice-list--btns_expenses {
         display: inline-block;
         text-align: left !important;
     }
 
-    .invoice-list--btns button {
+    .invoice-list--btns button,
+    .invoice-list--btns_expenses button {
         width: 49.5%;
+        padding: 10px 10px;
     }
 
-    a.transaction--Addbtn {
+    a.transaction--Addbtn,
+    a.transaction--Addbtn_expenses {
         display: block;
         text-align: center;
         padding: 10px 10px;
+    }
+
+    .invoice-list--btns_expenses {
+        margin-top: 5px;
+    }
+
+    a.transaction--Addbtn_expenses {
+        margin-top: 20px;
     }
 
 
@@ -3204,146 +3349,4 @@ a.ui-datepicker-next:hover::after {
 
 }
 
-/* File Upload Div in Expense Form */
-.sumb-expense-upload-container {
-    height: 100%;
-    width: 100%;
-}
-.sumb-expense-upload-container {
-    background-image: url(../images/organic-tiles.webp);
-}
-.sumb-expense-dropzone {
-    height: 100%;
-}
-.sumb-flex-justify-center {
-    justify-content: center;
-}
-.sumb-flex-column {
-    flex-direction: column;
-}
-.sumb-flex-align-center {
-    align-items: center;
-}
-.sumb-flex {
-    display: flex;
-}
-.sumb-padding-small {
-    padding: 12px;
-}
-.sumb-text-align-center {
-    text-align: center;
-}
-.sumb-padding-vertical {
-    padding-top: 16px;
-    padding-bottom: 16px;
-}
-.sumb-heading-medium {
-    font-weight: 700;
-    font-size: 15px;
-    line-height: 24px;
-}
-.sumb-textcolor-muted {
-    color: rgba(0,10,30,.75);
-}
-input[type="file" i] {
-    appearance: none;
-    background-color: initial;
-    cursor: default;
-    align-items: baseline;
-    color: inherit;
-    text-overflow: ellipsis;
-    white-space: pre;
-    text-align: start !important;
-    padding: initial;
-    border: initial;
-    overflow: hidden !important;
-}
-input {
-    writing-mode: horizontal-tb !important;
-    text-rendering: auto;
-    letter-spacing: normal;
-    word-spacing: normal;
-    line-height: normal;
-    text-transform: none;
-    text-indent: 0px;
-    text-shadow: none;
-   -webkit-rtl-ordering: logical;
-    margin: 0em;
-}
-.sumb-receipt-container {
-    margin-bottom: 50px;
-    height: 100%;
-    width: 100%;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* background-image: url(../images/organic-tiles.webp); */
-    border: 1px solid #ccced2;
-    border-top: none;
-    overflow: hidden;
-}
-.sumb-expense-receipt-actions {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    box-shadow: 0 0 0 1px rgb(0 10 30 / 20%), 0 3px 6px 0 rgb(0 10 30 / 20%);
-}
-.sumb-button-group-corners {
-    border-radius: 3px;
-}
-.sumb-margin {
-    margin: 16px;
-}
-.sumb-button:not(.sumb-button-icon) {
-    min-width: 40px;
-}
-.sumb-button-small {
-    font-size: 13px;
-    line-height: 20px;
-    min-height: 32px;
-    padding: 5px 12px;
-}
-.sumb-button-standard {
-    background-color: #fff;
-    border: 1px solid #a6a9b0;
-    border-radius: 3px;
-    color: #0078c8;
-    font-weight: 700;
-    position: relative;
-    text-align: center;
-    text-decoration: none;
-    transition-duration: .1s;
-    transition-property: color,background,box-shadow;
-    transition-timing-function: ease;
-}
-.sumb-button {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background: 0 0;
-    border: 0;
-    color: inherit;
-    cursor: pointer;
-    display: inline-block;
-    font-family: inherit;
-    font-size: inherit;
-    margin: 0;
-    outline: 0;
-    padding: 0;
-    text-decoration: none;
-    text-align: center;
-}
 
-.expense_list a {
-    color: #000000 !important;
-}
-
-/* iframe {
-    overflow-clip-margin: content-box !important;
-    border-width: 2px;
-    border-style: inset;
-    border-color: initial;
-    border-image: initial;
-    overflow: clip !important;
-} */
