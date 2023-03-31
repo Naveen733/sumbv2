@@ -15,7 +15,7 @@
                 <h3 class="sumb--title">New Expense</h3>
                 @elseif($type == 'edit')
 
-                <h3 class="sumb--title">Edit Expense ({{ 'EXP-00000'. $expense_details['transaction_number' }})</h3>
+                <h3 class="sumb--title">Edit Expense ({{ 'EXP-00000'. $expense_details['transaction_number'] }})</h3>
                 @elseif($type == 'view')
                 <h3 class="sumb--title">
                     Expense ({{ 'EXP-00000'. $expense_details['transaction_number'] }})
@@ -209,7 +209,7 @@
                                                 @if (empty($expense_particulars)) 
                                                 <tr>
                                                     <td>
-                                                        <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required>{{ !empty($prts['parts_description']) ? $prts['parts_description'] : '' }}</textarea>
+                                                        <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required></textarea>
                                                     </td>
                                                     <td>
                                                         <input type="number" id="item_quantity" name="item_quantity[]" step="any"  required>
@@ -265,14 +265,14 @@
                                                 @foreach ($expense_particulars as $prts)
                                                 
                                                 <td>
-                                                    <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required>{{ !empty($prts['expense_description']) ? $prts['expense_description'] : '' }}</textarea>
+                                                    <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required>{{ !empty($prts['parts_description']) ? $prts['parts_description'] : '' }}</textarea>
                                                 </td>
                                                 
                                                 <td>
-                                                    <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['item_quantity']) ? $prts['item_quantity'] : '' }}"  required>
+                                                    <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['parts_quantity']) ? $prts['parts_quantity'] : '' }}"  required>
                                                 </td>
                                                 <td>
-                                                    <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['item_unit_price']) ? $prts['item_unit_price'] : '' }}" step="any"  required>
+                                                    <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['parts_unit_price']) ? $prts['parts_unit_price'] : '' }}" step="any"  required>
                                                 </td>
                                                 <td>
                                                     <div class="form-input--wrap">
@@ -290,6 +290,7 @@
                                                     </div>
                                                 </td>
                                                 <td>
+                                                <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="{{!empty($prts['parts_tax_rate_id']) ? $prts['invoice_tax_rates']['tax_rates'] : ''}}">
                                                     <div class="form-input--wrap">
                                                         <div class="row">
                                                             <div class="col-12 for--tables">
@@ -306,7 +307,7 @@
                                                 </td>
                                                 
                                                 <td>
-                                                    <input class="input--readonly" type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['expense_amount']) ? $prts['expense_amount'] : '' }}"  required>
+                                                    <input class="input--readonly" type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['parts_amount']) ? $prts['parts_amount'] : '' }}"  required>
                                                 </td>
                                                 <td class="tableOptions">
                                                     <button class="btn sumb--btn delepart" type="button"><i class="fas fa-trash-alt"></i></button>
@@ -517,9 +518,6 @@
                     </div>
 
 
-                    
-
-                    
                 </div>
             </div>
 
@@ -711,7 +709,7 @@ var counts = 0;
                 '<select class="form-input--dropdown" data-live-search="true" id=\"item_account_'+counts+'\" name="item_account[]" step="any" required>\n'+
                 '</select>\n'+
             '</div></div></div></td>'+
-            '<td><div class=\"form-input--wrap\"><div class=\"row\"><div class=\"col-12 for--tables\"><select name=\"expense_tax[]\" id=\"expense_tax_'+counts+'\" onchange=getTaxRates(this) class=\"form-input--dropdown\" required></select></div></div></div></td>\n'+
+            '<td><input type=\"hidden\" name=\"expense_tax_id[]\" id=\"expense_tax_id\" value=""><div class=\"form-input--wrap\"><div class=\"row\"><div class=\"col-12 for--tables\"><select name=\"expense_tax[]\" id=\"expense_tax_'+counts+'\" onchange=getTaxRates(this) class=\"form-input--dropdown\" required></select></div></div></div></td>\n'+
             '<td><input class=\"input--readonly\" readonly id=\"expense_amount\" name=\"expense_amount[]\" type=\"number\" step="any" required></td>\n'+
             '<td class=\"tableOptions\">\n'+
                 '<button class=\"btn sumb--btn delepart\" type=\"button\" ><i class=\"fa-solid fa-trash-alt\"></i></button>\n'+
@@ -1002,7 +1000,7 @@ var counts = 0;
     function getTaxRates(obj){
         var cell = $(obj).closest('tr').children('td');
         var tax_rate_id = cell.eq(4).find('[name="expense_tax[]"]').val();
-        console.log(tax_rate_id);
+
         var post_data = {
             tax_ids : tax_rate_id
         }

@@ -1005,7 +1005,7 @@
             $('#invoice_history_toggle_text').text() == "Show" ? $('#invoice_history_toggle_text').text('Hide') : $('#invoice_history_toggle_text').text('Show');
         });
 
-        <?php if(!empty($invoice_details) && (!$invoice_details['invoice_sent'] && $invoice_details['status'] == 'Recalled') ){ ?>
+        <?php if(!empty($invoice_details) && (isset($invoice_details['invoice_sent']) && !$invoice_details['invoice_sent'] && $invoice_details['status'] == 'Recalled') ){ ?>
             $("#invoice_form :input").prop('disabled', true);
 
             var rowIndex = $('#invoice_part_ids').val();

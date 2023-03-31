@@ -458,6 +458,8 @@ class ExpenseController extends Controller {
                 $pagedata['expense_particulars'] = $pagedata['expense_details']->toArray()['transactions'];
             }
         
+            // echo "<pre>"; var_dump($pagedata['expense_particulars']); echo "</pre>";
+            //  die();
         $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
        
         $chart_account = SumbChartAccountsTypeParticulars::where('user_id', $userinfo[0])
