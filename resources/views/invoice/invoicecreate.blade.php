@@ -70,10 +70,8 @@
                         </div>
                         <div class="" role="alert" id="invoice_item_tax_rate_error"></div>
                     </div>
-
                 </div>
                 <div class="row">
-
                     <div class="col-xl-6">
                         <div class="form-input--wrap">
                             <label class="form-input--question" for="">Account Type</label>
@@ -144,7 +142,6 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-
                     <div class="col-xl-6">
                         <div class="form-input--wrap">
                             <label class="form-input--question" for="">Account Type</label>
@@ -329,14 +326,13 @@
 
         <div class="modal-body">
             <div class="container">
-
                 <center>
                     <h2 class="mb-4 mt-2">Invoice Preview</h4>
                 </center>
 
                 <div class="invoicetable--header">
                     <div class="row">
-                        <div class="col-xl-6 col-lg-6">
+                        <div class="col-xl-4 col-lg-4">
                             <ul class="list-unstyled">
                                 <li>To: <span id="invoice_preview_to"></span></li>
                                 <li>Invoice number: <span id="invoice_preview_invoice_number"></span></li>
@@ -344,10 +340,16 @@
                                 <li>Due: <span id="invoice_preview_due_date"></span></li>
                             </ul>
                         </div>
-                        <div class="col-xl-6 col-lg-6 invoicetable--header_from">
+                        <div class="col-xl-4 col-lg-4 invoicetable--header_from">
                             <ul class="list-unstyled">
-                                <li>From: <span id="invoice_preview_from">{{$userinfo['1']}}</span></li>
+                                <li>From: <span id="invoice_preview_from">{{!empty($invoice_settings) ? $invoice_settings['business_name'] : ''}}</span></li>
+                                <li><span id="invoice_preview_from">{{!empty($invoice_settings) ? $invoice_settings['business_email'] : ''}}</span></li>
+                                <li><span id="invoice_preview_from">{{!empty($invoice_settings) ? $invoice_settings['business_phone'] : ''}}</span></li>
+                                <li><span id="invoice_preview_from">{{!empty($invoice_settings) ? $invoice_settings['business_address'] : ''}}</span></li>
                             </ul>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 invoicetable--header_from">
+                            <img style="width:200px" src="{{!empty($invoice_settings) && $invoice_settings['business_logo'] ? env('APP_PUBLIC_DIRECTORY').$userinfo[0].'/'.$invoice_settings['business_logo'] : ''}}">
                         </div>
                     </div>
                 </div>
@@ -360,8 +362,8 @@
                                 <th scope="col" style="width:70px; min-width:70px;">QTY</th>
                                 <th scope="col" style="width:200px; min-width:200px;">Description</th>
                                 <th scope="col" style="width:100px; min-width:100px;">Unit Price</th>
-                                <th scope="col" style="width:170px; min-width:170px;">Account</th>
-                                <th scope="col" style="width:205px; min-width:205px;">Tax Rate</th>
+                                <!-- <th scope="col" style="width:170px; min-width:170px;">Account</th> -->
+                                <th scope="col" style="width:105px; min-width:105px;">Tax Rate</th>
                                 <th scope="col" style="width:70px; min-width:70px;">Amount</th>
                             </tr>
                         </thead>
@@ -427,31 +429,35 @@
         <div class="section__content section__content--p30">
             <div class="container-fluid" id="my-div-to-mask">
                 <section>
-                    @if(!empty($invoice_details && $invoice_details['invoice_status']) && $invoice_details['invoice_status'] == 'Voided' || !empty($invoice_details && $invoice_details['invoice_status']) && $invoice_details['invoice_status'] == 'Paid')
+                    @if(!empty($invoice_details && $invoice_details['status']) && $invoice_details['status'] == 'Voided' || !empty($invoice_details && $invoice_details['status']) && $invoice_details['status'] == 'Paid')
                         <h3 class="sumb--title">
-                            Invoice INV-{{str_pad($invoice_details['invoice_number'], 6, '0', STR_PAD_LEFT)}}
+                            Invoice INV-{{str_pad($invoice_details['transaction_number'], 6, '0', STR_PAD_LEFT)}}
 
-                            <span class="invoice--status-icon {{ $invoice_details['invoice_status']}}">
-                                @if(!empty($invoice_details) && $invoice_details['invoice_status'] == 'Voided')   
-                                    {{$invoice_details['invoice_status']}}
-                                @elseif(!empty($invoice_details) && $invoice_details['invoice_status'] == 'Paid')
-                                    {{ $invoice_details['invoice_status']}}
+                            <span class="invoice--status-icon {{ $invoice_details['status']}}">
+                                @if(!empty($invoice_details) && $invoice_details['status'] == 'Voided')   
+                                    {{$invoice_details['status']}}
+                                @elseif(!empty($invoice_details) && $invoice_details['status'] == 'Paid')
+                                    {{ $invoice_details['status']}}
                                 @endif
                             </span>
 
                         </h3>
-                        <div class="invoice--status-deets">This invoice entry is on Read Only mode. Entries flagged as <u>{{!empty($invoice_details) ? $invoice_details['invoice_status'] : '' }}</u> cannot not be edited.</div>
+                        <div class="invoice--status-deets">This invoice entry is on Read Only mode. Entries flagged as <u>{{!empty($invoice_details) ? $invoice_details['status'] : '' }}</u> cannot not be edited.</div>
                     @elseif(!empty($invoice_details) && $type == 'edit') 
                         <h3 class="sumb--title">Edit Invoice</h3>
+                        @if(!empty($invoice_details) && $invoice_details['invoice_ref_number'])
+                            <div class="invoice--status-deets">This invoice is cloned from invoice  <u>{{!empty($invoice_details) ? 'INV-'.str_pad($invoice_details['invoice_ref_number'], 6, '0', STR_PAD_LEFT) : '' }}</u></div>
+                        @endif
                     @else 
                         <h3 class="sumb--title">Create an Invoice</h3>
+                        @if(!empty($invoice_details) && $invoice_details['invoice_ref_number'])
+                            <div class="invoice--status-deets">This invoice is cloned from invoice  <u>{{!empty($invoice_details) ? 'INV-'.str_pad($invoice_details['invoice_ref_number'], 6, '0', STR_PAD_LEFT) : '' }}</u></div>
+                        @endif
                     @endif
                 </section>
-                <section>
+                <section id="testIngHide">
                     <form action="/invoice-create-save?invoice_id={{$invoice_id}}&type={{$type}}" method="post" enctype="multipart/form-data" class="form-horizontal" id="invoice_form">
-                        
                         @csrf
-                        
                         <hr class="form-cutter">
                         <h4 class="form-header--title">Which client is this Invoice for?</h4>
                         <div class="row">
@@ -548,7 +554,7 @@
                                     <label class="form-input--question" for="invoice_date">Date Issued <span>MM/DD/YYYY</span></label>
                                     <div class="date--picker row">
                                         <div class="col-12">
-                                            <input type="text" id="invoice_issue_date" name="invoice_issue_date" placeholder="date('m/d/Y')"  readonly value="{{!empty($invoice_details) ? date('m/d/Y', strtotime($invoice_details['invoice_issue_date'])) : ''}}">
+                                            <input type="text" id="invoice_issue_date" name="invoice_issue_date" placeholder="date('m/d/Y')"  readonly value="{{!empty($invoice_details) ? date('m/d/Y', strtotime($invoice_details['issue_date'])) : ''}}">
                                         </div>
                                     </div>
                                     @error('invoice_issue_date')
@@ -562,7 +568,7 @@
                                     <label class="form-input--question" for="invoice_date">Due Date <span>Optional</span></label>
                                     <div class="date--picker row">
                                         <div class="col-12">
-                                            <input type="text" id="invoice_duedate" name="invoice_due_date" placeholder="Due Date" readonly value="{{!empty($invoice_details) ?  date('m/d/Y', strtotime($invoice_details['invoice_due_date']))  : ''}}">
+                                            <input type="text" id="invoice_duedate" name="invoice_due_date" placeholder="Due Date" readonly value="{{!empty($invoice_details) ?  date('m/d/Y', strtotime($invoice_details['due_date']))  : ''}}">
                                         </div>
                                     </div>
                                     @error('invoice_due_date')
@@ -576,8 +582,8 @@
                                     <label class="form-input--question">Invoice Number <span>Read-Only</span></label>
                                     <div class="form--inputbox readOnly row">
                                         <div class="col-12">
-                                            <input type="text" readonly="" id="invoice_number" name="" value="{{!empty($invoice_details) ? 'INV-'.str_pad($invoice_details['invoice_number'], 6, '0', STR_PAD_LEFT) : 'INV-'.str_pad($invoice_number, 6, '0', STR_PAD_LEFT) }}">
-                                            <input type="hidden" readonly="" id="invoice_number_hidden" name="invoice_number" value="{{!empty($invoice_details) ? $invoice_details['invoice_number'] : $invoice_number }}">
+                                            <input type="text" readonly="" id="invoice_number" name="" value="{{!empty($invoice_details) ? 'INV-'.str_pad($invoice_details['transaction_number'], 6, '0', STR_PAD_LEFT) : 'INV-'.str_pad($transaction_number, 6, '0', STR_PAD_LEFT) }}">
+                                            <input type="hidden" readonly="" id="invoice_number_hidden" name="invoice_number" value="{{!empty($invoice_details) ? $invoice_details['transaction_number'] : $transaction_number }}">
                                         </div>
                                     </div>
                                 </div>
@@ -586,7 +592,7 @@
                                 
                         <hr class="form-cutter">
 
-
+                        <!-- <?php echo "<pre>"; var_dump($invoice_details); echo "</pre>";?> -->
                         <div class="row">
                             <div class="col-xl-8">
                                 &nbsp;
@@ -601,9 +607,9 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <select class="form-input--dropdown" id="invoice_default_tax" name="invoice_default_tax" value="" onchange="InvoicepartsQuantity('invoice_default_tax')">
-                                                <option value="tax_exclusive" {{!empty(session('form_data')['invoice_details']) && session('form_data')['invoice_details']['invoice_default_tax']=="tax_exclusive" ? "selected" : ''}}>Tax Exclusive</option>
-                                                <option value="tax_inclusive" {{!empty(session('form_data')['invoice_details']) && session('form_data')['invoice_details']['invoice_default_tax']=="tax_inclusive" ? "selected" : ''}}>Tax Inclusive</option>
-                                                <option value="no_tax" {{!empty(session('form_data')['invoice_details']) && session('form_data')['invoice_details']['invoice_default_tax']=="no_tax" ? "selected" : ''}}>No tax</option>
+                                                <option value="tax_exclusive" {{!empty($invoice_details) && $invoice_details['default_tax']=="tax_exclusive" ? "selected" : ''}}>Tax Exclusive</option>
+                                                <option value="tax_inclusive" {{!empty($invoice_details) && $invoice_details['default_tax']=="tax_inclusive" ? "selected" : ''}}>Tax Inclusive</option>
+                                                <option value="no_tax" {{!empty($invoice_details) && $invoice_details['default_tax']=="no_tax" ? "selected" : ''}}>No tax</option>
                                             </select>
                                         </div>
                                     </div>
@@ -641,11 +647,11 @@
                                         @endif
                                         <tr id="{{'invoice_parts_row_id_'.$row_index}}" class="invoice_parts_form_cls">
                                             <td>
-                                                <?php $invoice_part_code_name = !empty($parts['invoice_parts_name'] && $parts['invoice_parts_code'] ) 
-                                                        ? $parts['invoice_parts_code']. " : " .$parts['invoice_parts_name'] : '' ?>
+                                                <?php $invoice_part_code_name = !empty($parts['parts_name'] && $parts['parts_code'] ) 
+                                                        ? $parts['parts_code']. " : " .$parts['parts_name'] : '' ?>
                                                
-                                                <input type="hidden" id="{{'invoice_parts_code_'.$row_index}}" name="{{'invoice_parts_code_'.$row_index}}" value="{{!empty($parts['invoice_parts_code']) ? $parts['invoice_parts_code'] : ''}}">
-                                                <input type="hidden" id="{{'invoice_parts_name_'.$row_index}}" name="{{'invoice_parts_name_'.$row_index}}" value="{{!empty($parts['invoice_parts_name']) ? $parts['invoice_parts_name'] : ''}}">
+                                                <input type="hidden" id="{{'invoice_parts_code_'.$row_index}}" name="{{'invoice_parts_code_'.$row_index}}" value="{{!empty($parts['parts_code']) ? $parts['parts_code'] : ''}}">
+                                                <input type="hidden" id="{{'invoice_parts_name_'.$row_index}}" name="{{'invoice_parts_name_'.$row_index}}" value="{{!empty($parts['parts_name']) ? $parts['parts_name'] : ''}}">
                                                 <input type="hidden" id="{{'invoice_parts_id_'.$row_index}}" name="{{'invoice_parts_id_'.$row_index}}" value="{{!empty($parts['id']) ? $parts['id'] : ''}}">
                                                 <input autocomplete="off" data-toggle="dropdown" id="{{'invoice_parts_name_code_'.$row_index}}" name="{{'invoice_parts_name_code_'.$row_index}}" type="text" onkeyup="searchInvoiceparts(this)" value="{{!empty($invoice_part_code_name) ? $invoice_part_code_name : ''}}" required>
 
@@ -666,35 +672,35 @@
                                                         @endforeach
                                                     @endif
                                                 </ul>
-                                                @error('invoice_parts_quantity_'.$row_index)
+                                                @error('parts_quantity_'.$row_index)
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
                                             </td>
                                             <td>
-                                                <input id="{{'invoice_parts_quantity_'.$row_index}}" name="{{'invoice_parts_quantity_'.$row_index}}" type="number" onchange="InvoicepartsQuantity('{{$row_index}}')" value="{{!empty($parts['invoice_parts_quantity']) ? $parts['invoice_parts_quantity'] : ''}}" required>
-                                                @error('invoice_parts_quantity_'.$row_index)
+                                                <input id="{{'invoice_parts_quantity_'.$row_index}}" name="{{'invoice_parts_quantity_'.$row_index}}" type="number" onchange="InvoicepartsQuantity('{{$row_index}}')" value="{{!empty($parts['parts_quantity']) ? $parts['parts_quantity'] : ''}}" required>
+                                                @error('parts_quantity_'.$row_index)
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
                                             </td>
                                             <td>
-                                                <textarea id="{{'invoice_parts_description_'.$row_index}}" name="{{'invoice_parts_description_'.$row_index}}" class="autoresizing" required>{{!empty($parts['invoice_parts_description']) ? $parts['invoice_parts_description'] : ''}}</textarea>
+                                                <textarea id="{{'invoice_parts_description_'.$row_index}}" name="{{'invoice_parts_description_'.$row_index}}" class="autoresizing" required>{{!empty($parts['parts_description']) ? $parts['parts_description'] : ''}}</textarea>
                                                 @error('invoice_parts_description_'.$row_index)
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
                                             </td>
                                             <td>
-                                                <input id="{{'invoice_parts_unit_price_'.$row_index}}" name="{{'invoice_parts_unit_price_'.$row_index}}" type="float" value="{{!empty($parts['invoice_parts_unit_price']) ? number_format($parts['invoice_parts_unit_price'], 2)  : ''}}" onchange="InvoicepartsQuantity('{{$row_index}}')" step=".01" required>
+                                                <input id="{{'invoice_parts_unit_price_'.$row_index}}" name="{{'invoice_parts_unit_price_'.$row_index}}" type="float" value="{{!empty($parts['parts_unit_price']) ? number_format($parts['parts_unit_price'], 2)  : ''}}" onchange="InvoicepartsQuantity('{{$row_index}}')" step=".01" required>
                                                 @error('invoice_parts_unit_price_'.$row_index)
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
                                                 <input type="hidden" id="{{'invoice_parts_gst_'.$row_index}}" name="{{'invoice_parts_gst_'.$row_index}}" value="">
                                             </td>
                                             <td>
-                                                <input data-toggle="dropdown" type="text" id="{{'invoice_parts_chart_accounts_'.$row_index}}" name="{{'invoice_parts_chart_accounts_'.$row_index}}"  value="{{!empty($parts['invoice_chart_accounts_particulars']) && $parts['invoice_chart_accounts_particulars']['id'] ? $parts['invoice_chart_accounts_particulars']['chart_accounts_particulars_code'] .' - '. $parts['invoice_chart_accounts_particulars']['chart_accounts_particulars_name'] : '' }}" required>
+                                                <input data-toggle="dropdown" type="text" id="{{'invoice_parts_chart_accounts_'.$row_index}}" name="{{'invoice_parts_chart_accounts_'.$row_index}}"  value="{{!empty($parts['chart_accounts_particulars']) && $parts['chart_accounts_particulars']['id'] ? $parts['chart_accounts_particulars']['chart_accounts_particulars_code'] .' - '. $parts['chart_accounts_particulars']['chart_accounts_particulars_name'] : $parts['parts_chart_accounts'] }}" required>
                                                
                                                 <input type="hidden" id="{{'invoice_parts_chart_accounts_code_'.$row_index}}" name="{{'invoice_parts_chart_accounts_code_'.$row_index}}" value="">
                                                 <input type="hidden" id="{{'invoice_parts_chart_accounts_name_'.$row_index}}" name="{{'invoice_parts_chart_accounts_name_'.$row_index}}" value="">
-                                                <input type="hidden" id="{{'invoice_parts_chart_accounts_parts_id_'.$row_index}}" name="{{'invoice_parts_chart_accounts_parts_id_'.$row_index}}" value="{{!empty($parts['invoice_chart_accounts_particulars']) && $parts['invoice_chart_accounts_particulars']['id'] ? $parts['invoice_chart_accounts_particulars']['id'] : $parts['invoice_chart_accounts_parts_id']}}">
+                                                <input type="hidden" id="{{'invoice_parts_chart_accounts_parts_id_'.$row_index}}" name="{{'invoice_parts_chart_accounts_parts_id_'.$row_index}}" value="{{!empty($parts['chart_accounts_particulars']) && $parts['chart_accounts_particulars']['id'] ? $parts['chart_accounts_particulars']['id'] : $parts['parts_chart_accounts_id']}}">
                                                 
                                                 <ul class="dropdown-menu invoice-expenses--dropdown" id="{{'invoice_chart_account_list_'.$row_index}}" >
                                                     <li id="{{'add_new_invoice_chart_account_'.$row_index}}" class="add-new--btn">
@@ -704,7 +710,6 @@
                                                         @php $counter = 0; @endphp
                                                         @foreach ($chart_account as $item)
                                                                 <li class="accounts-group--label">{{$item['chart_accounts_name']}}</li>
-
                                                                 @foreach ($item['chart_accounts_particulars'] as $particulars)
                                                                 <?php $user = array_search($particulars['chart_accounts_type_id'], array_column($item['chart_accounts_types'], 'id')); ?>
                                                                 <li>
@@ -722,16 +727,16 @@
 
                                             <td>
                                                 @if(!empty($tax_rates))
-                                                    <input type="hidden" name="{{'invoice_parts_tax_rate_id_'.$row_index}}" id="{{'invoice_parts_tax_rate_id_'.$row_index}}" value="{{!empty($parts['invoice_parts_tax_rate_id']) ? $parts['invoice_parts_tax_rate_id'] : ''}}">
+                                                    <input type="hidden" name="{{'invoice_parts_tax_rate_id_'.$row_index}}" id="{{'invoice_parts_tax_rate_id_'.$row_index}}" value="{{!empty($parts['parts_tax_rate_id']) ? $parts['parts_tax_rate_id'] : ''}}">
                                                     <input type="hidden" name="{{'invoice_parts_tax_rate_name_'.$row_index}}" id="{{'invoice_parts_tax_rate_name_'.$row_index}}" value="">
                                                     <div class="form-input--wrap">
                                                         <div class="row">
                                                             <div class="col-12 for--tables">
-                                                                <select class="form-input--dropdown" id="{{'invoice_parts_tax_rate_'.$row_index}}" name="{{'invoice_parts_tax_rate_'.$row_index}}" value="" onchange="InvoicepartsQuantity('{{$row_index}}'); getTaxRates('{{$row_index}}');" value="{{$parts['invoice_parts_tax_rate']}}">
+                                                                <select class="form-input--dropdown" id="{{'invoice_parts_tax_rate_'.$row_index}}" name="{{'invoice_parts_tax_rate_'.$row_index}}" value="" onchange="InvoicepartsQuantity('{{$row_index}}'); getTaxRates('{{$row_index}}');" value="{{$parts['parts_tax_rate']}}">
                                                                     <option selected value="">Tax Rate Option</option>    
                                                                     @foreach($tax_rates as $tax_rate)
                                                                         <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_'.$row_index}}" value="{{ !empty($tax_rate['id']) ? $tax_rate['id'] : ''}}" ></option>
-                                                                        <option id="{{$tax_rate['id'].'_'.$row_index}}" value="{{$tax_rate['tax_rates']}}" {{ $parts['invoice_parts_tax_rate_id']==$tax_rate['id'] ? 'selected' : '' }}>{{$tax_rate['tax_rates_name']}}</option>
+                                                                        <option id="{{$tax_rate['id'].'_'.$row_index}}" value="{{$tax_rate['tax_rates']}}" {{ $parts['parts_tax_rate_id']==$tax_rate['id'] ? 'selected' : '' }}>{{$tax_rate['tax_rates_name']}}</option>
                                                                     @endforeach
                                                                 </select>
                                                             </div>
@@ -742,7 +747,7 @@
                                             </td>
 
                                             <td>
-                                                <input class="input--readonly" readonly id="{{'invoice_parts_amount_'.$row_index}}" name="{{'invoice_parts_amount_'.$row_index}}" type="number" value="{{!empty($parts['invoice_parts_amount']) ? number_format($parts['invoice_parts_amount'], 2) : ''}}">
+                                                <input class="input--readonly" readonly id="{{'invoice_parts_amount_'.$row_index}}" name="{{'invoice_parts_amount_'.$row_index}}" type="number" value="{{!empty($parts['parts_amount']) ? number_format($parts['parts_amount'], 2) : ''}}">
                                                 @error('invoice_parts_amount_'.$row_index)
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                 @enderror
@@ -765,7 +770,6 @@
                                                         <li id="add_new_invoice_item_0" class="add-new--btn">
                                                             <a href="#" data-toggle="modal" data-target="#newItemModal" onclick="openPopUpModel(0)"><i class="fa-solid fa-circle-plus"></i>New Item</a>
                                                         </li>
-
                                                         @if (!empty($invoice_items))
                                                             @php $counter = 0; @endphp
                                                             @foreach ($invoice_items as $item)
@@ -778,7 +782,6 @@
                                                                 </li>
                                                             @endforeach
                                                         @endif
-                                                        
                                                     </ul>
                                                 </td>
                                                 
@@ -814,7 +817,7 @@
                                                             ?>
                                                             <li>
                                                                 <button type="button" class="invoice_item" data-myid="{{ $counter }}" onclick="addInvoiceChartAccount('{{ $particulars['id'] }}', 0)">
-                                                                    <span id="data_name_{{ $counter }}">{{ $particulars['chart_accounts_particulars_code'] }} : {{ $particulars['chart_accounts_particulars_name'] }} </span>
+                                                                    <span id="data_name_{{ $counter }}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }} </span>
                                                                     <input type="hidden" id="invoice_parts_chart_accounts_type_id_0" name="invoice_parts_chart_accounts_type_id_0" value="{{$item['chart_accounts_types'][$user]['chart_accounts_type']}}">
                                                                     <input type="hidden" id="invoice_item_id_{{ $counter }}" name="invoice_item_id" value="{{ $particulars['id'] }}">
                                                                 </button>
@@ -860,49 +863,88 @@
                                         </tr>
                                         
                                         <tr class="invoice-separator">
-                                            <td colspan="8">hs</td>
+                                            <td colspan="8">
+                                                hs
+                                            </td>
                                         </tr>
-
+                                        
                                         <tr class="invoice-total--subamount">
                                             <td colspan="4" rowspan="3"></td>
                                             <td colspan="2">Subtotal (excl GST)</td>
                                             <td colspan="2">
-                                                <input type="text" id="invoice_sub_total" name="invoice_sub_total" readonly value="{{!empty($invoice_details) ? number_format($invoice_details['invoice_sub_total'], 2) : 0 }}">
+                                                <input type="text" id="invoice_sub_total" name="invoice_sub_total" readonly value="{{!empty($invoice_details) ? number_format($invoice_details['sub_total'], 2) : 0 }}">
                                             </td>
                                         </tr>
 
                                         <tr class="invoice-total--gst">
-                                            <td colspan="2" id="invoice_total_gst_text" >Total GST {{!empty($invoice_details)}}</td>
+                                            <td colspan="2" id="invoice_total_gst_text" >Total GST {{!empty($invoice_details) && $invoice_details['total_gst'] > 0 ? '10%' : '0%'}}</td>
                                             <td colspan="2">
-                                                <input type="text" id="invoice_total_gst" name="invoice_total_gst" readonly value="{{!empty($invoice_details) ? number_format($invoice_details['invoice_total_gst'], 2) : 0 }}">
+                                                <input type="text" id="invoice_total_gst" name="invoice_total_gst" readonly value="{{!empty($invoice_details) ? number_format($invoice_details['total_gst'], 2) : 0 }}">
                                             </td>
                                         </tr>
 
                                         <tr class="invoice-total--amountdue">
                                             <td colspan="2"><strong>Amount Due</strong></td>
                                             <td colspan="2">
-                                                <input class="grandtotal" type="text" id="invoice_total_amount" name="invoice_total_amount" readonly value="{{!empty($invoice_details) ? number_format($invoice_details['invoice_total_amount'], 2) : 0 }}">
+                                                <input class="grandtotal" type="text" id="invoice_total_amount" name="invoice_total_amount" readonly value="{{!empty($invoice_details) ? number_format($invoice_details['total_amount'], 2) : 0 }}">
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
-                        
+                            <a id="invoice_history_btn" class="btn sumb--btn" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                <span id="invoice_history_toggle_text">Show</span> History ({{!empty($invoice_history) ? count($invoice_history) : 0 }} entries)
+                            </a>
+                        <br>
+                        <div class="col-xl-10 col-lg-10 col-md-10 col-sm-12 col-xs-12 col-12">
+                            <div class="collapse" id="collapseExample">
+                                <div class="card card-body sumb--recentlogdements sumb--putShadowbox">
+                                    <div class="table-responsive">
+                                        <table id="invoice_list">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col" style="width:135px; min-width:135px;">Changes</th>
+                                                    <th scope="col" style="width:200px; min-width:200px;">Date</th>
+                                                    <th scope="col" style="width:135px; min-width:135px;">User</th>
+                                                    <th scope="col" style="width:200px; min-width:250px;">Details</th>
+                                                    <!-- <th></th> -->
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if(!empty($invoice_history))
+                                                    @foreach($invoice_history as $history)
+                                                        <tr>
+                                                            <td>{{!empty($history) ? $history['action']: ''}} </td>
+                                                            <td >{{!empty($history) ? $history['date'].$history['time']: ''}} </td>
+                                                            <td >{{!empty($history) ? $history['user_name'] : ''}}</td>
+                                                            <td >{{!empty($history) ? $history['description'] : ''}}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-navigation">
                             <div class="form-navigation--btns row">
                                 <div class="col-xl-4 col-lg-2 col-md-3 col-sm-12 col-xs-12 col-12">
-                                    <a href="/invoice" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i>Back</a>
-                                </div> 
+                                    <a href="/invoice" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i>Back</a>                                    
+                                </div>
                                 <div class="col-xl-8 col-lg-10 col-md-9 col-sm-12 col-xs-12 col-12">
+                                    <input type="hidden" id="invoice_ref_number" name="invoice_ref_number" value="{{!empty($invoice_details) && $invoice_details['invoice_ref_number']? $invoice_details['invoice_ref_number'] : '' }}" />
                                     <input type="hidden" id="invoice_part_ids" name="invoice_part_total_count" value="{{!empty($invoice_details) ? $invoice_details['invoice_part_total_count'] : '[0]' }}" />
-                                    <input type="hidden" name="invoice_status" value="{{!empty($invoice_details && $invoice_details['invoice_status']) ? $invoice_details['invoice_status'] : ''}}">
+                                    <input type="hidden" name="invoice_status" value="{{!empty($invoice_details && $invoice_details['status']) ? $invoice_details['status'] : ''}}">
                                     <!-- <input type="sumbit" id="" name="send_invoice_to_client" class="btn sumb--btn" value="Send Invoice" /> -->
-                                    <?php if($type=='edit' && $invoice_details['invoice_status'] == 'Unpaid'){?>
-                                    <button type="button" name="" class="btn sumb--btn" onclick="sendInvoice()"><i class="fa-solid fa-paper-plane"></i>Send Invoice</button>
+                                    <?php if($type=='edit' && ($invoice_details['status'] == 'Unpaid' || ( $invoice_details['status'] == 'Recalled' && !$invoice_details['invoice_sent']))){?>
+                                        <button type="button" id="send_invoice" name="" class="btn sumb--btn" onclick="sendInvoice()"><i class="fa-solid fa-paper-plane"></i>Send Invoice</button>
                                     <?php }?>
                                     <button type="reset" class="btn sumb--btn reset--btn"><i class="fa fa-ban"></i>Clear Invioce</button>
                                     <button type="button" class="btn sumb--btn preview--btn" onclick="previewInvoice()"><i class="fa-solid fa-eye" ></i>Preview</button>
-                                    <button type="submit" name="save_invoice"  class="btn sumb--btn" value="Save Invoice"><i class="fa-solid fa-floppy-disk"></i>Save</button>
+                                    <button hidden type="submit" id="save_invoice_submit" name="save_invoice"  class="btn sumb--btn" value="Save Invoice"><i class="fa-solid fa-floppy-disk"></i>Save</button>
+
+                                    <button type="button" id="save_invoice"  class="btn sumb--btn" value="Save"><i class="fa-solid fa-floppy-disk"></i>Save</button>
                                 
                                     <!-- <div class="btn-group">
                                         <button type="submit" name="save_invoice"  class="btn sumb--btn" value="Save Invoice"><i class="fa-solid fa-floppy-disk"></i> Save</button>
@@ -922,6 +964,8 @@
         </div>
     </div>
 </div>
+
+
 
 
 
@@ -946,18 +990,35 @@
                 keyboard: true, 
                 show: true
             });
-            var total = parseFloat('{{ $invoice_details['invoice_total_amount'] }}').toFixed(2);
+            var total = parseFloat('{{ $invoice_details['total_amount'] }}').toFixed(2);
             var due_date = $.datepicker.formatDate( "D dd-M-yy", new Date());
-            console.log(new Date());
+
             $("#send_invoice_to_emails").val('{{$invoice_details['client_email']}}');
             $("#send_invoice_from").val('{{$userinfo[1]}}');
-            $("#send_invoice_subject").val("Invoice INV-00000"+'{{$invoice_details['invoice_number'] }}' + ' from '+ '{{$userinfo[1]}}'+ ' for '+ '{{$invoice_details['client_email']}}');
-            $("#send_invoice_message").val("Hi,"+"\n\n" + "Here's invoice INV- 00000 {{ $invoice_details['invoice_number'] }} for $ "+total+"."+"\n\n" +"The amount outstanding of $ "+total+" is due on {{ $invoice_details['invoice_due_date'] }}."+"\n\n" + "Thanks, "+"\n\n" + "{{$userinfo[1]}}");
+            $("#send_invoice_subject").val("Invoice INV-00000"+'{{$invoice_details['transaction_number'] }}' + ' from '+ '{{$userinfo[1]}}'+ ' for '+ '{{$invoice_details['client_email']}}');
+            $("#send_invoice_message").val("Hi,"+"\n\n" + "Here's invoice INV- 00000 {{ $invoice_details['transaction_number'] }} for $ "+total+"."+"\n\n" +"The amount outstanding of $ "+total+" is due on {{ $invoice_details['due_date'] }}."+"\n\n" + "Thanks, "+"\n\n" + "{{$userinfo[1]}}");
         <?php }?>
     }
     $(function() {
-        
-        <?php if(!empty($invoice_details) && (isset($invoice_details['invoice_sent']) && $invoice_details['invoice_sent'] || $invoice_details['invoice_status'] == 'Voided' || $invoice_details['invoice_status'] == 'Paid') ){ ?>
+
+        $('#invoice_history_btn').on('click', function () {
+            $('#invoice_history_toggle_text').text() == "Show" ? $('#invoice_history_toggle_text').text('Hide') : $('#invoice_history_toggle_text').text('Show');
+        });
+
+        <?php if(!empty($invoice_details) && (isset($invoice_details['invoice_sent']) && !$invoice_details['invoice_sent'] && $invoice_details['status'] == 'Recalled') ){ ?>
+            $("#invoice_form :input").prop('disabled', true);
+
+            var rowIndex = $('#invoice_part_ids').val();
+            rowIndex = JSON.parse(rowIndex);
+            for(var i = 0; i<rowIndex.length; i++){
+                $("#invoice_parts_tax_rate_"+i).prop('disabled', false);
+                $("#invoice_parts_chart_accounts_"+i).prop('disabled', false);
+            }
+            $(".invoice_item").prop('disabled', false);
+            $("#save_invoice").prop('disabled', false);
+            $("#send_invoice").prop('disabled', false);
+        <?php }
+         else if(!empty($invoice_details) && (isset($invoice_details['invoice_sent']) && $invoice_details['invoice_sent'] || $invoice_details['status'] == 'Voided' || $invoice_details['status'] == 'Paid') ){ ?>
             $("#invoice_form :input").prop('disabled', true);
         <?php }?>
         $('#invoice_issue_date').datepicker().datepicker('setDate', 'today');
@@ -965,6 +1026,12 @@
         $( "#invoice_date" ).datepicker();
         $( "#invoice_duedate" ).datepicker();
       
+        
+        $('#save_invoice').on('click', function () {
+            $("#invoice_form :input").prop('disabled', false);
+            $("#save_invoice_submit").click();
+        });
+
         $('#part_save_button').on('click', function () {
 
             var myform = $('#partform');

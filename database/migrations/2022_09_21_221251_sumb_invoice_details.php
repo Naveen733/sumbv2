@@ -16,7 +16,6 @@ class SumbInvoiceDetails extends Migration
         Schema::create('sumb_invoice_details', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->foreignId('user_id')->nullable()->index();
-            // $table->string('invoice_name');
             $table->string('invoice_email')->nullable();
             $table->string('invoice_phone')->nullable();
             $table->date('invoice_issue_date');

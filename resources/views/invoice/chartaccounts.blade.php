@@ -176,7 +176,7 @@
                                                 @foreach($chart_account_particulars as $particular)
                                                     <div class="tab-pane fade show active" id="{{$tab}}" role="tabpanel" aria-labelledby="{{$tab}}-tab">
                                                         <tbody>
-                                                            <tr onclick="getAccountPartsDetails('{{$particular['id']}}')">
+                                                            <tr onclick='getAccountPartsDetails("{{$particular['id']}}")'>
                                                                 <td>{{$particular['chart_accounts_particulars_code']}}</td>
                                                                 <td>{{$particular['chart_accounts_particulars_name']}}</td>
                                                                 <td>{{$particular['chart_accounts_types']['chart_accounts_type']}}</td>

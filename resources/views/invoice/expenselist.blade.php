@@ -101,10 +101,10 @@
                                     <table class="expense_list">
                                         <thead>
                                             <tr>
-                                                <th style="border-top-left-radius: 7px;" id="expense_date" onclick="searchItems('expense_date', '{{!empty($orderBy) && $orderBy == 'expense_date' ? $direction  : 'ASC'}}')"> Expense date </th>
-                                                <th id="expense_number" onclick="searchItems('expense_number', '{{!empty($orderBy) && $orderBy == 'expense_number' ? $direction  : 'ASC'}}')">Number</th>
+                                                <th style="border-top-left-radius: 7px;" id="issue_date" onclick="searchItems('issue_date', '{{!empty($orderBy) && $orderBy == 'issue_date' ? $direction  : 'ASC'}}')"> Expense date </th>
+                                                <th id="transaction_number" onclick="searchItems('transaction_number', '{{!empty($orderBy) && $orderBy == 'transaction_number' ? $direction  : 'ASC'}}')">Number</th>
                                                 <th id="client_name" onclick="searchItems('client_name', '{{!empty($orderBy) && $orderBy == 'client_name' ? $direction  : 'ASC'}}')">Client</th>
-                                                <th id="status_paid" onclick="searchItems('status_paid', '{{!empty($orderBy) && $orderBy == 'status_paid' ? $direction  : 'ASC'}}')">Status</th>
+                                                <th id="status" onclick="searchItems('status', '{{!empty($orderBy) && $orderBy == 'status' ? $direction  : 'ASC'}}')">Status</th>
                                                 <th id="total_amount" onclick="searchItems('total_amount', '{{!empty($orderBy) && $orderBy == 'total_amount' ? $direction  : 'ASC'}}')">Amount</th>
                                                 <th class="sumb--recentlogdements__actions" style="border-top-right-radius: 7px;">options</th>
                                             </tr>
@@ -117,32 +117,33 @@
                                             </tr>
                                             @else
                                                 @foreach ($expensedata['data'] as $idat)
-                                                @if($idat['inactive_status'] == 0)
+                                                @if($idat['is_active'] == 1)
                                                 <tr>
-                                                    <td>{{ date('d-m-Y', strtotime($idat['expense_date'])); }}</td>
-                                                    <td>{{ str_pad($idat['expense_number'], 10, '0', STR_PAD_LEFT); }}</td>
+                                                    <td>{{ date('d-m-Y', strtotime($idat['issue_date'])); }}</td>
+                                                    <td>{{ str_pad($idat['transaction_number'], 10, '0', STR_PAD_LEFT); }}</td>
                                                     <td>{{ $idat['client_name'] }}</td>
                                                     <!-- <td>@if (!empty($idat['client_email'])) <a href="mailto:{{ $idat['client_email'] }}">{{ $idat['client_email'] }}</a> @else &nbsp; @endif</td> -->
                                                     
-                                                    <td class="@if ($idat['status_paid'] == 'void') sumb--recentlogdements__status_rej @elseif ($idat['status_paid'] == 'paid') sumb--recentlogdements__status_acc @else sumb--recentlogdements__status_proc @endif">{{ ucwords($idat['status_paid']) }}</td>
+                                                    <td class="@if ($idat['status'] == 'Voided') sumb--recentlogdements__status_rej @elseif ($idat['status'] == 'Paid') sumb--recentlogdements__status_acc @else sumb--recentlogdements__status_proc @endif">{{ ucwords($idat['status']) }}</td>
                                                     
                                                     <td style="text-align:right;">${{ number_format((float)$idat['total_amount'], 2, '.', ',') }}</td>
                                                     
                                                     <td class="sumb--recentlogdements__actions" style="text-align:right;">
                                                     
                                                     
-                                                            @if($idat['status_paid'] == 'paid')
+                                                            @if($idat['status'] == 'Paid')
                                                             <div class="sumb--fileSharebtn dropdown">
                                                                 <a href="{{ url('/expense/'.$idat['id'].'/view') }}"><i class="fa-solid fa-eye"></i></a>
                                                                 <a class="fileSharebtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear"></i></a>
                                                                 
                                                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="mainlinkadd">
-                                                                <a class="dropdown-item" href="/expense-status-change/?id={{ $idat['id'] }}&type=unpaid">Flag as Unpaid</a>    
-                                                                <a class="dropdown-item" href="/expense-void/?id={{ $idat['id'] }}&type=void">Flag as Void</a>
+                                                                <a class="dropdown-item" href="/expense-status-change/?id={{ $idat['id'] }}&type=Unpaid">Flag as Unpaid</a>    
+                                                                <a class="dropdown-item" href="/expense-void/?id={{ $idat['id'] }}&type=Voided">Flag as Void</a>
                                                                 </div>
                                                             </div>
-                                                            @elseif($idat['status_paid'] == 'void')
+                                                            @elseif($idat['status'] == 'Voided')
                                                             <div class="sumb--fileSharebtn dropdown expenses--void">
+
                                                                 <a href="{{ url('/expense/'.$idat['id'].'/view') }}"><i class="fa-solid fa-eye"></i></a>
                                                                 <a class="fileSharebtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear"></i></a>
                                                                 
@@ -156,8 +157,8 @@
                                                                 <a class="fileSharebtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear"></i></a>
                                                                 
                                                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="mainlinkadd">
-                                                                    <a class="dropdown-item" href="/expense-status-change/?id={{ $idat['id'] }}&type=paid">Flag as Paid</a>
-                                                                    <a class="dropdown-item" href="/expense-void/?id={{ $idat['id'] }}&type=void">Flag as Void</a>
+                                                                    <a class="dropdown-item" href="/expense-status-change/?id={{ $idat['id'] }}&type=Paid">Flag as Paid</a>
+                                                                    <a class="dropdown-item" href="/expense-void/?id={{ $idat['id'] }}&type=Voided">Flag as Void</a>
                                                                     <a class="dropdown-item" style="cursor: pointer;" value="{{ $idat['id'] }}" id="deleteExpense">Delete</a>
                                                                 </div>
                                                             </div>    
@@ -273,18 +274,15 @@
 
     
     $(document).on('click', '#deleteExpenseConfirm', function(event) {
-    if(expenseID){
-        var url = "{{ route('delete-expense', ':id') }}";
-        url = url.replace(':id', expenseID);
-        location.href = url;
-    }else{
-        alert("Select an expense to be deleted")
-    }
-       
+        if(expenseID){
+            var url = "{{ route('delete-expense', ':id') }}";
+            url = url.replace(':id', expenseID);
+            location.href = url;
+        }else{
+            alert("Select an expense to be deleted")
+        }
     });
     
-    
-
     $(function() {
         $( "#start_date" ).datepicker();
         $( "#end_date" ).datepicker();
@@ -309,7 +307,7 @@
             $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value='+orderBy+' >');
             $("#search_form").append('<input id="direction" type="hidden" name="direction" value='+direction+' >');
         }else{
-            $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value="expense_date" >');
+            $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value="issue_date" >');
             $("#search_form").append('<input id="direction" type="hidden" name="direction" value="ASC">');
         }
         $("#search_form").submit();

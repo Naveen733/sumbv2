@@ -12,7 +12,7 @@ class SumbInvoiceDetails extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * 
      */
     protected $table = 'sumb_invoice_details';
 

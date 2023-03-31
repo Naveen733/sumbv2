@@ -33,10 +33,12 @@
     <div class="row">
       <div class="col-md-6">
         <div class="invoice-logo">
-          <h3>Logo</h3>
+          @if (!empty($inv['logo'])) 
+            <img src="{{ $inv['logobase64'] }}">
+          @endif
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-4">
         <div class="invoice-header">
           <h3>INVOICE</h3>
         </div>
@@ -82,13 +84,15 @@
               <tbody>
                   @foreach ($inv['inv_parts'] as $ip)
                   <tr style="">
-                      <td style="">{{ $ip['invoice_parts_name'] }}</td>
-                      <td>{{ !empty($ip['invoice_parts_quantity']) ? $ip['invoice_parts_quantity'] : '-' }}</td>
-                      <td>{!! nl2br(e($ip['invoice_parts_description'])) !!}</td>
-                      <td style="">{{ !empty($ip['invoice_parts_unit_price']) ? $ip['invoice_parts_quantity'] : ""}}</td>
-                      <td style="">{{ $ip['invoice_parts_tax_rate'] }}</td>
-                      <td style="">{{ '$'.number_format($ip['invoice_parts_amount'], 2, ".", ",") }}</td>
+                    <td style="">{{ $ip['parts_name'] }}</td>
+                    <td>{{ !empty($ip['parts_quantity']) ? $ip['parts_quantity'] : '-' }}</td>
+                    <td>{!! nl2br(e($ip['parts_description'])) !!}</td>
+                    <td style="">{{ !empty($ip['parts_unit_price']) ? $ip['parts_unit_price'] : ""}}</td>
+                    <td style="">{{ $ip['invoice_tax_rates']['tax_rates'].'%' }}</td>
+                    <td style="">{{ '$'.number_format($ip['parts_amount'], 2, ".", ",") }}</td>
                   </tr>
+
+
                   @endforeach
               </tbody>
             </table>

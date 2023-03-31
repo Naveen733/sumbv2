@@ -32,7 +32,7 @@
                             <ul class="list-unstyled navbar__sub-list js-sub-list">
                                 <li><a href="/expense">Expense</a></li>
                                 <li><a href="/invoice">Invoice</a></li>
-                                <li><a href="#">Report</a></li>
+                                <!-- <li><a href="#">Report</a></li> -->
                                 <li><a href="/invoice/settings">Invoice Settings</a></li>
                                 <li><a href="/chart-accounts">Chart of Accounts</a></li>
                             </ul>
@@ -77,9 +77,15 @@
                     <ul class="list-unstyled navbar__sub-list js-sub-list">
                         <li><a href="/expense">Expense</a></li>
                         <li><a href="/invoice">Invoice</a></li>
-                        <li><a href="#">Report</a></li>
+                        <!-- <li><a href="#">Report</a></li> -->
                         <li><a href="/invoice/settings">Invoice Settings</a></li>
                         <li><a href="/chart-accounts">Chart of Accounts</a></li>
+
+                        <a class="js-arrow" href="#"><i class="fa-solid fa-money-bill-transfer"></i>Reports<i class="fas fa-angle-down"></i></a>
+                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                <li><a href="/profit-loss">Profit & Loss</a></li>
+                                <li><a href="/reports">Transactions</a></li>
+                            </ul>
                     </ul>
                 </li>
                 <li><a href="#"><i class="fas fa-folder"></i>Employment Docs</a></li>

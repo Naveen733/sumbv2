@@ -21,8 +21,8 @@ class SumbChartAccountsTypeParticulars extends Model
         return $this->belongsTo(SumbChartAccounts::class);
     }
 
-    public function particulars() {
-        return $this->hasMany(SumbInvoiceParticulars::class, 'invoice_chart_accounts_parts_id');
+    public function transactions() {
+        return $this->hasMany(Transactions::class, 'parts_chart_accounts_id');
     }
 
     public function invoiceTaxRates() {
@@ -33,3 +33,4 @@ class SumbChartAccountsTypeParticulars extends Model
         return $this->hasMany(SumbInvoiceItems::class, 'invoice_item_chart_accounts_parts_id');
     }
 }
+?>

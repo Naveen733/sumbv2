@@ -14,20 +14,21 @@
                 @if($type == 'create')
                 <h3 class="sumb--title">New Expense</h3>
                 @elseif($type == 'edit')
-                <h3 class="sumb--title">Edit Expense ({{ $expense_details['expense_number'] }})</h3>
+
+                <h3 class="sumb--title">Edit Expense ({{ 'EXP-00000'. $expense_details['transaction_number'] }})</h3>
                 @elseif($type == 'view')
                 <h3 class="sumb--title">
-                    Expense ({{ $expense_details['expense_number'] }})
-                    <span class="expense--status-icon {{$expense_details['status_paid']}}">
-                        @if(!empty($expense_details) && $expense_details['status_paid'] == 'void')   
+                    Expense ({{ 'EXP-00000'. $expense_details['transaction_number'] }})
+                    <span class="expense--status-icon {{$expense_details['status']}}">
+                        @if(!empty($expense_details) && $expense_details['status'] == 'Void')   
                             Void
-                        @elseif(!empty($expense_details) && $expense_details['status_paid'] == 'paid')
+                        @elseif(!empty($expense_details) && $expense_details['status'] == 'Paid')
                             Paid
                         @endif
                     </span>
                 </h3>
                     
-                <div class="invoice--status-deets">This expense entry is on Read Only mode. Entries flagged as <u>{{$expense_details['status_paid']}}</u> cannot be edited.</div>
+                <div class="invoice--status-deets">This expense entry is on Read Only mode. Entries flagged as <u>{{$expense_details['status']}}</u> cannot be edited.</div>
                 @endif
             </section>
 
@@ -55,7 +56,9 @@
                                             <label class="form-input--question">Expense Number <span>Read-Only</span></label>
                                             <div class="form--inputbox readOnly row">
                                                 <div class="col-12">
-                                                    <input type="text" id="expense_number" name="expense_number" required readonly value="{{ !empty($expense_details['expense_number']) ? $expense_details['expense_number'] : 'EXP-'. str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
+                                                    <input type="text" id="expense_number" name="" required readonly value="{{ !empty($expense_details['transaction_number']) ? 'EXP-'. str_pad($expense_details['transaction_number'], 10, '0', STR_PAD_LEFT)  : 'EXP-'. str_pad($data['expenses_count'], 6, '0', STR_PAD_LEFT); }}">
+                                                    <input type="hidden" id="expense_number" name="expense_number" required readonly="" value="{{ !empty($expense_details['transaction_number']) ? $expense_details['transaction_number']  : $data['expenses_count'] }}">
+
                                                     @error('expense_number')
                                                         <div class="alert alert-danger">{{ $message }}</div>
                                                     @enderror
@@ -69,7 +72,7 @@
                                             <label class="form-input--question" for="expense_date">Date <span>MM/DD/YYYY</span></label>
                                             <div class="date--picker row">
                                                 <div class="col-12">
-                                                    <input type="text" id="expense_date" name="expense_date" required class="form-control" value="{{ !empty($expense_details['expense_date']) ? date('m/d/Y', strtotime($expense_details['expense_date'])) :  date("m/d/Y")  }}">
+                                                    <input type="text" id="expense_date" name="expense_date" required class="form-control" value="{{  !empty($expense_details['issue_date']) ? date('m/d/Y', strtotime($expense_details['issue_date'])) :  date("m/d/Y") }}">
                                                     @error('expense_date')
                                                         <div class="alert alert-danger">{{ $message }}</div>
                                                     @enderror
@@ -83,7 +86,7 @@
                                             <label class="form-input--question" for="expense_due_date">Due Date <span>MM/DD/YYYY</span></label>
                                             <div class="date--picker row">
                                                 <div class="col-12">
-                                                    <input type="text" id="expense_due_date" name="expense_due_date" required class="form-control" value="{{ !empty($expense_details['expense_due_date']) ? date('m/d/Y', strtotime($expense_details['expense_due_date'])) : '' }}" >
+                                                    <input type="text" id="expense_due_date" name="expense_due_date" required class="form-control" value="{{ !empty($expense_details['due_date']) ? date('m/d/Y', strtotime($expense_details['due_date'])) : '' }}" >
                                                     @error('expense_due_date')
                                                         <div class="alert alert-danger">{{ $message }}</div>
                                                     @enderror
@@ -137,8 +140,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
-                                        
                                     </div>
 
                                 </div>
@@ -169,7 +170,7 @@
 
                                             <div id="sumb-receipt-container">
                                                 <!-- pdf upload  -->
-                                                <iframe id="pdf-preview" src="{{ !empty($expense_details['file_upload']) ? asset($expense_details['file_upload']) : '' }}"></iframe>
+                                                <iframe id="pdf-preview" src="{{ !empty($expense_details['logo']) ? asset($expense_details['logo']) : '' }}"></iframe>
 
                                                 <div class="sumb-expense-receipt-actions d-flex">
                                                     <div role="presentation" data-ref="toggled-wrapper">
@@ -222,49 +223,38 @@
                                                             <div class="row">
                                                                 <div class="col-12 for--tables">
                                                                     <select class="form-input--dropdown" data-live-search="true" id="item_account" name="item_account[]" required>
-                                                                        <option v>Select</option>
-                                                                        <option value="400-Advertising">400 - Advertising</option>
-                                                                        <option value="404-Bank Fees">404 - Bank Fees</option>
-                                                                        <option value="408-Cleaning">408 - Cleaning</option>
-                                                                        <option value="412-Consulting & Accounting">412 - Consulting & Accounting</option>
-                                                                        <option value="420-Entertainment">420 - Entertainment</option>
-                                                                        <option value="425-Freight & Courier">425 - Freight & Courier</option>
-                                                                        <option value="429-General Expenses">429 - General Expenses</option>
-                                                                        <option value="433-Insurance">433 - Insurance</option>
-                                                                        <option value="437-Interest Expense">437 - Interest Expense</option>
-                                                                        <option value="441-Legal expenses">441 - Legal expenses</option>
-                                                                        <option value="445-Light, Power, Heating">445 - Light, Power, Heating</option>
-                                                                        <option value="449-Motor Vehicle Expenses">449 - Motor Vehicle Expenses</option>
-                                                                        <option value="453-Office Expenses">453 - Office Expenses</option>
-                                                                        <option value="461-Printing & Stationery">461 - Printing & Stationery</option>
-                                                                        <option value="469-Rent">469 - Rent</option>
-                                                                        <option value="473-Repairs and Maintenance">473 - Repairs and Maintenance</option>
-                                                                        <option value="485-Subscriptions">485 - Subscriptions</option>
-                                                                        <option value="489-Telephone & Internet">489 - Telephone & Internet</option>
-                                                                        <option value="493-Travel National">493 - Travel - National</option>
-                                                                        <option value="494-Travel International">494 - Travel - International</option>
-                                                                        <option value="710-Office Equipment">710 - Office Equipment</option>
-                                                                        <option value="720-Computer Equipment">720 - Computer Equipment</option>
+                                                                        <option value="">select</option>
+                                                                        @if(!empty($chart_account))
+                                                                            @foreach ($chart_account as $particulars)
+                                                                                <option value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
+                                                                            @endforeach
+                                                                        @endif
                                                                     </select>
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                    </td>
+                                                    <td>
+                                                        @if(!empty($tax_rates))
+                                                            <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="">
+                                                            <div class="form-input--wrap">
+                                                                <div class="row">
+                                                                    <div class="col-12 for--tables">
+                                                                        <select class="form-input--dropdown"  id="expense_tax" name="expense_tax[]" value="" onchange="getTaxRates(this)">
+                                                                            <option selected value="">Tax Rate Option</option>    
+                                                                            @foreach($tax_rates as $tax_rate)
+                                                                                <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
+                                                                                <option id="{{$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <input class="input--readonly" readonly id="expense_amount" name="expense_amount[]" type="number" step="any" value="{{ !empty($prts['parts_amount']) ? $prts['parts_amount'] : '' }}"  required>
 
-                                                    </td>
-                                                    <td>
-                                                        <div class="form-input--wrap">
-                                                            <div class="row">
-                                                                <div class="col-12 for--tables">
-                                                                    <select class="form-input--dropdown" name="expense_tax[]" id="expense_tax">
-                                                                        <option value="0">Tax Exempt</option>
-                                                                        <option value="10">General Tax</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <input class="input--readonly" readonly id="expense_amount" name="expense_amount[]" type="number" step="any" required>
                                                     </td>
                                                     <td class="tableOptions">
                                                         <button class="btn sumb--btn delepart" type="button" ><i class="fa-solid fa-trash-alt"></i></button>
@@ -275,63 +265,51 @@
                                                 @foreach ($expense_particulars as $prts)
                                                 
                                                 <td>
-                                                    <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required>{{ !empty($prts['expense_description']) ? $prts['expense_description'] : '' }}</textarea>
+                                                    <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required>{{ !empty($prts['parts_description']) ? $prts['parts_description'] : '' }}</textarea>
                                                 </td>
                                                 
                                                 <td>
-                                                    <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['item_quantity']) ? $prts['item_quantity'] : '' }}"  required>
+                                                    <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['parts_quantity']) ? $prts['parts_quantity'] : '' }}"  required>
                                                 </td>
                                                 <td>
-                                                    <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['item_unit_price']) ? $prts['item_unit_price'] : '' }}" step="any"  required>
+                                                    <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['parts_unit_price']) ? $prts['parts_unit_price'] : '' }}" step="any"  required>
                                                 </td>
                                                 <td>
                                                     <div class="form-input--wrap">
                                                         <div class="row">
                                                             <div class="col-12 for--tables">
                                                                 <select class="form-input--dropdown" data-live-search="true" id="item_account" name="item_account[]" step="any" required>
-                                                                    <option value="">Select</option>
-                                                                    <option value="400-Advertising">400 - Advertising</option>
-                                                                    <option value="404-Bank Fees">404 - Bank Fees</option>
-                                                                    <option value="408-Cleaning">408 - Cleaning</option>
-                                                                    <option value="412-Consulting & Accounting">412 - Consulting & Accounting</option>
-                                                                    <option value="420-Entertainment">420 - Entertainment</option>
-                                                                    <option value="425-Freight & Courier">425 - Freight & Courier</option>
-                                                                    <option value="429-General Expenses">429 - General Expenses</option>
-                                                                    <option value="433-Insurance">433 - Insurance</option>
-                                                                    <option value="437-Interest Expense">437 - Interest Expense</option>
-                                                                    <option value="441-Legal expenses">441 - Legal expenses</option>
-                                                                    <option value="445-Light, Power, Heating">445 - Light, Power, Heating</option>
-                                                                    <option value="449-Motor Vehicle Expenses">449 - Motor Vehicle Expenses</option>
-                                                                    <option value="453-Office Expenses">453 - Office Expenses</option>
-                                                                    <option value="461-Printing & Stationery">461 - Printing & Stationery</option>
-                                                                    <option value="469-Rent">469 - Rent</option>
-                                                                    <option value="473-Repairs and Maintenance">473 - Repairs and Maintenance</option>
-                                                                    <option value="485-Subscriptions">485 - Subscriptions</option>
-                                                                    <option value="489-Telephone & Internet">489 - Telephone & Internet</option>
-                                                                    <option value="493-Travel National">493 - Travel - National</option>
-                                                                    <option value="494-Travel International">494 - Travel - International</option>
-                                                                    <option value="710-Office Equipment">710 - Office Equipment</option>
-                                                                    <option value="720-Computer Equipment">720 - Computer Equipment</option>
+                                                                    @if(!empty($chart_account))
+                                                                        @foreach ($chart_account as $particulars)
+                                                                            <option {{!empty($prts['chart_accounts_particulars']) && $prts['chart_accounts_particulars']['id'] == $particulars['id'] ? 'selected="selected"' : '' }} value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
+                                                                        @endforeach
+                                                                    @endif
                                                                 </select>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <div class="form-input--wrap">
-                                                        <div class="row">
-                                                            <div class="col-12 for--tables">
-                                                                <select class="form-input--dropdown" name="expense_tax[]" id="expense_tax">
-                                                                    <option <?php echo ($prts['expense_tax']) ==  '0' ? ' selected="selected"' : '';?>  value="0">Tax Exempt</option>
-                                                                    <option <?php echo ($prts['expense_tax']) ==  '10' ? ' selected="selected"' : '';?> value="10">General Tax</option>
-                                                                </select>
+                                                    @if(!empty($tax_rates))
+                                                        <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="{{!empty($prts['parts_tax_rate_id']) ? $prts['invoice_tax_rates']['tax_rates'] : ''}}">
+                                                        <div class="form-input--wrap">
+                                                            <div class="row">
+                                                                <div class="col-12 for--tables">
+                                                                    <select class="form-input--dropdown" id="expense_tax" name="expense_tax[]" onchange="getTaxRates(this)" value="">
+                                                                        <option selected value="">Tax Rate Option</option>    
+                                                                        @foreach($tax_rates as $tax_rate)
+                                                                            <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
+                                                                            <option  id="{{$tax_rate['id'].'_0'}}" {{!empty($prts['parts_tax_rate_id']) && $prts['parts_tax_rate_id'] == $tax_rate['id'] ? 'selected="selected"' : ''}} value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    @endif
                                                 </td>
                                                 
                                                 <td>
-                                                    <input class="input--readonly" type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['expense_amount']) ? $prts['expense_amount'] : '' }}"  required>
+                                                    <input class="input--readonly" type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['parts_amount']) ? $prts['parts_amount'] : '' }}"  required>
                                                 </td>
                                                 <td class="tableOptions">
                                                     <button class="btn sumb--btn delepart" type="button"><i class="fas fa-trash-alt"></i></button>
@@ -372,13 +350,13 @@
                                                     <div class="form-input--wrap">
                                                         <div class="col-12 for--tables">
                                                             <select name="tax_type" id="tax_type" class="form-input--dropdown">
-                                                                @if(empty($expense_details['tax_type']))
-                                                                    <option value="0">Include Tax</option>
-                                                                    <option value="1">Exclude Tax</option>
-                                                                @else
-                                                                    <option <?php echo ($expense_details['tax_type']) ==  '0' ? ' selected="selected"' : '';?> value="0">Include Tax</option>
-                                                                    <option <?php echo ($expense_details['tax_type']) ==  '1' ? ' selected="selected"' : '';?> value="1">Exclude Tax</option>
-                                                                @endif
+                                                            @if(empty($expense_details['tax_type']))
+                                                                <option value="0">Incl. Tax</option>
+                                                                <option value="1">Excl. Tax</option>
+                                                            @else
+                                                                <option <?php echo ($expense_details['tax_type']) ==  'tax_inclusive' ? ' selected="selected"' : '';?> value="0">Incl. Tax</option>
+                                                                <option <?php echo ($expense_details['tax_type']) ==  'tax_exclusive' ? ' selected="selected"' : '';?> value="1">Excl. Tax</option>
+                                                            @endif
                                                             </select>
                                                         </div>
                                                     </div>
@@ -391,7 +369,7 @@
                                                 </td>
                                                 <td>Subtotal</td>
                                                 <td colspan="2">
-                                                    <input readonly required id="expense_total_amount" step="any" name="expense_total_amount" type="number" value="{{ !empty($expense_details['expense_total_amount']) ? $expense_details['expense_total_amount'] : '' }}">
+                                                    <input readonly required id="expense_total_amount" step="any" name="expense_total_amount" type="number" value="{{ !empty($expense_details['sub_total']) ? $expense_details['sub_total'] : '' }}">
                                                     @error('expense_total_amount')
                                                         <div class="alert alert-danger">{{ $message }}</div>
                                                     @enderror
@@ -542,9 +520,6 @@
                     </div>
 
 
-                    
-
-                    
                 </div>
             </div>
 
@@ -558,54 +533,6 @@
   </div>
 </div>
 
-<!-- Modal -->
-<!-- <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Saved Recipients</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="replist" style="overflow-x: auto; max-height:600px;">
-                    
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">Name</th>
-                                <th scope="col">Description</th>
-                                <th scope="col">Options</th>
-    
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (empty($exp_clients))
-                            <tr>
-                                <td colspan="3">You dont have any client recipient at this time</td>
-                            </tr>
-                            @endif
-                            @php $counter = 0; @endphp
-                            @foreach ($exp_clients as $ec)
-                            @php $counter ++; @endphp
-                            <tr>
-                                <th scope="row" id="data_name_{{ $counter }}">{{ $ec['client_name'] }}</th>
-                                <td id="data_desc_{{ $counter }}">{{ $ec['client_description'] }}</td>
-                                <td><button type="button" class="btn btn-primary btn-sm dcc_click" data-dismiss="modal" data-myid="{{ $counter }}">Use This</button></td>
-                            </tr>
-                            @endforeach
-                            
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div> -->
   
 
 <!-- END PAGE CONTAINER-->
@@ -615,31 +542,30 @@
 
 <script>
 
-
+var counts = 0;
     $(document).ready(function () {
         $(".bd-example-modal-lg").on("hidden.bs.modal", function () {
     // put your default event here
             $("#expense_preview_to").text($("#client_name").val());
-                    $("#expense_preview_expense_number").text();
-                    $("#expense_preview_issue_date").text();
-                    $("#expense_preview_due_date").text();
+            $("#expense_preview_expense_number").text();
+            $("#expense_preview_issue_date").text();
+            $("#expense_preview_due_date").text();
 
-                   // $("#expense_preview_parts_rows").last().remove();
-                   $("#expense_preview_parts_rows").empty()
-
-                    $("#expense_preview_sub_total").text();
-                    $("#expense_preview_total_tax").text();
-                    $("#expense_preview_total_amount").text();
+                // $("#expense_preview_parts_rows").last().remove();
+            $("#expense_preview_parts_rows").empty()
+            $("#expense_preview_sub_total").text();
+            $("#expense_preview_total_tax").text();
+            $("#expense_preview_total_amount").text();
         });
     });
 
-     function previewExpense(){
+    function previewExpense(){
         var to = $("#client_name").val();
         
-             $("#expense_preview_to").text($("#client_name").val());
-             $("#expense_preview_expense_number").text($("#expense_number").val());
-             $("#expense_preview_issue_date").text($("#expense_date").val());
-             $("#expense_preview_due_date").text($("#expense_due_date").val());
+            $("#expense_preview_to").text($("#client_name").val());
+            $("#expense_preview_expense_number").text($("#expense_number").val());
+            $("#expense_preview_issue_date").text($("#expense_date").val());
+            $("#expense_preview_due_date").text($("#expense_due_date").val());
 
             expense_description_array = [];
             expense_item_quantity_array = [];
@@ -747,8 +673,6 @@
                     $('.clientname li.add--newactclnt').hide();
                 }
             }
-
-            
         });
 
         //New Record -- Add New Icon
@@ -778,44 +702,98 @@
      //Add new row on Table Particulars
 
     $('#addnewline').on('click', function(){
+        counts++;
         $('#partstable tr.add--new-line').before(
             '<tr><td><textarea name=\"expense_description[]\" id=\"expense_description\" class=\"autoresizing\" required></textarea></td>\n'+
             '<td><input type=\"number\" step="any" id=\"item_quantity\" name=\"item_quantity[]\" required \"></td>\n'+
             '<td><input type=\"number\" step="any" id=\"item_unit_price\" name=\"item_unit_price[]\" required \"></td>\n'+
             '<td><div class=\"form-input--wrap\"><div class=\"row\"><div class=\"col-12 for--tables\">'+
-                '<select class="form-input--dropdown" data-live-search="true" id="item_account" name="item_account[]" step="any" required>\n'+
-                    '<option value="">Select</option>\n'+
-                    '<option value="400-Advertising">400 - Advertising</option>\n'+
-                    '<option value="404-Bank Fees">404 - Bank Fees</option>\n'+
-                    '<option value="408-Cleaning">408 - Cleaning</option>\n'+
-                    '<option value="412-Consulting & Accounting">412 - Consulting & Accounting</option>\n'+
-                    '<option value="420-Entertainment">420 - Entertainment</option>\n'+
-                    '<option value="425-Freight & Courier">425 - Freight & Courier</option>\n'+
-                    '<option value="429-General Expenses">429 - General Expenses</option>\n'+
-                    '<option value="433-Insurance">433 - Insurance</option>\n'+
-                    '<option value="437-Interest Expense">437 - Interest Expense</option>\n'+
-                    '<option value="441-Legal expenses">441 - Legal expenses</option>\n'+
-                    '<option value="445-Light, Power, Heating">445 - Light, Power, Heating</option>\n'+
-                    '<option value="449-Motor Vehicle Expenses">449 - Motor Vehicle Expenses</option>\n'+
-                    '<option value="453-Office Expenses">453 - Office Expenses</option>\n'+
-                    '<option value="461-Printing & Stationery">461 - Printing & Stationery</option>\n'+
-                    '<option value="469-Rent">469 - Rent</option>\n'+
-                    '<option value="473-Repairs and Maintenance">473 - Repairs and Maintenance</option>\n'+
-                    '<option value="485-Subscriptions">485 - Subscriptions</option>\n'+
-                    '<option value="489-Telephone & Internet">489 - Telephone & Internet</option>\n'+
-                    '<option value="493-Travel National">493 - Travel - National</option>\n'+
-                    '<option value="494-Travel International">494 - Travel - International</option>\n'+
-                    '<option value="710-Office Equipment">710 - Office Equipment</option>\n'+
-                    '<option value="720-Computer Equipment">720 - Computer Equipment</option>\n'+
+                '<select class="form-input--dropdown" data-live-search="true" id=\"item_account_'+counts+'\" name="item_account[]" step="any" required>\n'+
                 '</select>\n'+
             '</div></div></div></td>'+
-            '<td><div class=\"form-input--wrap\"><div class=\"row\"><div class=\"col-12 for--tables\"><select name=\"expense_tax[]\" id=\"expense_tax\" class=\"form-input--dropdown\" required><option value=\"0\">Tax Exempt</option><option value=\"10\">General Tax</option></select></div></div></div></td>\n'+
+            '<td><input type=\"hidden\" name=\"expense_tax_id[]\" id=\"expense_tax_id\" value=""><div class=\"form-input--wrap\"><div class=\"row\"><div class=\"col-12 for--tables\"><select name=\"expense_tax[]\" id=\"expense_tax_'+counts+'\" onchange=getTaxRates(this) class=\"form-input--dropdown\" required></select></div></div></div></td>\n'+
             '<td><input class=\"input--readonly\" readonly id=\"expense_amount\" name=\"expense_amount[]\" type=\"number\" step="any" required></td>\n'+
             '<td class=\"tableOptions\">\n'+
                 '<button class=\"btn sumb--btn delepart\" type=\"button\" ><i class=\"fa-solid fa-trash-alt\"></i></button>\n'+
             '</td></tr>');
+
+        getChartAccountsParticularsList(counts);
+        getTaxRatesList(counts);
     });
-        
+       
+    function getChartAccountsParticularsList(id){
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        });
+        $.ajax({
+        method: "GET",
+        url: "/expense-chart-accounts",
+        // data: post_data,
+        success:function(response){
+            try{
+                response = JSON.parse(response);
+                if(response && response.status == "success"){
+                    // $("#client_details").show();
+                    $("#item_account_"+id).empty();
+                    var counter = 0;
+                    $("#item_account_"+id).append('<option value="">select</option>')
+                    
+                    $.each(response.data,function(key,value){
+                        $("#item_account_"+id).append('\n\<option value='+value['id']+'>'+value['chart_accounts_particulars_code']+' - '+value['chart_accounts_particulars_name']+'</option>');
+                    });
+                }else if(response.status == "error"){
+                    alert(esponse.err);
+                    // $("#client_details").show();
+                    // $("#invoice_item_list").empty();
+                    // $("#invoice_item_list").append('<input type="checkbox" onclick=closeClientSuggestionBox() name="add_new_client"><label for="add_new_client">Add as a new active client?</label></br>');
+                }
+            }catch(error){
+                // alertBottom(null,'Something went wrong, try again later');
+            }
+        },
+            error:function(error){ 
+                // alertBottom(null,"Something went wrong, please try again later");
+            }
+        });
+    }
+
+    function getTaxRatesList(id){
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        });
+        $.ajax({
+        method: "GET",
+        url: "/expense-tax-rates",
+        // data: post_data,
+        success:function(response){
+            try{
+                response = JSON.parse(response);
+                if(response && response.status == "success"){
+                    // $("#client_details").show();
+                    $("#expense_tax_"+id).empty();
+                    var counter = 0;
+                    $("#expense_tax_"+id).append('<option selected value="">Tax Rate Option</option>')
+                    
+                    $.each(response.data,function(key,value){
+                        $("#expense_tax_"+id).append('\n\<option value='+value['id']+'>'+value['tax_rates_name']+'</option>');
+                    });
+                }else if(response.status == "error"){
+                    alert(esponse.err);
+                    // $("#client_details").show();
+                    // $("#invoice_item_list").empty();
+                    // $("#invoice_item_list").append('<input type="checkbox" onclick=closeClientSuggestionBox() name="add_new_client"><label for="add_new_client">Add as a new active client?</label></br>');
+                }
+            }catch(error){
+                // alertBottom(null,'Something went wrong, try again later');
+            }
+        },
+            error:function(error){ 
+                // alertBottom(null,"Something went wrong, please try again later");
+            }
+        });
+    }
+
+
     $('#partstable').on('input', '.autoresizing', function () {
         this.style.height = 'auto';
         this.style.height = (this.scrollHeight) + 'px';
@@ -857,10 +835,12 @@
             $('#file_upload').val("");
             $('#sumb-file-upload-container').show();
         })
-                       
+              
+        
         //row total Amount,form total amoount, total tax
         var body = $('#partstable').children('tbody').first();
         body.on('change', 'input[type="number"]', function() {
+
             var cells = $(this).closest('tr').children('td');
             var value1 = cells.eq(1).find('input').val();
             var value2 = cells.eq(2).find('input').val();
@@ -870,14 +850,18 @@
             var calculated_total_gst_amount = 0;
             expense_amount_array = [];
             expense_tax_array = [];
-
+            expense_tax_array_id = [];
+            
             $('[name="expense_amount[]"]').each(function() {
                 expense_amount_array.push(Number(this.value));
             })
             $('[name="expense_tax[]"]').each(function() {
+                expense_tax_array_id.push(Number(this.value));
+            })
+            $('[name="expense_tax_id[]"]').each(function() {
                 expense_tax_array.push(Number(this.value));
             })
-
+               
             if($("#tax_type").val() == 0)
             {
                 $("#partstable #expense_amount").each(function (index) {
@@ -900,53 +884,7 @@
                     calculated_total_sum += parseFloat(expense_amount_array[index]);
                     if(expense_tax_array[index] > 0)
                     {
-                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
-                    }   
-                });
-                    
-                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                var total_amount = calculated_total_sum + calculated_total_gst_amount;
-                $("#total_amount").val(Number(total_amount.toFixed(2)));
-            }
-        });
-
-        body.on('change', $("#expense_tax"), function() {
-            var calculated_total_sum = 0;
-            var calculated_total_gst_amount = 0;
-            expense_amount_array = [];
-            expense_tax_array = [];
-
-            $('[name="expense_amount[]"]').each(function() {
-                expense_amount_array.push(Number(this.value));
-            })
-            $('[name="expense_tax[]"]').each(function() {
-                expense_tax_array.push(Number(this.value));
-            })
-
-            if($("#tax_type").val() == 0)
-            {
-                $("#partstable #expense_amount").each(function (index) {
-                    
-                calculated_total_sum += parseFloat(expense_amount_array[index]);
-                if(expense_tax_array[index] > 0){
-                    var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
-                    var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
-                    calculated_total_gst_amount += parseFloat(taxAmount);
-                }
-                });
-                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
-            }
-            else if($("#tax_type").val() == 1)
-            {
-                $("#partstable #expense_amount").each(function (index) {
-
-                    calculated_total_sum += parseFloat(expense_amount_array[index]);
-                    if(expense_tax_array[index] > 0)
-                    {
-                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                        calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
                     }   
                 });
                     
@@ -958,15 +896,20 @@
         });
 
         body.on('change', $("#tax_type"), function() {
+
             var calculated_total_sum = 0;
             var calculated_total_gst_amount = 0;
             expense_amount_array = [];
             expense_tax_array = [];
+            expense_tax_id_array = [];
 
             $('[name="expense_amount[]"]').each(function() {
                 expense_amount_array.push(Number(this.value));
             })
             $('[name="expense_tax[]"]').each(function() {
+                expense_tax_id_array.push(Number(this.value));
+            })
+            $('[name="expense_tax_id[]"]').each(function() {
                 expense_tax_array.push(Number(this.value));
             })
 
@@ -988,11 +931,10 @@
             else if($("#tax_type").val() == 1)
             {
                 $("#partstable #expense_amount").each(function (index) {
-
                     calculated_total_sum += parseFloat(expense_amount_array[index]);
                     if(expense_tax_array[index] > 0)
                     {
-                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                        calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
                     }   
                 });
                     
@@ -1002,19 +944,23 @@
                 $("#total_amount").val(Number(total_amount.toFixed(2)));
             }
         });
-
+       
         body.on('click', '.delepart', function(){ 
-        $(this).parents('tr').remove();
-
-        var calculated_total_sum = 0;
+            $(this).parents('tr').remove();
+            
+            var calculated_total_sum = 0;
             var calculated_total_gst_amount = 0;
             expense_amount_array = [];
             expense_tax_array = [];
+            expense_tax_id_array = [];
 
             $('[name="expense_amount[]"]').each(function() {
                 expense_amount_array.push(Number(this.value));
             })
             $('[name="expense_tax[]"]').each(function() {
+                expense_tax_id_array.push(Number(this.value));
+            })
+            $('[name="expense_tax_id[]"]').each(function() {
                 expense_tax_array.push(Number(this.value));
             })
 
@@ -1040,7 +986,7 @@
                     calculated_total_sum += parseFloat(expense_amount_array[index]);
                     if(expense_tax_array[index] > 0)
                     {
-                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                        calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
                     }   
                 });
                     
@@ -1052,6 +998,103 @@
         });
 
     });
+
+    function getTaxRates(obj){
+        var cell = $(obj).closest('tr').children('td');
+        var tax_rate_id = cell.eq(4).find('[name="expense_tax[]"]').val();
+
+        var post_data = {
+            tax_ids : tax_rate_id
+        }
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        });
+        $.ajax({
+        method: "GET",
+        url: "/expense-tax-rates/"+tax_rate_id,
+        // data: post_data,
+        success:function(response){
+            try{
+                response = JSON.parse(response);
+                
+                if(response && response.status == "success"){
+                    var expense_tax_ids = [];
+                    $.each(response.data,function(key,value){
+                        cell.eq(4).find('[id="expense_tax_id"]').val(value['tax_rates']);
+                    });
+
+                    gstCalculation(obj);
+
+                }else if(response.status == "error"){
+                    alert(esponse.err);
+                }
+            }catch(error){
+                // alertBottom(null,'Something went wrong, try again later');
+            }
+        },
+            error:function(error){ 
+                // alertBottom(null,"Something went wrong, please try again later");
+            }
+        });
+    }
+
+    function gstCalculation(obj){
+    // body.on('change', $("#expense_tax"), function() {
+        var calculated_total_sum = 0;
+        var calculated_total_gst_amount = 0;
+        expense_amount_array = [];
+        expense_tax_array = [];
+        expense_tax_id_array = [];
+
+        
+        $('[name="expense_amount[]"]').each(function() {
+            expense_amount_array.push(Number(this.value));
+        })
+        $('[name="expense_tax[]"]').each(function() {
+            expense_tax_id_array.push(Number(this.value));
+        })
+        $('[name="expense_tax_id[]"]').each(function() {
+            expense_tax_array.push(Number(this.value));
+        })
+        
+
+        if($("#tax_type").val() == 0)
+        {
+            $("#partstable #expense_amount").each(function (index) {
+                
+            calculated_total_sum += parseFloat(expense_amount_array[index]);
+            if(expense_tax_array[index] > 0){
+                var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
+                var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
+                calculated_total_gst_amount += parseFloat(taxAmount);
+            }
+            });
+            $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+            $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+            $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
+        }
+        else if($("#tax_type").val() == 1)
+        {
+            $("#partstable #expense_amount").each(function (index) {
+
+                calculated_total_sum += parseFloat(expense_amount_array[index]);
+                if(expense_tax_array[index] > 0)
+                {
+                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                }
+            });
+                
+            $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+            $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+            var total_amount = calculated_total_sum + calculated_total_gst_amount;
+            $("#total_amount").val(Number(total_amount.toFixed(2)));
+        }
+    }
+        // });
+
+
+
+
 
         // $("input[name='item_quantity[]']").change(function() {
         //     var arrayOfVar = []

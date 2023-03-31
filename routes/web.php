@@ -42,6 +42,10 @@ Route::middleware('sumbauth')->group(function() {
         Route::post('/expense-save', [App\Http\Controllers\ExpenseController::class, 'save_expense'])->name('expense-create-save');
         Route::get('/expense-void', [App\Http\Controllers\ExpenseController::class, 'expense_void'])->name('expense-void');
         Route::get('/expense-status-change/', [App\Http\Controllers\ExpenseController::class, 'status_change'])->name('expense-status-change');
+        Route::get('/expense-tax-rates/{id}', [App\Http\Controllers\ExpenseController::class, 'expenseTaxRatesById'])->name('expense-tax-rates/{id}');
+        Route::get('/expense-tax-rates', [App\Http\Controllers\ExpenseController::class, 'expenseTaxratesList'])->name('expense-tax-rates');
+        Route::get('/expense-chart-accounts', [App\Http\Controllers\ExpenseController::class, 'expenseChartAccounts'])->name('expense-chart-accounts');
+
 
         Route::get('/invoice-create', [App\Http\Controllers\InvoiceController::class, 'create_invoice'])->name('invoice-create');
         Route::get('/expenses-create', [App\Http\Controllers\InvoiceController::class, 'create_expenses'])->name('expenses-create');
@@ -85,9 +89,9 @@ Route::middleware('sumbauth')->group(function() {
 
     Route::post('/search-client', [App\Http\Controllers\InvoiceController::class, 'searchClient'])->name('search-client');
     Route::post('/search-invoice-item', [App\Http\Controllers\InvoiceController::class, 'searchInvoiceItem'])->name('search-invoice-item');
-    Route::post('/add-invoice-item', [App\Http\Controllers\InvoiceController::class, 'InvoiceItemForm'])->name('add-invoice-item');
-    Route::post('/invoice-items', [App\Http\Controllers\InvoiceController::class, 'InvoiceItemFormList'])->name('invoice-items');
-    Route::get('/invoice-items/{id}', [App\Http\Controllers\InvoiceController::class, 'InvoiceItemFormListById'])->name('invoice-items/{id}');
+    Route::post('/add-invoice-item', [App\Http\Controllers\InvoiceController::class, 'invoiceItemForm'])->name('add-invoice-item');
+    Route::post('/invoice-items', [App\Http\Controllers\InvoiceController::class, 'invoiceItemFormList'])->name('invoice-items');
+    Route::get('/invoice-items/{id}', [App\Http\Controllers\InvoiceController::class, 'invoiceItemFormListById'])->name('invoice-items/{id}');
     Route::get('/invoice/{id}/edit', [App\Http\Controllers\InvoiceController::class, 'update'])->name('/invoice/{id}/edit');
     Route::post('/invoice/send-email', [App\Http\Controllers\InvoiceController::class, 'sendInvoice'])->name('/invoice/send-email');
     Route::get('/status-change', [App\Http\Controllers\InvoiceController::class, 'statusUpdate'])->name('status-change');
@@ -97,11 +101,17 @@ Route::middleware('sumbauth')->group(function() {
     Route::post('/invoice-logo-upload', [App\Http\Controllers\InvoiceSettingsController::class, 'logoUpload'])->name('/invoice-logo-upload');
     Route::post('/invoice/settings/edit', [App\Http\Controllers\InvoiceSettingsController::class, 'update'])->name('/invoice/settings/edit');
     Route::get('/invoice/{id}/delete', [App\Http\Controllers\InvoiceController::class, 'delete'])->name('/invoice/{id}/delete');
-    Route::post('/add-invoice-chart-account', [App\Http\Controllers\ChartAccountController::class, 'InvoiceChartAccountForm'])->name('add-invoice-chart-account');
+    Route::post('/add-invoice-chart-account', [App\Http\Controllers\ChartAccountController::class, 'invoiceChartAccountForm'])->name('add-invoice-chart-account');
     Route::get('/chart-accounts-parts/{id}', [App\Http\Controllers\ChartAccountController::class, 'chartAccountsPartsById'])->name('chart-accounts-parts/{id}');
     Route::get('/chart-accounts-parts', [App\Http\Controllers\ChartAccountController::class, 'chartAccountsPartsList'])->name('chart-accounts-parts');
     Route::get('/invoice-tax-rates', [App\Http\Controllers\InvoiceController::class, 'invoiceTaxRates'])->name('invoice-tax-rates');
     Route::get('/chart-accounts', [App\Http\Controllers\ChartAccountController::class, 'index'])->name('chart-accounts');
     Route::post('/edit-chart-account/{id}', [App\Http\Controllers\ChartAccountController::class, 'update'])->name('edit-chart-account/{id}');
     Route::get('/profit-loss', [App\Http\Controllers\ProfitAndLossController::class, 'index'])->name('profit-loss');
+    Route::get('/reports', [App\Http\Controllers\ProfitAndLossController::class, 'reports'])->name('reports');
+    Route::get('/clone-invoice', [App\Http\Controllers\InvoiceController::class, 'cloneInvoice'])->name('clone-invoice');
+    Route::get('/invoice/history', [App\Http\Controllers\InvoiceHistoryController::class, 'index'])->name('/invoice/history');
+    Route::get('/invoice/{id}/recall', [App\Http\Controllers\InvoiceController::class, 'recallInvoice'])->name('/invoice/{id}/recall');
+
+
 });

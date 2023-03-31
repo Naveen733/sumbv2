@@ -31,3 +31,4 @@ class SumbInvoiceParticulars extends Model
         return $this->belongsTo(SumbInvoiceTaxRates::class, 'invoice_parts_tax_rate_id');
     }
 }
+?>

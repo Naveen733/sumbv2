@@ -20,6 +20,33 @@
     </div>
   </div>
 </div>
+<!-------Delete invoice alert pop-up end--------------->
+
+
+<!-------Recall invoice alert pop-up--------------->
+<!-- <form action="/invoice/recall"  method="POST" enctype="multipart/form-data"> -->
+    <div class="modal fade" id="recall_invoice_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Recall Invoice</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to recall this invoice
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" name="recall_invoice" class="btn btn-primary" id="recall_invoice" value="">Recall Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- </form> -->
+<!-------Recall invoice alert pop-up end--------------->
+
 
 <!-- PAGE CONTAINER-->
 <div class="page-container">
@@ -37,7 +64,6 @@
 
                 <section>
                     <div class="sumb--statistics row">
-
 
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
                             <div class="sumb--dashstatbox sumb--putShadowbox statistic__item--blue">
@@ -75,7 +101,6 @@
                         </div>
                     </div>
                 </section>
-
                 <section>
                     <div class="row">
                         <div class="col-xl-12">
@@ -89,6 +114,10 @@
                                 <div class="alert alert-success">
                                     {!! \Session::get('success') !!}
                                 </div>
+                            @endif
+
+                            @if (\Session::has('email-sent') && Session('email-sent'))
+                               
                             @endif
 
                             <form action="/invoice"  method="GET" enctype="multipart/form-data" id="search_form">
@@ -137,25 +166,23 @@
                                                 @endif
                                             </button>
                                             <div class="dropdown-menu" aria-labelledby="btnGroupDrop_type">
-                                                <a class="dropdown-item" href="">Paid</a>
-                                                <a class="dropdown-item" href="">Unpaid</a>
-                                                <a class="dropdown-item" href="">Void</a>
+                                                <a class="dropdown-item" href="javascript:void(0)" type="button" onclick="searchItems(null, null, 'Paid')">Paid</a>
+                                                <a class="dropdown-item" href="javascript:void(0)" type="button" onclick="searchItems(null, null, 'Unpaid')">Unpaid</a>
+                                                <a class="dropdown-item" href="javascript:void(0)" type="button" onclick="searchItems(null, null, 'Void')">Void</a>
                                                 <a class="dropdown-item" href="/invoice">View All</a>
                                             </div>
                                         </div>
-
                                     </div>
+                                    <input id="filter_by" type="hidden" name="filterBy" value='{{!empty($filterBy) ? $filterBy : "" }}'>
 
                                     <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 order-xl-5 order-lg-1 order-md-1 order-sm-2 order-2">
                                         <a class="transaction--Addbtn" href="/invoice/create"><i class="fa-solid fa-circle-plus"></i>Add New Invoice</a>
                                     </div>
                                     
                                     <div class="invoice-list--btns col-xl-4 col-lg-6 col-md-6 col-sm-12 order-xl-6 order-lg-2 order-md-2 order-sm-1 order-1" style="text-align: right;">
-                                        <button type="button" name="search_invoice" class="btn sumb--btn " value="Search" onclick="searchItems(null, null)"><i class="fa-solid fa-magnifying-glass"></i>Search</button>
+                                        <button type="button" name="search_invoice" class="btn sumb--btn " value="Search" onclick="searchItems(null, null, '{{$filterBy}}')"><i class="fa-solid fa-magnifying-glass"></i>Search</button>
                                         <button type="button" class="btn sumb--btn sumb-clear-btn" onclick="clearSearchItems()"><i class="fa-solid fa-circle-xmark"></i>Clear Search</button>
                                     </div>
-
-                                    
                                 </div>
                             </form>
 
@@ -164,12 +191,12 @@
                                     <table class="invoice_list">
                                         <thead>
                                             <tr>
-                                                <th style="border-top-left-radius: 7px;" id="invoice_issue_date" onclick="searchItems('invoice_issue_date', '{{!empty($orderBy) && $orderBy == 'invoice_issue_date' ? $direction  : 'ASC'}}')"> Invoice date </th>
-                                                <th id="invoice_number" onclick="searchItems('invoice_number', '{{!empty($orderBy) && $orderBy == 'invoice_number' ? $direction  : 'ASC'}}')">Number</th>
+                                                <th style="border-top-left-radius: 7px;" id="invoice_issue_date" onclick="searchItems('issue_date', '{{!empty($orderBy) && $orderBy == 'issue_date' ? $direction  : 'ASC'}}')"> Invoice date </th>
+                                                <th id="invoice_number" onclick="searchItems('transaction_number', '{{!empty($orderBy) && $orderBy == 'transaction_number' ? $direction  : 'ASC'}}')">Number</th>
                                                 <th id="client_name" onclick="searchItems('client_name', '{{!empty($orderBy) && $orderBy == 'client_name' ? $direction  : 'ASC'}}')">Client</th>
                                                 <th id="client_email" onclick="searchItems('client_email', '{{!empty($orderBy) && $orderBy == 'client_email' ? $direction  : 'ASC'}}')">Client Email</th>
-                                                <th id="invoice_status" onclick="searchItems('invoice_status', '{{!empty($orderBy) && $orderBy == 'invoice_status' ? $direction  : 'ASC'}}')">Status</th>
-                                                <th id="invoice_total_amount" onclick="searchItems('invoice_total_amount', '{{!empty($orderBy) && $orderBy == 'invoice_total_amount' ? $direction  : 'ASC'}}')">Amount</th>
+                                                <th id="invoice_status" onclick="searchItems('status', '{{!empty($orderBy) && $orderBy == 'status' ? $direction  : 'ASC'}}')">Status</th>
+                                                <th id="invoice_total_amount" onclick="searchItems('total_amount', '{{!empty($orderBy) && $orderBy == 'total_amount' ? $direction  : 'ASC'}}')">Amount</th>
                                                 <th>Email</th>
                                                 <!-- <th>Edit</th> -->
                                                 <th class="sumb--recentlogdements__actions" style="border-top-right-radius: 7px;">options</th>
@@ -183,29 +210,34 @@
                                             @else
                                                 @foreach ($invoicedata['data'] as $invoice)
                                             <tr>
-                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">{{ date('d-m-Y', strtotime($invoice['invoice_issue_date'])); }}</td>
-                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">{{ 'INV-'. str_pad($invoice['invoice_number'], 6, '0', STR_PAD_LEFT); }}</td>
+                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">{{ date('d-m-Y', strtotime($invoice['issue_date'])); }}</td>
+                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">{{ 'INV-'. str_pad($invoice['transaction_number'], 6, '0', STR_PAD_LEFT); }}</td>
                                                 <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">{{ $invoice['client_name'] }}</td>
                                                 <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">@if (!empty($invoice['client_email'])) <a href="mailto:{{ $invoice['client_email'] }}">{{ $invoice['client_email'] }}</a> @else &nbsp; @endif</td>
-                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'"><span class="payment--status-{{$invoice['invoice_status']}}">{{$invoice['invoice_status']}}</span></td>
-                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">${{ number_format((float)$invoice['invoice_total_amount'], 2, '.', ',') }}</td>
+                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'"><span class="payment--status-{{$invoice['status']}}">{{$invoice['status']}}</span></td>
+                                                <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'">${{ number_format((float)$invoice['total_amount'], 2, '.', ',') }}</td>
                                                 <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'"><span class="{{ $invoice['invoice_sent'] ? 'email2client_sent' : 'email2client_pending' }}"></span></td>
                                                 <!-- <td><a class="btn" href="/invoice/{{$invoice['id']}}/edit"><i class='far fa-edit'></i></a> <a class="btn" href="/invoice/{{$invoice['id']}}/edit"><i class='far fa-edit'></i></a></td> -->
                                                 <td class="sumb--recentlogdements__actions" style="text-align:right;">
-                                                    <div class="sumb--fileSharebtn dropdown <?php echo $invoice['invoice_status'] ?>">
+                                                    <div class="sumb--fileSharebtn dropdown">
                                                         <a class="fileSharebtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear"></i></a>
                                                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="mainlinkadd">
-                                                            @if($invoice['invoice_status'] == 'Paid')
+                                                            @if($invoice['status'] == 'Paid')
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Unpaid">Flag as UNPAID</a> 
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Voided">Flag as VOID</a> 
-                                                            @elseif($invoice['invoice_status'] == 'Unpaid')
+                                                            @elseif($invoice['status'] == 'Voided')
+                                                                <a class="dropdown-item" href="/clone-invoice/?invoice_id={{ $invoice['id'] }}">Clone</a> 
+                                                            @elseif($invoice['status'] == 'Unpaid')
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Voided">Flag as VOID</a> 
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Paid">Flag as PAID</a>
-                                                                <a class="dropdown-item" onclick="deleteInvoice({{ str_pad($invoice['invoice_number'], 6, '0', STR_PAD_LEFT); }}, {{$invoice['id']}});">Delete</a>
-                                                            
-                                                            <!-- <a class="dropdown-item" onclick="deleteInvoice({{ str_pad($invoice['invoice_number'], 6, '0', STR_PAD_LEFT); }}, {{$invoice['id']}});">Delete</a> -->
-
-                                                            <!-- <span class="btn btn-primary" data-toggle="modal" data-target="#delete_invoice_modal" onclick="deleteInvoice({{ str_pad($invoice['invoice_number'], 6, '0', STR_PAD_LEFT); }});">Delete</span> -->
+                                                                <a class="dropdown-item" onclick="deleteInvoice({{ str_pad($invoice['transaction_number'], 6, '0', STR_PAD_LEFT); }}, {{$invoice['id']}});">Delete</a>
+                                                                @if($invoice['status'] == 'Unpaid' && $invoice['invoice_sent'])
+                                                                    <a class="dropdown-item" onclick="recallInvoice({{$invoice['id']}})">Recall invoice with edit</a>
+                                                                @endif
+                                                            @elseif($invoice['status'] == 'Recalled')
+                                                                <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Voided">Flag as VOID</a> 
+                                                                <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Paid">Flag as PAID</a>
+                                                                <a class="dropdown-item" onclick="deleteInvoice({{ str_pad($invoice['transaction_number'], 6, '0', STR_PAD_LEFT); }}, {{$invoice['id']}});">Delete</a>
                                                             @endif
                                                         </div>
                                                     </div>
@@ -268,7 +300,6 @@
                     &nbsp;
                 </section>
                 
-                
             </div>
         </div>
     </div>
@@ -276,18 +307,15 @@
 
 <!-- END PAGE CONTAINER-->
 
-
 @include('includes.footer')
 </body>
 
 </html>
 
 <script>
-    function deleteInvoice(invoice_number, id){
-        console.log(invoice_number);
-        
+    function deleteInvoice(transaction_number, id){        
         $("#delete_invoice_number").text('');
-        $("#delete_invoice_number").text(invoice_number);
+        $("#delete_invoice_number").text('INV-000000'+transaction_number);
         $("#delete_invoice").val('');
         $("#delete_invoice").val(id);
         
@@ -298,9 +326,28 @@
         });
     }
 
+    function recallInvoice(id){        
+        $("#recall_invoice").val('');
+        $("#recall_invoice").val(id);
+        
+        $('#recall_invoice_modal').modal({
+            backdrop: 'static',
+            keyboard: true, 
+            show: true
+        });
+    }
+
+    $(document).on('click', '#recall_invoice', function(event) {
+        var invoice_id = $("#recall_invoice").val();
+        
+        var url = "{{URL::to('/invoice/{id}/recall')}}";
+        url = url.replace('{id}', invoice_id);
+        location.href = url;
+    });
+
     $(document).on('click', '#delete_invoice', function(event) {
         var invoice_id = $("#delete_invoice").val();
-        console.log(invoice_id);
+        
         var url = "{{URL::to('/invoice/{id}/delete')}}";
         url = url.replace('{id}', invoice_id);
         location.href = url;
@@ -327,15 +374,18 @@
         return false;
     }
 
-    function searchItems(orderBy, direction){
+    function searchItems(orderBy, direction, filterBy){
+        // $("#filter_by").val('');
         if(orderBy && direction){
             $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value='+orderBy+' >');
             $("#search_form").append('<input id="direction" type="hidden" name="direction" value='+direction+' >');
         }else{
-            $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value="invoice_issue_date" >');
+            $("#search_form").append('<input id="orderBy" type="hidden" name="orderBy" value="issue_date" >');
             $("#search_form").append('<input id="direction" type="hidden" name="direction" value="ASC">');
         }
-
+        if(filterBy){
+            $("#filter_by").val(filterBy);
+        }
         $("#search_form").submit();
     }
 </script>
