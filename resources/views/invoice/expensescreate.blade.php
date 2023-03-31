@@ -290,20 +290,22 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="{{!empty($prts['parts_tax_rate_id']) ? $prts['invoice_tax_rates']['tax_rates'] : ''}}">
-                                                    <div class="form-input--wrap">
-                                                        <div class="row">
-                                                            <div class="col-12 for--tables">
-                                                                <select class="form-input--dropdown" id="expense_tax" name="expense_tax[]" onchange="getTaxRates(this)" value="">
-                                                                    <option selected value="">Tax Rate Option</option>    
-                                                                    @foreach($tax_rates as $tax_rate)
-                                                                        <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
-                                                                        <option  id="{{$tax_rate['id'].'_0'}}" {{!empty($prts['parts_tax_rate_id']) && $prts['parts_tax_rate_id'] == $tax_rate['id'] ? 'selected="selected"' : ''}} value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
-                                                                    @endforeach
-                                                                </select>
+                                                    @if(!empty($tax_rates))
+                                                        <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="{{!empty($prts['parts_tax_rate_id']) ? $prts['invoice_tax_rates']['tax_rates'] : ''}}">
+                                                        <div class="form-input--wrap">
+                                                            <div class="row">
+                                                                <div class="col-12 for--tables">
+                                                                    <select class="form-input--dropdown" id="expense_tax" name="expense_tax[]" onchange="getTaxRates(this)" value="">
+                                                                        <option selected value="">Tax Rate Option</option>    
+                                                                        @foreach($tax_rates as $tax_rate)
+                                                                            <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
+                                                                            <option  id="{{$tax_rate['id'].'_0'}}" {{!empty($prts['parts_tax_rate_id']) && $prts['parts_tax_rate_id'] == $tax_rate['id'] ? 'selected="selected"' : ''}} value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    @endif
                                                 </td>
                                                 
                                                 <td>
