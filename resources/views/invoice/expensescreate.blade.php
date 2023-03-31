@@ -14,14 +14,27 @@
                 @if($type == 'create')
                 <h3 class="sumb--title">New Expense</h3>
                 @elseif($type == 'edit')
-                <h3 class="sumb--title">Edit Expense({{ 'EXP-000000000'. $expense_details['transaction_number'] }})</h3>
+
+                <h3 class="sumb--title">Edit Expense ({{ 'EXP-00000'. $expense_details['transaction_number' }})</h3>
                 @elseif($type == 'view')
-                <h3 class="sumb--title">Expense({{ 'EXP-000000000'. $expense_details['transaction_number'] }})</h3>
-                <p style="color: red;"><small>This expense entry is on Read Only mode. Entries flagged as VOID or PAID cannot be edited.</small></p>
+                <h3 class="sumb--title">
+                    Expense ({{ 'EXP-00000'. $expense_details['transaction_number'] }})
+                    <span class="expense--status-icon {{$expense_details['status']}}">
+                        @if(!empty($expense_details) && $expense_details['status'] == 'Void')   
+                            Void
+                        @elseif(!empty($expense_details) && $expense_details['status'] == 'Paid')
+                            Paid
+                        @endif
+                    </span>
+                </h3>
+                    
+                <div class="invoice--status-deets">This expense entry is on Read Only mode. Entries flagged as <u>{{$expense_details['status']}}</u> cannot be edited.</div>
                 @endif
             </section>
-                <hr class="form-cutter">
-                <section>
+
+            <hr class="form-cutter">
+            
+            <section>
                
                 @if($type == 'edit')
                     <form id="expense-form-edit" action="/expense/{{ $expense_details['id'] }}/update" method="post" enctype="multipart/form-data">
@@ -34,345 +47,376 @@
                     <form id="expense-form-view" action="" method="" enctype="multipart/form-data">
                     {{ csrf_field() }}
                 @endif
-                    <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                           <div class="row">
-                                <div class="col-xl-12">
-                                    <div class="form-input--wrap">
-                                        <label class="form-input--question">Expense Number <span>Read-Only</span></label>
-                                        <div class="form--inputbox readOnly row">
-                                            <div class="col-12">
-                                                <input type="text" id="expense_number" name="" required readonly="" value="{{ !empty($expense_details['transaction_number']) ? 'EXP-'. str_pad($expense_details['transaction_number'], 10, '0', STR_PAD_LEFT)  : 'EXP-'. str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
-                                                <input type="hidden" id="expense_number" name="expense_number" required readonly="" value="{{ !empty($expense_details['transaction_number']) ? $expense_details['transaction_number']  : $data['expenses_count'] }}">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="row">
 
-                                                @error('expense_number')
-                                                    <div class="alert alert-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xl-6">
-                                    <div class="form-input--wrap">
-                                        <label class="form-input--question" for="expense_date">Date <span>MM/DD/YYYY</span></label>
-                                        <div class="date--picker row">
-                                            <div class="col-12">
-                                                <input type="text" id="expense_date" name="expense_date" required class="form-control" value="{{ !empty($expense_details['issue_date']) ? date('m/d/Y', strtotime($expense_details['issue_date'])) :  date("m/d/Y")  }}">
-                                                @error('expense_date')
-                                                    <div class="alert alert-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-6">
-                                    <div class="form-input--wrap">
-                                        <label class="form-input--question" for="expense_due_date">Due Date <span>MM/DD/YYYY</span></label>
-                                        <div class="date--picker row">
-                                            <div class="col-12">
-                                                <input type="text" id="expense_due_date" name="expense_due_date" required class="form-control" value="{{ !empty($expense_details['due_date']) ? date('m/d/Y', strtotime($expense_details['due_date'])) : '' }}" >
-                                                @error('expense_due_date')
-                                                    <div class="alert alert-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xl-12">
-                                    <div class="form-input--wrap">
-                                        <label for="client_name" class="form-input--question">
-                                            Recipient's Name
-                                        </label>
-                                        <div class="form--inputbox recentsearch--input row">
-                                            <div class="searchRecords col-12">
-                                                <input type="text" id="client_name" name="client_name" required class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" autocomplete="off"  value="{{ !empty($expense_details['client_name']) ? $expense_details['client_name'] : '' }}">
-                                                @error('client_name')
-                                                    <div class="alert alert-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        <div class="form--recentsearch clientname row">
-                                            <div class="col-12">
-                                                <div class="form--recentsearch__result">
-                                                    <ul>
-                                                        @if (empty($exp_clients))
-                                                            <li>You dont have any clients at this time</li>
-                                                        @else
-                                                            @php $counter = 0; @endphp
-                                                            @foreach ($exp_clients as $ec)
-                                                                @php $counter ++; @endphp
-                                                                <li>
-                                                                    <button type="button" class="dcc_click" data-myid="{{ $counter }}">
-                                                                        <span id="data_name_{{ $counter }}">{{ $ec['client_name'] }}</span>
-                                                                    </button>
-                                                                </li>
-                                                            @endforeach
-                                                        @endif
+                                    <div class="col-xl-12">
+                                        <div class="form-input--wrap">
+                                            <label class="form-input--question">Expense Number <span>Read-Only</span></label>
+                                            <div class="form--inputbox readOnly row">
+                                                <div class="col-12">
+                                                    <input type="text" id="expense_number" name="" required readonly value="{{ !empty($expense_details['transaction_number']) ? 'EXP-'. str_pad($expense_details['transaction_number'], 10, '0', STR_PAD_LEFT)  : 'EXP-'. str_pad($data['expenses_count'], 6, '0', STR_PAD_LEFT); }}">
+                                                    <input type="hidden" id="expense_number" name="expense_number" required readonly="" value="{{ !empty($expense_details['transaction_number']) ? $expense_details['transaction_number']  : $data['expenses_count'] }}">
 
-                                                        <li class="add--newactclnt">
-                                                            <label for="savethisrep">
-                                                                <input type="checkbox" id="savethisrep" name="savethisrep" value="yes" class="form-check-input" {{ !empty($form['save_client']) ? 'checked' : '' }}>
-                                                                <div class="option--title">
-                                                                    Add as a new active client?
-                                                                    <span>Note: When the name is existing it will overide the old one.</span>
-                                                                </div>
-                                                            </label>
-                                                        </li>
-                                                    </ul>
+                                                    @error('expense_number')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                                <div class="row">
-                                    <div class="table-responsive">
-                                        <table id="partstable">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col" style="width:150px; min-width:150px;">Description</th>
-                                                    <th scope="col" style="width:40px; min-width:40px;">Qty</th>
-                                                    <th scope="col" style="width:40px; min-width:40px;">Unit Price</th>
-                                                    <th scope="col" style="width:40px; min-width:40px;">Account</th>
-                                                    <th scope="col" style="width:40px; min-width:40px;">Tax Rate</th>
-                                                    <th scope="col" style="width:40px; min-width:40px;">Amount</th>
-                                                    <th scope="col" style="width:40px; min-width:40px;">&nbsp;</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                 @if (empty($expense_particulars)) 
-                                                    <tr>
-                                                        <td>
-                                                            <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required></textarea>
-                                                        </td>
-                                                        <td>
-                                                           <input type="number" id="item_quantity" name="item_quantity[]" step="any"  required>
-                                                        </td>
-                                                        <td>
-                                                           <input type="number" id="item_unit_price" name="item_unit_price[]" step="any"  required>
-                                                        </td>
-                                                        <td>
-                                                            <select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" required>
-                                                                <option value="">select</option>
-                                                                @if(!empty($chart_account))
-                                                                    @foreach ($chart_account as $particulars)
-                                                                        <option value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
-                                                                    @endforeach
-                                                                @endif
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            @if(!empty($tax_rates))
-                                                                <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="">
-                                                                <div class="form-input--wrap">
-                                                                    <div class="row">
-                                                                        <div class="col-12 for--tables">
-                                                                            <select  id="expense_tax" name="expense_tax[]" value="" onchange="getTaxRates(this)">
-                                                                                <option selected value="">Tax Rate Option</option>    
-                                                                                @foreach($tax_rates as $tax_rate)
-                                                                                    <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
-                                                                                    <option id="{{$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
-                                                                                @endforeach
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            <input readonly id="expense_amount" name="expense_amount[]" type="number" step="any" required>
-                                                        </td>
-                                                        <td class="tableOptions">
-                                                            <button class="btn sumb-del-btn delepart" type="button" ><i class="fa-solid fa-trash"></i></button>
-                                                        </td>
-                                                    </tr>
-                                                @else
-                                                <tr>
-                                                    @foreach ($expense_particulars as $prts)
-                                                    
-                                                    <td>
-                                                        <input name="expense_description[]" id="expense_description" class="autoresizing" value="{{ !empty($prts['parts_description']) ? $prts['parts_description'] : '' }}"  required>
-                                                    </td>
-                                                   
-                                                    <td>
-                                                        <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['parts_quantity']) ? $prts['parts_quantity'] : '' }}"  required >
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['parts_unit_price']) ? $prts['parts_unit_price'] : '' }}" step="any"  required>
-                                                    </td>
-                                                    <td>
-                                                        <select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" required>
-                                                            <option value="">select</option>
-                                                            @if(!empty($chart_account))
-                                                                @foreach ($chart_account as $particulars)
-                                                                    <option {{!empty($prts['chart_accounts_particulars']) && $prts['chart_accounts_particulars']['id'] == $particulars['id'] ? 'selected="selected"' : '' }} value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
+
+                                    <div class="col-xl-12">
+                                        <div class="form-input--wrap">
+                                            <label class="form-input--question" for="expense_date">Date <span>MM/DD/YYYY</span></label>
+                                            <div class="date--picker row">
+                                                <div class="col-12">
+                                                    <input type="text" id="expense_date" name="expense_date" required class="form-control" value="{{  !empty($expense_details['issue_date']) ? date('m/d/Y', strtotime($expense_details['issue_date'])) :  date("m/d/Y") }}">
+                                                    @error('expense_date')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-12">
+                                        <div class="form-input--wrap">
+                                            <label class="form-input--question" for="expense_due_date">Due Date <span>MM/DD/YYYY</span></label>
+                                            <div class="date--picker row">
+                                                <div class="col-12">
+                                                    <input type="text" id="expense_due_date" name="expense_due_date" required class="form-control" value="{{ !empty($expense_details['due_date']) ? date('m/d/Y', strtotime($expense_details['due_date'])) : '' }}" >
+                                                    @error('expense_due_date')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-12">
+                                        <div class="form-input--wrap">
+                                            <label for="client_name" class="form-input--question">
+                                                Recipient's Name
+                                            </label>
+                                            <div class="form--inputbox recentsearch--input row">
+                                                <div class="searchRecords col-12">
+                                                    <input type="text" id="client_name" name="client_name" required class="form-control" placeholder="Search Client Name" aria-label="Client Name" aria-describedby="button-addon2" autocomplete="off"  value="{{ !empty($expense_details['client_name']) ? $expense_details['client_name'] : '' }}">
+                                                    @error('client_name')
+                                                        <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="form--recentsearch clientname row">
+                                                <div class="col-12">
+                                                    <div class="form--recentsearch__result">
+                                                        <ul>
+                                                            @if (empty($exp_clients))
+                                                                <li>You dont have any clients at this time</li>
+                                                            @else
+                                                                @php $counter = 0; @endphp
+                                                                @foreach ($exp_clients as $ec)
+                                                                    @php $counter ++; @endphp
+                                                                    <li>
+                                                                        <button type="button" class="dcc_click" data-myid="{{ $counter }}">
+                                                                            <span id="data_name_{{ $counter }}">{{ $ec['client_name'] }}</span>
+                                                                        </button>
+                                                                    </li>
                                                                 @endforeach
                                                             @endif
-                                                        </select>
+
+                                                            <li class="add--newactclnt">
+                                                                <label for="savethisrep">
+                                                                    <input type="checkbox" id="savethisrep" name="savethisrep" value="yes" class="form-check-input" {{ !empty($form['save_client']) ? 'checked' : '' }}>
+                                                                    <div class="option--title">
+                                                                        Add as a new active client?
+                                                                        <span>Note: When the name is existing it will overide the old one.</span>
+                                                                    </div>
+                                                                </label>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="row" style="height: 95.7%;">
+
+                                    <div class="col-xl-12">
+
+                                        <div class="sumb-expense-upload-container d-flex align-items-center justify-content-center">
+
+                                            <div id="sumb-file-upload-container">
+                                                
+                                                <div class="sumb-expense-dropzone">
+                                                    <i class="fa-solid fa-upload"></i>
+                                                    <p>Upload an image</p>
+                                                    <p class="muted">Drag & drop here or select your file manually</p>
+                                                </div>
+
+                                                <input id="file_upload" name="file_upload" accept="image/jpg,image/jpeg,image/png,application/pdf" type="file" class="sumb-expense-dropzone-input">
+
+                                                @error('file_upload')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                                @enderror
+
+                                            </div>
+
+                                            <div id="sumb-receipt-container">
+                                                <!-- pdf upload  -->
+                                                <iframe id="pdf-preview" src="{{ !empty($expense_details['logo']) ? asset($expense_details['logo']) : '' }}"></iframe>
+
+                                                <div class="sumb-expense-receipt-actions d-flex">
+                                                    <div role="presentation" data-ref="toggled-wrapper">
+                                                        <button class="btn sumb--btn delepart deleFile" type="button" ><i class="fa-solid fa-trash-alt"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        
+                                    </div>
+
+                                </div>
+                                
+                            </div>
+                        </div>
+
+
+                        <div class="row expsenses--table">
+
+                            <div class="col-xl-12">
+                                <div class="table-responsive">
+                                    <table id="partstable">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" style="width:150px; min-width:150px;">Description</th>
+                                                <th scope="col" style="width:20px; min-width:20px;">Qty</th>
+                                                <th scope="col" style="width:20px; min-width:20px;">Unit Price</th>
+                                                <th scope="col" style="width:140px; min-width:140px;">Account</th>
+                                                <th scope="col" style="width:100px; min-width:100px;">Tax Rate</th>
+                                                <th scope="col" style="width:40px; min-width:40px;">Amount</th>
+                                                <th scope="col" style="width:40px; min-width:40px;">&nbsp;</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                @if (empty($expense_particulars)) 
+                                                <tr>
+                                                    <td>
+                                                        <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required>{{ !empty($prts['parts_description']) ? $prts['parts_description'] : '' }}</textarea>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" id="item_quantity" name="item_quantity[]" step="any"  required>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" id="item_unit_price" name="item_unit_price[]" step="any"  required>
                                                     </td>
                                                     <td>
 
-                                                    @if(!empty($tax_rates))
-                                                        <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="{{!empty($prts['invoice_tax_rates']) ? $prts['invoice_tax_rates']['tax_rates']: '' }}">
                                                         <div class="form-input--wrap">
                                                             <div class="row">
                                                                 <div class="col-12 for--tables">
-                                                                    <select id="expense_tax" name="expense_tax[]" onchange="getTaxRates(this)" value="">
-                                                                        <option selected value="">Tax Rate Option</option>    
-                                                                        @foreach($tax_rates as $tax_rate)
-                                                                            <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
-                                                                            <option  id="{{$tax_rate['id'].'_0'}}" {{!empty($prts['parts_tax_rate_id']) && $prts['parts_tax_rate_id'] == $tax_rate['id'] ? 'selected="selected"' : ''}} value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
-                                                                        @endforeach
+                                                                    <select class="form-input--dropdown" data-live-search="true" id="item_account" name="item_account[]" required>
+                                                                        <option value="">select</option>
+                                                                        @if(!empty($chart_account))
+                                                                            @foreach ($chart_account as $particulars)
+                                                                                <option value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
+                                                                            @endforeach
+                                                                        @endif
                                                                     </select>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    @endif
-
                                                     </td>
-                                                   
                                                     <td>
-                                                        <input type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['parts_amount']) ? $prts['parts_amount'] : '' }}"  required>
+                                                        @if(!empty($tax_rates))
+                                                            <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="">
+                                                            <div class="form-input--wrap">
+                                                                <div class="row">
+                                                                    <div class="col-12 for--tables">
+                                                                        <select class="form-input--dropdown"  id="expense_tax" name="expense_tax[]" value="" onchange="getTaxRates(this)">
+                                                                            <option selected value="">Tax Rate Option</option>    
+                                                                            @foreach($tax_rates as $tax_rate)
+                                                                                <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
+                                                                                <option id="{{$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <input class="input--readonly" readonly id="expense_amount" name="expense_amount[]" type="number" step="any" value="{{ !empty($prts['parts_amount']) ? $prts['parts_amount'] : '' }}"  required>
+
                                                     </td>
                                                     <td class="tableOptions">
-                                                        <button class="btn sumb-del-btn delepart" type="button" ><i class="fa-solid fa-trash"></i></button>
+                                                        <button class="btn sumb--btn delepart" type="button" ><i class="fa-solid fa-trash-alt"></i></button>
                                                     </td>
                                                 </tr>
-                                                    @endforeach
-                                                @endif
+                                            @else
+                                            <tr>
+                                                @foreach ($expense_particulars as $prts)
                                                 
-                                                <tr class="add--new-line">
-                                                    <td colspan="6">
-                                                        <button class="btn sumb--btn" type="button" id="addnewline"><i class="fa-solid fa-circle-plus"></i>Add New Line</button> 
-                                                    </td>
-                                                </tr>
-                                                @error('expense_description.*')
-                                                        <div class="alert alert-danger">{{ $message }}</div>
-                                                @enderror
-                                                @error('item_quantity.*')
-                                                        <div class="alert alert-danger">{{ $message }}</div>
-                                                @enderror
-                                                @error('item_unit_price.*')
-                                                        <div class="alert alert-danger">{{ $message }}</div>
-                                                @enderror
-                                                @error('expense_tax.*')
-                                                        <div class="alert alert-danger">{{ $message }}</div>
-                                                @enderror
-                                                @error('expense_amount.*')
-                                                        <div class="alert alert-danger">{{ $message }}</div>
-                                                @enderror
+                                                <td>
+                                                    <textarea name="expense_description[]" id="expense_description" step="any" class="autoresizing" required>{{ !empty($prts['expense_description']) ? $prts['expense_description'] : '' }}</textarea>
+                                                </td>
                                                 
-                                                <tr class="invoice-separator">
-                                                    <td colspan="6">hs</td>
-                                                </tr>
+                                                <td>
+                                                    <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['item_quantity']) ? $prts['item_quantity'] : '' }}"  required>
+                                                </td>
+                                                <td>
+                                                    <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['item_unit_price']) ? $prts['item_unit_price'] : '' }}" step="any"  required>
+                                                </td>
+                                                <td>
+                                                    <div class="form-input--wrap">
+                                                        <div class="row">
+                                                            <div class="col-12 for--tables">
+                                                                <select class="form-input--dropdown" data-live-search="true" id="item_account" name="item_account[]" step="any" required>
+                                                                    @if(!empty($chart_account))
+                                                                        @foreach ($chart_account as $particulars)
+                                                                            <option {{!empty($prts['chart_accounts_particulars']) && $prts['chart_accounts_particulars']['id'] == $particulars['id'] ? 'selected="selected"' : '' }} value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
+                                                                        @endforeach
+                                                                    @endif
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="form-input--wrap">
+                                                        <div class="row">
+                                                            <div class="col-12 for--tables">
+                                                                <select class="form-input--dropdown" id="expense_tax" name="expense_tax[]" onchange="getTaxRates(this)" value="">
+                                                                    <option selected value="">Tax Rate Option</option>    
+                                                                    @foreach($tax_rates as $tax_rate)
+                                                                        <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
+                                                                        <option  id="{{$tax_rate['id'].'_0'}}" {{!empty($prts['parts_tax_rate_id']) && $prts['parts_tax_rate_id'] == $tax_rate['id'] ? 'selected="selected"' : ''}} value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                
+                                                <td>
+                                                    <input class="input--readonly" type="number" id="expense_amount" name="expense_amount[]" value="{{ !empty($prts['expense_amount']) ? $prts['expense_amount'] : '' }}"  required>
+                                                </td>
+                                                <td class="tableOptions">
+                                                    <button class="btn sumb--btn delepart" type="button"><i class="fas fa-trash-alt"></i></button>
+                                                </td>
+                                            </tr>
+                                                @endforeach
+                                            @endif
+                                            
+                                            <tr class="add--new-line">
+                                                <td colspan="7">
+                                                    <button class="btn sumb--btn" type="button" id="addnewline"><i class="fa-solid fa-circle-plus"></i>Add New Line</button> 
+                                                </td>
+                                            </tr>
+                                            @error('expense_description.*')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                            @enderror
+                                            @error('item_quantity.*')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                            @enderror
+                                            @error('item_unit_price.*')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                            @enderror
+                                            @error('expense_tax.*')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                            @enderror
+                                            @error('expense_amount.*')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                            @enderror
+                                            
+                                            <tr class="invoice-separator">
+                                                <td colspan="7">&nbsp;</td>
+                                            </tr>
 
-                                                <tr class="invoice-total--subamount">
-                                                    <td colspan="2" rowspan="3"></td>
-                                                    <td>Subtotal</td>
-                                                    <td rowspan="3" style="vertical-align : top;text-align:center;">
-                                                    
-                                                        <select style="border: none;" name="tax_type" id="tax_type">
-                                                        @if(empty($expense_details['tax_type']))
-                                                            <option value="0">Incl. Tax</option>
-                                                            <option value="1">Excl. Tax</option>
-                                                        @else
-                                                            <option <?php echo ($expense_details['tax_type']) ==  'tax_inclusive' ? ' selected="selected"' : '';?> value="0">Incl. Tax</option>
-                                                            <option <?php echo ($expense_details['tax_type']) ==  'tax_exclusive' ? ' selected="selected"' : '';?> value="1">Excl. Tax</option>
-                                                        @endif
-                                                        </select> </span>
-                                                    </td>
-                                                    
-                                                    <td  colspan="2">
+                                            <tr class="expenses-tax--option">
+                                                <td colspan="4">&nbsp;</td>
+                                                <td>Tax Option</td>
+                                                <td colspan="2">
+                                                    <div class="form-input--wrap">
+                                                        <div class="col-12 for--tables">
+                                                            <select name="tax_type" id="tax_type" class="form-input--dropdown">
+                                                            @if(empty($expense_details['tax_type']))
+                                                                <option value="0">Incl. Tax</option>
+                                                                <option value="1">Excl. Tax</option>
+                                                            @else
+                                                                <option <?php echo ($expense_details['tax_type']) ==  'tax_inclusive' ? ' selected="selected"' : '';?> value="0">Incl. Tax</option>
+                                                                <option <?php echo ($expense_details['tax_type']) ==  'tax_exclusive' ? ' selected="selected"' : '';?> value="1">Excl. Tax</option>
+                                                            @endif
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="invoice-total--subamount">
+                                                <td colspan="4" rowspan="3">
+                                                    &nbsp;
+                                                </td>
+                                                <td>Subtotal</td>
+                                                <td colspan="2">
                                                     <input readonly required id="expense_total_amount" step="any" name="expense_total_amount" type="number" value="{{ !empty($expense_details['sub_total']) ? $expense_details['sub_total'] : '' }}">
                                                     @error('expense_total_amount')
                                                         <div class="alert alert-danger">{{ $message }}</div>
                                                     @enderror
                                                 </td>
-                                                </tr>
+                                            </tr>
 
-                                                <tr class="invoice-total--gst">
-                                                    <td>Total GST</td>
-                                                    <td colspan="2">
+                                            <tr class="invoice-total--gst">
+                                                <td>Total GST</td>
+                                                <td colspan="2">
                                                     <input type="number" required readonly step="any" name="total_gst" id="total_gst" value="{{ !empty($expense_details['total_gst']) ? $expense_details['total_gst'] : '' }}">
                                                     @error('total_gst')
                                                     <div class="alert alert-danger">{{ $message }}</div>
                                                     @enderror    
                                                 </td>
-                                                </tr>
+                                            </tr>
 
-                                                <tr class="invoice-total--amountdue">
-                                                    <td><strong>Total</strong></td>
-                                                    <td colspan="2">
-                                                        <strong id="grandtotal"></strong>
-                                                        <input type="number" required readonly step="any"  name="total_amount" id="total_amount" value="{{ !empty($expense_details['total_amount']) ? $expense_details['total_amount'] : '' }}">
-                                                        @error('total_amount')
-                                                        <div class="alert alert-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                            <tr class="invoice-total--amountdue">
+                                                <td><strong>Total</strong></td>
+                                                <td colspan="2">
+                                                    <strong id="grandtotal"></strong>
+                                                    <input type="number" required readonly step="any" class="grandtotal" name="total_amount" id="total_amount" value="{{ !empty($expense_details['total_amount']) ? $expense_details['total_amount'] : '' }}">
+                                                    @error('total_amount')
+                                                    <div class="alert alert-danger">{{ $message }}</div>
+                                                    @enderror
+                                                </td>
+                                            </tr>
+                                            
+                                        </tbody>
+                                    </table>
                                 </div>
+                            </div>
+                        
+                    
                         </div>
 
-                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                           <div class="sumb-expense-upload-container">
-                                <div id="sumb-file-upload-container" class="sumb-flex sumb-flex-column sumb-flex-justify-center sumb-flex-align-center sumb-expense-dropzone">
-                                    <div class="sumb-text-align-center sumb-padding-small">
-                                        <svg width="60px" height="75px" viewBox="0 0 60 75" version="1.1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <path d="M60,5 L60,75 L52.5,69.0347478 L45,75 L37.5,69.0347478 L30,75 L22.5,69.0347478 L15,75 L7.5,69.0347478 L0,75 L1.61687175e-14,5 L3.46389584e-14,5 C3.55271e-14,2.23857625 2.23857625,2.11046133e-13 5,2.00728323e-13 L55,2.49056418e-14 L55,8.8817842e-15 C57.7614237,1.01660217e-15 60,2.23857625 60,5 L60,5 Z M11.5,43 C10.6715729,43 10,43.6715729 10,44.5 C10,45.3284271 10.6715729,46 11.5,46 L48.5,46 C49.3284271,46 50,45.3284271 50,44.5 C50,43.6715729 49.3284271,43 48.5,43 L11.5,43 Z M11.5,53 C10.6715729,53 10,53.6715729 10,54.5 C10,55.3284271 10.6715729,56 11.5,56 L48.5,56 C49.3284271,56 50,55.3284271 50,54.5 C50,53.6715729 49.3284271,53 48.5,53 L11.5,53 Z M11.5,33 C10.6715729,33 10,33.6715729 10,34.5 C10,35.3284271 10.6715729,36 11.5,36 L48.5,36 C49.3284271,36 50,35.3284271 50,34.5 C50,33.6715729 49.3284271,33 48.5,33 L11.5,33 Z M30,23 C32.7614237,23 35,20.7614237 35,18 C35,15.2385763 32.7614237,13 30,13 C27.2385763,13 25,15.2385763 25,18 C25,20.7614237 27.2385763,23 30,23 Z" id="expense-icon" fill="#98A2AC"></path>
-                                            </g>
-                                        </svg>
-                                        <div class="sumb-padding-vertical sumb-padding-vertical">Upload an image</div>
-                                        <div class="sumb-textcolor-muted">Drag &amp; drop here, or select your file manually</div>
-                                    </div>
-                                    <!-- <button class="sumb-button sumb-margin-top-small sumb-button-standard sumb-button-small" tabindex="0" type="button" data-automationid="upload-button" fdprocessedid="g5oor">Upload</button> -->
-                                    <input id="file_upload" name="file_upload" style="padding-left: 30%;" accept="image/jpg,image/jpeg,image/png,application/pdf" type="file">
-                                    @error('file_upload')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div id="sumb-receipt-container" class="sumb-receipt-container sumb-flex sumb-flex-align-center">
-                                <!-- pdf upload  -->
-                                    <iframe id="pdf-preview" class="" src="{{ !empty($expense_details['logo']) ? asset($expense_details['logo']) : '' }}" style="width: 100%; height: 100%;"></iframe>
-                                    <div class="sumb-expense-receipt-actions sumb-margin sumb-flex sumb-button-group-corners sumb-expense-receipt-actions--pdf">
-                                        <div role="presentation" data-ref="toggled-wrapper">
-                                        <button class="sumb-button sumb-button-standard sumb-button-small btn sumb-del-btn deleFile" type="button" ><i class="fa-solid fa-trash"></i></button>
-                                            <!-- <button class="sumb-button sumb-button-standard sumb-button-small" tabindex="0" type="button" >
-                                                <svg class="sumb-icon" focusable="false" height="13" viewBox="0 0 13 13" width="13">
-                                                    <path d="M2.83 13H0v-2.83l8.49-8.49 2.83 2.83L2.83 13zM9.905.265c.354-.353 1.061-.353 1.415 0l1.415 1.415c.353.354.353 1.061 0 1.415l-.708.708-2.83-2.83.708-.708z" role="presentation"></path>
-                                                </svg>
-                                            </button> -->
-                                        </div>
-                                    </div>
+                        
+
+                        <div class="form-navigation">
+                            <div class="form-navigation--btns row">
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 col-12">
+                                <a href="/expense" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i> Back</a>
+                                </div> 
+                                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 col-12">
+                                    <button value="save_expense" name="save_expense" style="float: right;" type="submit" class="btn sumb--btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+                                    <button style="float: right;" type="button" onclick="previewExpense()" class="btn sumb--btn preview--btn"><i class="fa-solid fa-eye"></i> Preview</button>
+                                    <button style="float: right;" type="reset" class="btn sumb--btn reset--btn"><i class="fa fa-ban"></i> Clear Expense</button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div style="padding:2rem 0rem;" class="row">
-                            
-                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 col-12">
-                            <?php if(!empty($from)){ ?>
-                                <a href="/{{$from}}" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i>Back</a>
-                            <?php }else{?>
-                                <a href="/expense" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i> Back</a>
-                            <?php }?>
-                        </div> 
-                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 col-12">
-                            <button value="save_expense" name="save_expense" style="float: right;" type="submit" class="btn sumb--btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-                            <button style="float: right;" type="button" onclick="previewExpense()" class="btn sumb--btn preview--btn"><i class="fa-solid fa-eye"></i> Preview</button>
-                            <button style="float: right;" type="reset" class="btn sumb--btn reset--btn"><i class="fa fa-ban"></i> Clear Expense</button>
-                            <!-- <input type="hidden" name="status_paid" id="status_paid" value="{{ !empty($expense_details['status_paid']) ? $expense_details['status_paid'] : '' }}"> -->
-                        </div>
-                            
-                    </div>
-                </form>
+                    </form>
             </section>
         </div>
     </div>
@@ -382,96 +426,107 @@
 
 
 <!-- Expense preview model -->
-<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl" style="max-width: 70%;">
+<div class="modal fade bd-example-modal-lg modal-reskin" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog invoice--preview">
     <div class="modal-content">
-      <!------- Expnse Preview Modal ------>
-        <div class="card">
-            <div class="card-body">
-                <div class="container mb-5 mt-3">
-                    <div class="row d-flex align-items-baseline">
-                        <hr>
+
+        <div class="modal-header">
+            <h5 class="modal-title invoiceprev--header" id="staticBackdropLabel">Expense Preview</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true"><i class="fa-solid fa-xmark"></i></span>
+            </button>
+        </div>
+
+        <!------- Expense Preview Modal ------>
+
+        <div class="modal-body">
+            <div class="container">
+
+                <div class="container">
+                    <center>
+                        <h2 class="mb-4 mt-2">Expense Preview</h4>
+                    </center>
+
+                    <div class="invoicetable--header">
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6">
+                                <ul class="list-unstyled">
+                                    <li>To: <span id="expense_preview_to"></span></li>
+                                    <li>Invoice number: <span id="expense_preview_expense_number"></span></li>
+                                    <li>Issued: <span id="expense_preview_issue_date"></span></li>
+                                    <li>Due: <span id="expense_preview_due_date"></span></li>
+                                </ul>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 invoicetable--header_from">
+                                <ul class="list-unstyled">
+                                    <li>From: <span id="expense_preview_from">{{$userinfo['1']}}</span></li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="container">
-                        <div class="col-md-12">
-                            <div class="text-center">
-                                <h3>Expense Preview</h3>
-                                <!-- <p class="pt-0">MDBootstrap.com</p> -->
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-xl-8">
-                                <ul class="list-unstyled">
-                                    <li class="text-muted">To: <span style="color:#5d9fc5 ;" id="expense_preview_to"></span></li>
-                                    <li class="text-muted">Expense number: <span id="expense_preview_expense_number"></span></li>
-                                    <li class="text-muted">Issued: <span id="expense_preview_issue_date"></span></li>
-                                    <li class="text-muted">Due: <span id="expense_preview_due_date"></span></li>
-                                </ul>
-                            </div>
-                            <div class="col-xl-4">
-                                <ul class="list-unstyled">
-                                    <li class="text-muted">From: <span id="expense_preview_from">{{$userinfo['1']}}</span></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <hr class="form-cutter">
-                        <div class="table-responsive">
-                            <table  class="table table-striped" id="expense_preview_parts">
-                                <thead>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-striped" id="expense_preview_parts">
+                            <thead>
                                 <tr>
-                                    <!-- <th scope="col" style="width:120px; min-width:120px;">Item</th> -->
                                     <th scope="col" style="width:320px; min-width:320px;">Description</th>
                                     <th scope="col" style="width:100px; min-width:100px;">QTY</th>
                                     <th scope="col" style="width:120px; min-width:120px;">Unit Price</th>
                                     <th scope="col" style="width:120px; min-width:120px;">Tax</th>
                                     <th scope="col" style="width:120px; min-width:120px;">Amount</th>
                                 </tr>
-                                </thead>
-                                <tbody id="expense_preview_parts_rows">
+                            </thead>
+                            <tbody id="expense_preview_parts_rows"></tbody>
                                 
-                                </tbody>
+                        </table>
+                    </div>
 
+                    <div class="row mt-4 invoice--extrainfo">
+                        <div class="col-xl-8 col-lg-8">
+                            <p class="invoice--paymentnotes mb-1">
+                                Add additional notes and payment information (e.g Bank Account)
+                            </p>
+                            <p class="invoice--paymentnotes">
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque in maximus orci. Sed augue lectus, ultrices sit amet enim nec, commodo sodales lacus. Phasellus ultricies molestie eleifend. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nam eu felis ante. Suspendisse sed ex sed felis semper elementum.
+                            </p>
+                        </div>
+                        <div class="col-xl-4 col-lg-4">
+                            <table class="table table-clear invoice--paymentinfo">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <strong>Subtotal</strong>
+                                        </td>
+                                        <td class="center" id="expense_preview_sub_total"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Total Tax %</strong>
+                                        </td>
+                                        <td class="center" id="expense_preview_total_tax"></td>
+                                    </tr>
+                                    <tr class="invoice--paymentinfo-total_amount">
+                                        <td>
+                                            <strong>Total</strong>
+                                        </td>
+                                        <td class="center" id="expense_preview_total_amount"></td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
-                        <hr class="form-cutter">
-                        <div class="row">
-                            <div class="col-xl-6">
-                                <!-- <p class="ms-3">Add additional notes and payment information</p> -->
-
-                            </div>
-                            <div class="col-xl-6">
-                                <table class="table table-clear">
-                                    <tbody>
-                                        <tr>
-                                            <td class="left">
-                                                <strong>Subtotal</strong>
-                                            </td>
-                                            <td class="right" id="expense_preview_sub_total"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="left">
-                                                <strong>Total Tax %</strong>
-                                            </td>
-                                            <td class="right" id="expense_preview_total_tax"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="left">
-                                                <strong>Total</strong>
-                                            </td>
-                                            <td class="right" id="expense_preview_total_amount">
-                                                <strong></strong>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <hr class="form-cutter">
                     </div>
+
+
+                    
+
+                    
                 </div>
             </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary close--btn" data-dismiss="modal">Close</button>
         </div>
     <!--------------END---------------------->
     </div>
@@ -652,13 +707,14 @@ var counts = 0;
             '<tr><td><textarea name=\"expense_description[]\" id=\"expense_description\" class=\"autoresizing\" required></textarea></td>\n'+
             '<td><input type=\"number\" step="any" id=\"item_quantity\" name=\"item_quantity[]\" required \"></td>\n'+
             '<td><input type=\"number\" step="any" id=\"item_unit_price\" name=\"item_unit_price[]\" required \"></td>\n'+
-            '<td id="testing">'+
-                '<select style=\"border: none;\" class=\"selectpicker\" data-live-search="true" id=\"item_account_'+counts+'\" name=\"item_account[]\" required></select>\n'+
-            '</td>'+
-            '<td><input type=\"hidden\" name=\"expense_tax_id[]\" id=\"expense_tax_id\" value=""><select style=\"border: none;\" name=\"expense_tax[]\" id=\"expense_tax_'+counts+'\" onchange=getTaxRates(this) required></select></td>\n'+
-            '<td><input readonly id=\"expense_amount\" name=\"expense_amount[]\" type=\"number\" step="any" required></td>\n'+
+            '<td><div class=\"form-input--wrap\"><div class=\"row\"><div class=\"col-12 for--tables\">'+
+                '<select class="form-input--dropdown" data-live-search="true" id=\"item_account_'+counts+'\" name="item_account[]" step="any" required>\n'+
+                '</select>\n'+
+            '</div></div></div></td>'+
+            '<td><div class=\"form-input--wrap\"><div class=\"row\"><div class=\"col-12 for--tables\"><select name=\"expense_tax[]\" id=\"expense_tax_'+counts+'\" onchange=getTaxRates(this) class=\"form-input--dropdown\" required></select></div></div></div></td>\n'+
+            '<td><input class=\"input--readonly\" readonly id=\"expense_amount\" name=\"expense_amount[]\" type=\"number\" step="any" required></td>\n'+
             '<td class=\"tableOptions\">\n'+
-                '<button class=\"btn sumb-del-btn delepart\" type=\"button\" ><i class=\"fa-solid fa-trash\"></i></button>\n'+
+                '<button class=\"btn sumb--btn delepart\" type=\"button\" ><i class=\"fa-solid fa-trash-alt\"></i></button>\n'+
             '</td></tr>');
 
         getChartAccountsParticularsList(counts);

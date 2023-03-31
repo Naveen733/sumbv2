@@ -1,22 +1,21 @@
 @include('includes.head')
 @include('includes.user-header')
 
-<!-------Delete invoice alert pop-up--------------->
-<div class="modal fade" id="delete_invoice_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div id="delete_invoice_modal" class="modal fade modal-reskin modal-deleteItem" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Delete Invoice</h5>
+        <h5 class="modal-title deleteicon--header" id="exampleModalLabel">Delete Invoice</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
+          <span aria-hidden="true"><i class="fa-solid fa-xmark"></i></span>
         </button>
       </div>
       <div class="modal-body">
         Are you sure you want to delete this invoice <span id="delete_invoice_number"></span>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="delete_invoice" value="">Delete</button>
+        <button type="button" class="btn btn-secondary close--btn" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary delete--btn" id="delete_invoice" value="">Delete</button>
       </div>
     </div>
   </div>

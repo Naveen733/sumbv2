@@ -225,7 +225,7 @@
             <div class="modal-footer">
                 <input type="hidden" id="invoice_account_part_row_id" value="">
                 <input type="hidden" id="add_account_from" value="">
-                <button type="button" class="btn btn-secondary save--close" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary close--btn" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary save--btn" onclick="addNewAccount('invoice_account_part_row_id')">Save</button>
             </div>
         </div>
@@ -410,7 +410,7 @@
         </div>
 
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary close--btn" data-dismiss="modal">Close</button>
         </div>
 
     </div>
