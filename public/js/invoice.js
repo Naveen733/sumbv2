@@ -786,8 +786,7 @@ function previewInvoice(){
                 <td>'+$("#invoice_parts_quantity_"+i).val()+'</td>\
                 <td>'+$("#invoice_parts_description_"+i).val()+'</td>\
                 <td>'+$("#invoice_parts_unit_price_"+i).val()+'</td>\
-                <td>'+$("#invoice_parts_chart_accounts_code_"+i).val()+'</td>\
-                <td></td>\
+                <td>'+$("#invoice_parts_tax_rate_"+i).val()+' %</td>\
                 <td>'+$("#invoice_parts_amount_"+i).val()+'</td>\
             </tr> ');
         }

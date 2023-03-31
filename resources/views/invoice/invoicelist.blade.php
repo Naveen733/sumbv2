@@ -1,6 +1,7 @@
 @include('includes.head')
 @include('includes.user-header')
 
+<!-------Delete invoice alert pop-up--------------->
 <div class="modal fade" id="delete_invoice_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -20,6 +21,33 @@
     </div>
   </div>
 </div>
+<!-------Delete invoice alert pop-up end--------------->
+
+
+<!-------Recall invoice alert pop-up--------------->
+<!-- <form action="/invoice/recall"  method="POST" enctype="multipart/form-data"> -->
+    <div class="modal fade" id="recall_invoice_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Recall Invoice</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to recall this invoice
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" name="recall_invoice" class="btn btn-primary" id="recall_invoice" value="">Recall Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- </form> -->
+<!-------Recall invoice alert pop-up end--------------->
+
 
 <!-- PAGE CONTAINER-->
 <div class="page-container">
@@ -37,7 +65,6 @@
 
                 <section>
                     <div class="sumb--statistics row">
-
 
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
                             <div class="sumb--dashstatbox sumb--putShadowbox statistic__item--blue">
@@ -75,7 +102,6 @@
                         </div>
                     </div>
                 </section>
-
                 <section>
                     <div class="row">
                         <div class="col-xl-12">
@@ -89,6 +115,10 @@
                                 <div class="alert alert-success">
                                     {!! \Session::get('success') !!}
                                 </div>
+                            @endif
+
+                            @if (\Session::has('email-sent') && Session('email-sent'))
+                               
                             @endif
 
                             <form action="/invoice"  method="GET" enctype="multipart/form-data" id="search_form">
@@ -154,7 +184,6 @@
                                         <button type="button" name="search_invoice" class="btn sumb--btn " value="Search" onclick="searchItems(null, null, '{{$filterBy}}')"><i class="fa-solid fa-magnifying-glass"></i>Search</button>
                                         <button type="button" class="btn sumb--btn sumb-clear-btn" onclick="clearSearchItems()"><i class="fa-solid fa-circle-xmark"></i>Clear Search</button>
                                     </div>
-
                                 </div>
                             </form>
 
@@ -191,13 +220,22 @@
                                                 <td onclick="window.location='/invoice/{{$invoice['id']}}/edit'"><span class="{{ $invoice['invoice_sent'] ? 'email2client_sent' : 'email2client_pending' }}"></span></td>
                                                 <!-- <td><a class="btn" href="/invoice/{{$invoice['id']}}/edit"><i class='far fa-edit'></i></a> <a class="btn" href="/invoice/{{$invoice['id']}}/edit"><i class='far fa-edit'></i></a></td> -->
                                                 <td class="sumb--recentlogdements__actions" style="text-align:right;">
-                                                    <div class="sumb--fileSharebtn dropdown <?php echo $invoice['status'] ?>">
+                                                    <div class="sumb--fileSharebtn dropdown">
                                                         <a class="fileSharebtn" href="#" role="button" id="mainlinkadd" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-gear"></i></a>
                                                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="mainlinkadd">
                                                             @if($invoice['status'] == 'Paid')
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Unpaid">Flag as UNPAID</a> 
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Voided">Flag as VOID</a> 
+                                                            @elseif($invoice['status'] == 'Voided')
+                                                                <a class="dropdown-item" href="/clone-invoice/?invoice_id={{ $invoice['id'] }}">Clone</a> 
                                                             @elseif($invoice['status'] == 'Unpaid')
+                                                                <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Voided">Flag as VOID</a> 
+                                                                <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Paid">Flag as PAID</a>
+                                                                <a class="dropdown-item" onclick="deleteInvoice({{ str_pad($invoice['transaction_number'], 6, '0', STR_PAD_LEFT); }}, {{$invoice['id']}});">Delete</a>
+                                                                @if($invoice['status'] == 'Unpaid' && $invoice['invoice_sent'])
+                                                                    <a class="dropdown-item" onclick="recallInvoice({{$invoice['id']}})">Recall invoice with edit</a>
+                                                                @endif
+                                                            @elseif($invoice['status'] == 'Recalled')
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Voided">Flag as VOID</a> 
                                                                 <a class="dropdown-item" href="/status-change/?invoice_id={{ $invoice['id'] }}&status=Paid">Flag as PAID</a>
                                                                 <a class="dropdown-item" onclick="deleteInvoice({{ str_pad($invoice['transaction_number'], 6, '0', STR_PAD_LEFT); }}, {{$invoice['id']}});">Delete</a>
@@ -263,14 +301,12 @@
                     &nbsp;
                 </section>
                 
-                
             </div>
         </div>
     </div>
 </div>
 
 <!-- END PAGE CONTAINER-->
-
 
 @include('includes.footer')
 </body>
@@ -280,7 +316,7 @@
 <script>
     function deleteInvoice(transaction_number, id){        
         $("#delete_invoice_number").text('');
-        $("#delete_invoice_number").text(transaction_number);
+        $("#delete_invoice_number").text('INV-000000'+transaction_number);
         $("#delete_invoice").val('');
         $("#delete_invoice").val(id);
         
@@ -291,9 +327,28 @@
         });
     }
 
+    function recallInvoice(id){        
+        $("#recall_invoice").val('');
+        $("#recall_invoice").val(id);
+        
+        $('#recall_invoice_modal').modal({
+            backdrop: 'static',
+            keyboard: true, 
+            show: true
+        });
+    }
+
+    $(document).on('click', '#recall_invoice', function(event) {
+        var invoice_id = $("#recall_invoice").val();
+        
+        var url = "{{URL::to('/invoice/{id}/recall')}}";
+        url = url.replace('{id}', invoice_id);
+        location.href = url;
+    });
+
     $(document).on('click', '#delete_invoice', function(event) {
         var invoice_id = $("#delete_invoice").val();
-        console.log(invoice_id);
+        
         var url = "{{URL::to('/invoice/{id}/delete')}}";
         url = url.replace('{id}', invoice_id);
         location.href = url;

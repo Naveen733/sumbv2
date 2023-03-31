@@ -37,21 +37,6 @@
                             @endif
                         @csrf
 
-                        <div class="dropdown">
-  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Dropdown button
-  </button>
-  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <h6 class="dropdown-header">Header 1</h6>
-    <a class="dropdown-item" href="#">Item 1</a>
-    <a class="dropdown-item" href="#">Item 2</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header">Header 2</h6>
-    <a class="dropdown-item" href="#">Item 3</a>
-    <a class="dropdown-item" href="#">Item 4</a>
-  </div>
-</div>
-
                         <hr class="form-cutter">
                         
                         <h4 class="form-header--title">Business Details</h4>

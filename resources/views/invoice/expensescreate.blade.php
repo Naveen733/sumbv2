@@ -43,7 +43,7 @@
                                         <div class="form--inputbox readOnly row">
                                             <div class="col-12">
                                                 <input type="text" id="expense_number" name="" required readonly="" value="{{ !empty($expense_details['transaction_number']) ? 'EXP-'. str_pad($expense_details['transaction_number'], 10, '0', STR_PAD_LEFT)  : 'EXP-'. str_pad($data['expenses_count'], 10, '0', STR_PAD_LEFT); }}">
-                                                <input type="text" id="expense_number" name="expense_number" required readonly="" value="{{ !empty($expense_details['transaction_number']) ? $expense_details['transaction_number']  : $data['expenses_count'] }}">
+                                                <input type="hidden" id="expense_number" name="expense_number" required readonly="" value="{{ !empty($expense_details['transaction_number']) ? $expense_details['transaction_number']  : $data['expenses_count'] }}">
 
                                                 @error('expense_number')
                                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -159,10 +159,8 @@
                                                             <select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" required>
                                                                 <option value="">select</option>
                                                                 @if(!empty($chart_account))
-                                                                    @foreach ($chart_account as $item)
-                                                                        @foreach ($item['chart_accounts_particulars'] as $particulars)
-                                                                            <option value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
-                                                                        @endforeach
+                                                                    @foreach ($chart_account as $particulars)
+                                                                        <option value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
                                                                     @endforeach
                                                                 @endif
                                                             </select>
@@ -170,11 +168,10 @@
                                                         <td>
                                                             @if(!empty($tax_rates))
                                                                 <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="">
-                                                                <input type="hidden" name="expense_parts_tax_rate_name[]" id="expense_parts_tax_rate_name" value="">
                                                                 <div class="form-input--wrap">
                                                                     <div class="row">
                                                                         <div class="col-12 for--tables">
-                                                                            <select  id="expense_tax" name="expense_tax[]" value="" onchange="getTaxRates()">
+                                                                            <select  id="expense_tax" name="expense_tax[]" value="" onchange="getTaxRates(this)">
                                                                                 <option selected value="">Tax Rate Option</option>    
                                                                                 @foreach($tax_rates as $tax_rate)
                                                                                     <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
@@ -202,7 +199,7 @@
                                                     </td>
                                                    
                                                     <td>
-                                                        <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['parts_quantity']) ? $prts['parts_quantity'] : '' }}"  required>
+                                                        <input type="number" id="item_quantity" name="item_quantity[]" value="{{ !empty($prts['parts_quantity']) ? $prts['parts_quantity'] : '' }}"  required >
                                                     </td>
                                                     <td>
                                                         <input type="number" id="item_unit_price" name="item_unit_price[]" value="{{ !empty($prts['parts_unit_price']) ? $prts['parts_unit_price'] : '' }}" step="any"  required>
@@ -211,10 +208,8 @@
                                                         <select style="border: none;" class="selectpicker" data-live-search="true" id="item_account" name="item_account[]" required>
                                                             <option value="">select</option>
                                                             @if(!empty($chart_account))
-                                                                @foreach ($chart_account as $item)
-                                                                    @foreach ($item['chart_accounts_particulars'] as $particulars)
-                                                                        <option {{!empty($prts['chart_accounts_particulars']) && $prts['chart_accounts_particulars']['id'] == $particulars['id'] ? 'selected="selected"' : '' }} value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
-                                                                    @endforeach
+                                                                @foreach ($chart_account as $particulars)
+                                                                    <option {{!empty($prts['chart_accounts_particulars']) && $prts['chart_accounts_particulars']['id'] == $particulars['id'] ? 'selected="selected"' : '' }} value="{{$particulars['id']}}">{{ $particulars['chart_accounts_particulars_code'] }} - {{ $particulars['chart_accounts_particulars_name'] }}</option>
                                                                 @endforeach
                                                             @endif
                                                         </select>
@@ -222,16 +217,15 @@
                                                     <td>
 
                                                     @if(!empty($tax_rates))
-                                                        <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="">
-                                                        <input type="hidden" name="expense_parts_tax_rate_name[]" id="expense_parts_tax_rate_name" value="">
+                                                        <input type="hidden" name="expense_tax_id[]" id="expense_tax_id" value="{{!empty($prts['invoice_tax_rates']) ? $prts['invoice_tax_rates']['tax_rates']: '' }}">
                                                         <div class="form-input--wrap">
                                                             <div class="row">
                                                                 <div class="col-12 for--tables">
-                                                                    <select id="expense_tax" name="expense_tax[]" onchange="getTaxRates()" value="">
+                                                                    <select id="expense_tax" name="expense_tax[]" onchange="getTaxRates(this)" value="">
                                                                         <option selected value="">Tax Rate Option</option>    
                                                                         @foreach($tax_rates as $tax_rate)
                                                                             <option hidden="hidden" id="{{'tax_rate_id_'.$tax_rate['id'].'_0'}}" value="{{$tax_rate['id']}}"></option>
-                                                                            <option id="{{$tax_rate['id'].'_0'}}"  value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
+                                                                            <option  id="{{$tax_rate['id'].'_0'}}" {{!empty($prts['parts_tax_rate_id']) && $prts['parts_tax_rate_id'] == $tax_rate['id'] ? 'selected="selected"' : ''}} value="{{$tax_rate['id']}}">{{$tax_rate['tax_rates_name']}}</option>
                                                                         @endforeach
                                                                     </select>
                                                                 </div>
@@ -296,7 +290,7 @@
                                                     <input readonly required id="expense_total_amount" step="any" name="expense_total_amount" type="number" value="{{ !empty($expense_details['sub_total']) ? $expense_details['sub_total'] : '' }}">
                                                     @error('expense_total_amount')
                                                         <div class="alert alert-danger">{{ $message }}</div>
-                                                    @enderror    
+                                                    @enderror
                                                 </td>
                                                 </tr>
 
@@ -325,7 +319,7 @@
                                     </div>
                                 </div>
                         </div>
-                        
+
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                            <div class="sumb-expense-upload-container">
                                 <div id="sumb-file-upload-container" class="sumb-flex sumb-flex-column sumb-flex-justify-center sumb-flex-align-center sumb-expense-dropzone">
@@ -346,7 +340,7 @@
                                 </div>
                                 <div id="sumb-receipt-container" class="sumb-receipt-container sumb-flex sumb-flex-align-center">
                                 <!-- pdf upload  -->
-                                    <iframe id="pdf-preview" class="" src="{{ !empty($expense_details['file_upload']) ? asset($expense_details['file_upload']) : '' }}" style="width: 100%; height: 100%;"></iframe>
+                                    <iframe id="pdf-preview" class="" src="{{ !empty($expense_details['logo']) ? asset($expense_details['logo']) : '' }}" style="width: 100%; height: 100%;"></iframe>
                                     <div class="sumb-expense-receipt-actions sumb-margin sumb-flex sumb-button-group-corners sumb-expense-receipt-actions--pdf">
                                         <div role="presentation" data-ref="toggled-wrapper">
                                         <button class="sumb-button sumb-button-standard sumb-button-small btn sumb-del-btn deleFile" type="button" ><i class="fa-solid fa-trash"></i></button>
@@ -364,7 +358,11 @@
                     <div style="padding:2rem 0rem;" class="row">
                             
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 col-12">
-                            <a href="/expense" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i> Back</a>
+                            <?php if(!empty($from)){ ?>
+                                <a href="/{{$from}}" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i>Back</a>
+                            <?php }else{?>
+                                <a href="/expense" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i> Back</a>
+                            <?php }?>
                         </div> 
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 col-12">
                             <button value="save_expense" name="save_expense" style="float: right;" type="submit" class="btn sumb--btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
@@ -402,7 +400,6 @@
                                 <!-- <p class="pt-0">MDBootstrap.com</p> -->
                             </div>
                         </div>
-
 
                         <div class="row">
                             <div class="col-xl-8">
@@ -658,13 +655,14 @@ var counts = 0;
             '<td id="testing">'+
                 '<select style=\"border: none;\" class=\"selectpicker\" data-live-search="true" id=\"item_account_'+counts+'\" name=\"item_account[]\" required></select>\n'+
             '</td>'+
-            '<td><select style=\"border: none;\" name=\"expense_tax[]\" id=\"expense_tax\" required><option value=\"0\">Tax Exempt</option><option value=\"10\">General Tax</option></select></td>\n'+
+            '<td><input type=\"hidden\" name=\"expense_tax_id[]\" id=\"expense_tax_id\" value=""><select style=\"border: none;\" name=\"expense_tax[]\" id=\"expense_tax_'+counts+'\" onchange=getTaxRates(this) required></select></td>\n'+
             '<td><input readonly id=\"expense_amount\" name=\"expense_amount[]\" type=\"number\" step="any" required></td>\n'+
             '<td class=\"tableOptions\">\n'+
                 '<button class=\"btn sumb-del-btn delepart\" type=\"button\" ><i class=\"fa-solid fa-trash\"></i></button>\n'+
             '</td></tr>');
 
         getChartAccountsParticularsList(counts);
+        getTaxRatesList(counts);
     });
        
     function getChartAccountsParticularsList(id){
@@ -673,7 +671,7 @@ var counts = 0;
         });
         $.ajax({
         method: "GET",
-        url: "/chart-accounts-parts",
+        url: "/expense-chart-accounts",
         // data: post_data,
         success:function(response){
             try{
@@ -685,11 +683,7 @@ var counts = 0;
                     $("#item_account_"+id).append('<option value="">select</option>')
                     
                     $.each(response.data,function(key,value){
-                        $.each(value['chart_accounts_particulars'],function(k,val){
-                            console.log(val);
-                            // counter++;
-                            $("#item_account_"+id).append('\n\<option value='+val['id']+'>'+val['chart_accounts_particulars_code']+' - '+val['chart_accounts_particulars_name']+'</option>');
-                        });
+                        $("#item_account_"+id).append('\n\<option value='+value['id']+'>'+value['chart_accounts_particulars_code']+' - '+value['chart_accounts_particulars_name']+'</option>');
                     });
                 }else if(response.status == "error"){
                     alert(esponse.err);
@@ -706,6 +700,43 @@ var counts = 0;
             }
         });
     }
+
+    function getTaxRatesList(id){
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        });
+        $.ajax({
+        method: "GET",
+        url: "/expense-tax-rates",
+        // data: post_data,
+        success:function(response){
+            try{
+                response = JSON.parse(response);
+                if(response && response.status == "success"){
+                    // $("#client_details").show();
+                    $("#expense_tax_"+id).empty();
+                    var counter = 0;
+                    $("#expense_tax_"+id).append('<option selected value="">Tax Rate Option</option>')
+                    
+                    $.each(response.data,function(key,value){
+                        $("#expense_tax_"+id).append('\n\<option value='+value['id']+'>'+value['tax_rates_name']+'</option>');
+                    });
+                }else if(response.status == "error"){
+                    alert(esponse.err);
+                    // $("#client_details").show();
+                    // $("#invoice_item_list").empty();
+                    // $("#invoice_item_list").append('<input type="checkbox" onclick=closeClientSuggestionBox() name="add_new_client"><label for="add_new_client">Add as a new active client?</label></br>');
+                }
+            }catch(error){
+                // alertBottom(null,'Something went wrong, try again later');
+            }
+        },
+            error:function(error){ 
+                // alertBottom(null,"Something went wrong, please try again later");
+            }
+        });
+    }
+
 
     $('#partstable').on('input', '.autoresizing', function () {
         this.style.height = 'auto';
@@ -754,8 +785,6 @@ var counts = 0;
         var body = $('#partstable').children('tbody').first();
         body.on('change', 'input[type="number"]', function() {
 
-            
-            
             var cells = $(this).closest('tr').children('td');
             var value1 = cells.eq(1).find('input').val();
             var value2 = cells.eq(2).find('input').val();
@@ -773,10 +802,10 @@ var counts = 0;
             $('[name="expense_tax[]"]').each(function() {
                 expense_tax_array_id.push(Number(this.value));
             })
-
-            expense_tax_array = $('[name="expense_tax_id[]"]').val();
-            expense_tax_array = JSON.parse(expense_tax_array);
-                      
+            $('[name="expense_tax_id[]"]').each(function() {
+                expense_tax_array.push(Number(this.value));
+            })
+               
             if($("#tax_type").val() == 0)
             {
                 $("#partstable #expense_amount").each(function (index) {
@@ -799,61 +828,7 @@ var counts = 0;
                     calculated_total_sum += parseFloat(expense_amount_array[index]);
                     if(expense_tax_array[index] > 0)
                     {
-                    console.log((expense_amount_array[index] * expense_tax_array[index])/100);
-                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
-                    }   
-                });
-                    
-                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                var total_amount = calculated_total_sum + calculated_total_gst_amount;
-                $("#total_amount").val(Number(total_amount.toFixed(2)));
-            }
-        });
-
-        body.on('change', $("#expense_tax"), function() {
-            var calculated_total_sum = 0;
-            var calculated_total_gst_amount = 0;
-            expense_amount_array = [];
-            expense_tax_array = [];
-            expense_tax_id_array = [];
-
-            $('[name="expense_amount[]"]').each(function() {
-                expense_amount_array.push(Number(this.value));
-            })
-            $('[name="expense_tax[]"]').each(function() {
-                // if($("#expense_tax option:selected").attr('id')){
-                //     const selected_option = $("#expense_tax option:selected").attr('id');
-                //     expense_tax_id_array.push($("#tax_rate_id_"+selected_option).val());
-                // }
-                expense_tax_id_array.push(Number(this.value));
-            })
-            expense_tax_array = $('[name="expense_tax_id[]"]').val();
-            expense_tax_array = JSON.parse(expense_tax_array);
-
-            if($("#tax_type").val() == 0)
-            {
-                $("#partstable #expense_amount").each(function (index) {
-                    
-                calculated_total_sum += parseFloat(expense_amount_array[index]);
-                if(expense_tax_array[index] > 0){
-                    var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
-                    var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
-                    calculated_total_gst_amount += parseFloat(taxAmount);
-                }
-                });
-                $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
-                $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
-                $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
-            }
-            else if($("#tax_type").val() == 1)
-            {
-                $("#partstable #expense_amount").each(function (index) {
-
-                    calculated_total_sum += parseFloat(expense_amount_array[index]);
-                    if(expense_tax_array[index] > 0)
-                    {
-                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                        calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
                     }   
                 });
                     
@@ -865,6 +840,7 @@ var counts = 0;
         });
 
         body.on('change', $("#tax_type"), function() {
+
             var calculated_total_sum = 0;
             var calculated_total_gst_amount = 0;
             expense_amount_array = [];
@@ -877,9 +853,9 @@ var counts = 0;
             $('[name="expense_tax[]"]').each(function() {
                 expense_tax_id_array.push(Number(this.value));
             })
-
-            expense_tax_array = $('[name="expense_tax_id[]"]').val();
-            expense_tax_array = JSON.parse(expense_tax_array);
+            $('[name="expense_tax_id[]"]').each(function() {
+                expense_tax_array.push(Number(this.value));
+            })
 
             if($("#tax_type").val() == 0)
             {
@@ -899,11 +875,10 @@ var counts = 0;
             else if($("#tax_type").val() == 1)
             {
                 $("#partstable #expense_amount").each(function (index) {
-
                     calculated_total_sum += parseFloat(expense_amount_array[index]);
                     if(expense_tax_array[index] > 0)
                     {
-                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                        calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
                     }   
                 });
                     
@@ -915,13 +890,9 @@ var counts = 0;
         });
        
         body.on('click', '.delepart', function(){ 
-        var deleteIndex =  $('#partstable tr').index(this);
-        // $(this).parents('tr').remove();
-        
-      
-
-        console.log(deleteIndex);
-        var calculated_total_sum = 0;
+            $(this).parents('tr').remove();
+            
+            var calculated_total_sum = 0;
             var calculated_total_gst_amount = 0;
             expense_amount_array = [];
             expense_tax_array = [];
@@ -933,9 +904,9 @@ var counts = 0;
             $('[name="expense_tax[]"]').each(function() {
                 expense_tax_id_array.push(Number(this.value));
             })
-
-            expense_tax_array = $('[name="expense_tax_id[]"]').val();
-            expense_tax_array = JSON.parse(expense_tax_array);
+            $('[name="expense_tax_id[]"]').each(function() {
+                expense_tax_array.push(Number(this.value));
+            })
 
             if($("#tax_type").val() == 0)
             {
@@ -972,38 +943,32 @@ var counts = 0;
 
     });
 
-    function getTaxRates(ids){
-        var expense_tax_array_id =[];
-        $('[name="expense_tax[]"]').each(function() {
-            expense_tax_array_id.push(Number(this.value));
-        })
-        // alert(expense_tax_array_id);
+    function getTaxRates(obj){
+        var cell = $(obj).closest('tr').children('td');
+        var tax_rate_id = cell.eq(4).find('[name="expense_tax[]"]').val();
+        console.log(tax_rate_id);
         var post_data = {
-            tax_ids : expense_tax_array_id
+            tax_ids : tax_rate_id
         }
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         });
         $.ajax({
-        method: "POST",
-        url: "/expense-tax-rates",
-        data: post_data,
+        method: "GET",
+        url: "/expense-tax-rates/"+tax_rate_id,
+        // data: post_data,
         success:function(response){
             try{
                 response = JSON.parse(response);
                 
                 if(response && response.status == "success"){
                     var expense_tax_ids = [];
-                    // $("#client_details").show();
-                    // $('#expense_tax_id').val([]);
                     $.each(response.data,function(key,value){
-                        expense_tax_ids.push(value['tax_rates']);
+                        cell.eq(4).find('[id="expense_tax_id"]').val(value['tax_rates']);
                     });
-                    
-                    $('#expense_tax_id').val(JSON.stringify(expense_tax_ids));
-                    console.log($('#expense_tax_id').val());
-                    // updateTaxRates(expense_tax_ids)
-                    // return response.data;
+
+                    gstCalculation(obj);
+
                 }else if(response.status == "error"){
                     alert(esponse.err);
                 }
@@ -1016,6 +981,64 @@ var counts = 0;
             }
         });
     }
+
+    function gstCalculation(obj){
+    // body.on('change', $("#expense_tax"), function() {
+        var calculated_total_sum = 0;
+        var calculated_total_gst_amount = 0;
+        expense_amount_array = [];
+        expense_tax_array = [];
+        expense_tax_id_array = [];
+
+        
+        $('[name="expense_amount[]"]').each(function() {
+            expense_amount_array.push(Number(this.value));
+        })
+        $('[name="expense_tax[]"]').each(function() {
+            expense_tax_id_array.push(Number(this.value));
+        })
+        $('[name="expense_tax_id[]"]').each(function() {
+            expense_tax_array.push(Number(this.value));
+        })
+        
+
+        if($("#tax_type").val() == 0)
+        {
+            $("#partstable #expense_amount").each(function (index) {
+                
+            calculated_total_sum += parseFloat(expense_amount_array[index]);
+            if(expense_tax_array[index] > 0){
+                var subractbleTaxAmount = (expense_amount_array[index]) * (100 / (100 + (expense_tax_array[index])))
+                var taxAmount = expense_amount_array[index] - subractbleTaxAmount;
+                calculated_total_gst_amount += parseFloat(taxAmount);
+            }
+            });
+            $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+            $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+            $("#total_amount").val(Number(calculated_total_sum.toFixed(2)));
+        }
+        else if($("#tax_type").val() == 1)
+        {
+            $("#partstable #expense_amount").each(function (index) {
+
+                calculated_total_sum += parseFloat(expense_amount_array[index]);
+                if(expense_tax_array[index] > 0)
+                {
+                    calculated_total_gst_amount += parseFloat((expense_amount_array[index] * expense_tax_array[index])/100);
+                }
+            });
+                
+            $("#expense_total_amount").val(Number(calculated_total_sum.toFixed(2)));
+            $("#total_gst").val(Number(calculated_total_gst_amount.toFixed(2)));
+            var total_amount = calculated_total_sum + calculated_total_gst_amount;
+            $("#total_amount").val(Number(total_amount.toFixed(2)));
+        }
+    }
+        // });
+
+
+
+
 
         // $("input[name='item_quantity[]']").change(function() {
         //     var arrayOfVar = []

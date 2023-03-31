@@ -2421,6 +2421,11 @@ a.transaction--Addbtn:hover {
     font-weight: 600;
 }
 
+.invoice_list tbody span.payment--status-Recalled {
+    color: #666;
+    font-weight: 600;
+}
+
 .invoice_list tbody span.email2client_pending::after {
     content: "Pending";
 }

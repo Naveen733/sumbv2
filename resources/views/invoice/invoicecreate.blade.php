@@ -142,7 +142,6 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-
                     <div class="col-xl-6">
                         <div class="form-input--wrap">
                             <label class="form-input--question" for="">Account Type</label>
@@ -333,7 +332,7 @@
 
                 <div class="invoicetable--header">
                     <div class="row">
-                        <div class="col-xl-6 col-lg-6">
+                        <div class="col-xl-4 col-lg-4">
                             <ul class="list-unstyled">
                                 <li>To: <span id="invoice_preview_to"></span></li>
                                 <li>Invoice number: <span id="invoice_preview_invoice_number"></span></li>
@@ -341,10 +340,16 @@
                                 <li>Due: <span id="invoice_preview_due_date"></span></li>
                             </ul>
                         </div>
-                        <div class="col-xl-6 col-lg-6 invoicetable--header_from">
+                        <div class="col-xl-4 col-lg-4 invoicetable--header_from">
                             <ul class="list-unstyled">
-                                <li>From: <span id="invoice_preview_from">{{$userinfo['1']}}</span></li>
+                                <li>From: <span id="invoice_preview_from">{{!empty($invoice_settings) ? $invoice_settings['business_name'] : ''}}</span></li>
+                                <li><span id="invoice_preview_from">{{!empty($invoice_settings) ? $invoice_settings['business_email'] : ''}}</span></li>
+                                <li><span id="invoice_preview_from">{{!empty($invoice_settings) ? $invoice_settings['business_phone'] : ''}}</span></li>
+                                <li><span id="invoice_preview_from">{{!empty($invoice_settings) ? $invoice_settings['business_address'] : ''}}</span></li>
                             </ul>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 invoicetable--header_from">
+                            <img style="width:200px" src="{{!empty($invoice_settings) && $invoice_settings['business_logo'] ? env('APP_PUBLIC_DIRECTORY').$userinfo[0].'/'.$invoice_settings['business_logo'] : ''}}">
                         </div>
                     </div>
                 </div>
@@ -357,8 +362,8 @@
                                 <th scope="col" style="width:70px; min-width:70px;">QTY</th>
                                 <th scope="col" style="width:200px; min-width:200px;">Description</th>
                                 <th scope="col" style="width:100px; min-width:100px;">Unit Price</th>
-                                <th scope="col" style="width:170px; min-width:170px;">Account</th>
-                                <th scope="col" style="width:205px; min-width:205px;">Tax Rate</th>
+                                <!-- <th scope="col" style="width:170px; min-width:170px;">Account</th> -->
+                                <th scope="col" style="width:105px; min-width:105px;">Tax Rate</th>
                                 <th scope="col" style="width:70px; min-width:70px;">Amount</th>
                             </tr>
                         </thead>
@@ -440,11 +445,17 @@
                         <div class="invoice--status-deets">This invoice entry is on Read Only mode. Entries flagged as <u>{{!empty($invoice_details) ? $invoice_details['status'] : '' }}</u> cannot not be edited.</div>
                     @elseif(!empty($invoice_details) && $type == 'edit') 
                         <h3 class="sumb--title">Edit Invoice</h3>
+                        @if(!empty($invoice_details) && $invoice_details['invoice_ref_number'])
+                            <div class="invoice--status-deets">This invoice is cloned from invoice  <u>{{!empty($invoice_details) ? 'INV-'.str_pad($invoice_details['invoice_ref_number'], 6, '0', STR_PAD_LEFT) : '' }}</u></div>
+                        @endif
                     @else 
                         <h3 class="sumb--title">Create an Invoice</h3>
+                        @if(!empty($invoice_details) && $invoice_details['invoice_ref_number'])
+                            <div class="invoice--status-deets">This invoice is cloned from invoice  <u>{{!empty($invoice_details) ? 'INV-'.str_pad($invoice_details['invoice_ref_number'], 6, '0', STR_PAD_LEFT) : '' }}</u></div>
+                        @endif
                     @endif
                 </section>
-                <section>
+                <section id="testIngHide">
                     <form action="/invoice-create-save?invoice_id={{$invoice_id}}&type={{$type}}" method="post" enctype="multipart/form-data" class="form-horizontal" id="invoice_form">
                         @csrf
                         <hr class="form-cutter">
@@ -759,7 +770,6 @@
                                                         <li id="add_new_invoice_item_0" class="add-new--btn">
                                                             <a href="#" data-toggle="modal" data-target="#newItemModal" onclick="openPopUpModel(0)"><i class="fa-solid fa-circle-plus"></i>New Item</a>
                                                         </li>
-
                                                         @if (!empty($invoice_items))
                                                             @php $counter = 0; @endphp
                                                             @foreach ($invoice_items as $item)
@@ -772,7 +782,6 @@
                                                                 </li>
                                                             @endforeach
                                                         @endif
-                                                        
                                                     </ul>
                                                 </td>
                                                 
@@ -854,9 +863,11 @@
                                         </tr>
                                         
                                         <tr class="invoice-separator">
-                                            <td colspan="8">hs</td>
+                                            <td colspan="8">
+                                                hs
+                                            </td>
                                         </tr>
-
+                                        
                                         <tr class="invoice-total--subamount">
                                             <td colspan="4" rowspan="3"></td>
                                             <td colspan="2">Subtotal (excl GST)</td>
@@ -866,7 +877,7 @@
                                         </tr>
 
                                         <tr class="invoice-total--gst">
-                                            <td colspan="2" id="invoice_total_gst_text" >Total GST {{!empty($invoice_details)}}</td>
+                                            <td colspan="2" id="invoice_total_gst_text" >Total GST {{!empty($invoice_details) && $invoice_details['total_gst'] > 0 ? '10%' : '0%'}}</td>
                                             <td colspan="2">
                                                 <input type="text" id="invoice_total_gst" name="invoice_total_gst" readonly value="{{!empty($invoice_details) ? number_format($invoice_details['total_gst'], 2) : 0 }}">
                                             </td>
@@ -881,22 +892,59 @@
                                     </tbody>
                                 </table>
                             </div>
-                        
+                            <a id="invoice_history_btn" class="btn sumb--btn" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                <span id="invoice_history_toggle_text">Show</span> History ({{!empty($invoice_history) ? count($invoice_history) : 0 }} entries)
+                            </a>
+                        <br>
+                        <div class="col-xl-10 col-lg-10 col-md-10 col-sm-12 col-xs-12 col-12">
+                            <div class="collapse" id="collapseExample">
+                                <div class="card card-body sumb--recentlogdements sumb--putShadowbox">
+                                    <div class="table-responsive">
+                                        <table id="invoice_list">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col" style="width:135px; min-width:135px;">Changes</th>
+                                                    <th scope="col" style="width:200px; min-width:200px;">Date</th>
+                                                    <th scope="col" style="width:135px; min-width:135px;">User</th>
+                                                    <th scope="col" style="width:200px; min-width:250px;">Details</th>
+                                                    <!-- <th></th> -->
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if(!empty($invoice_history))
+                                                    @foreach($invoice_history as $history)
+                                                        <tr>
+                                                            <td>{{!empty($history) ? $history['action']: ''}} </td>
+                                                            <td >{{!empty($history) ? $history['date'].$history['time']: ''}} </td>
+                                                            <td >{{!empty($history) ? $history['user_name'] : ''}}</td>
+                                                            <td >{{!empty($history) ? $history['description'] : ''}}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-navigation">
                             <div class="form-navigation--btns row">
                                 <div class="col-xl-4 col-lg-2 col-md-3 col-sm-12 col-xs-12 col-12">
-                                    <a href="/invoice" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i>Back</a>
-                                </div> 
+                                    <a href="/invoice" class="btn sumb--btn"><i class="fa-solid fa-circle-left"></i>Back</a>                                    
+                                </div>
                                 <div class="col-xl-8 col-lg-10 col-md-9 col-sm-12 col-xs-12 col-12">
+                                    <input type="hidden" id="invoice_ref_number" name="invoice_ref_number" value="{{!empty($invoice_details) && $invoice_details['invoice_ref_number']? $invoice_details['invoice_ref_number'] : '' }}" />
                                     <input type="hidden" id="invoice_part_ids" name="invoice_part_total_count" value="{{!empty($invoice_details) ? $invoice_details['invoice_part_total_count'] : '[0]' }}" />
                                     <input type="hidden" name="invoice_status" value="{{!empty($invoice_details && $invoice_details['status']) ? $invoice_details['status'] : ''}}">
                                     <!-- <input type="sumbit" id="" name="send_invoice_to_client" class="btn sumb--btn" value="Send Invoice" /> -->
-                                    <?php if($type=='edit' && $invoice_details['status'] == 'Unpaid'){?>
-                                    <button type="button" name="" class="btn sumb--btn" onclick="sendInvoice()"><i class="fa-solid fa-paper-plane"></i>Send Invoice</button>
+                                    <?php if($type=='edit' && ($invoice_details['status'] == 'Unpaid' || ( $invoice_details['status'] == 'Recalled' && !$invoice_details['invoice_sent']))){?>
+                                        <button type="button" id="send_invoice" name="" class="btn sumb--btn" onclick="sendInvoice()"><i class="fa-solid fa-paper-plane"></i>Send Invoice</button>
                                     <?php }?>
                                     <button type="reset" class="btn sumb--btn reset--btn"><i class="fa fa-ban"></i>Clear Invioce</button>
                                     <button type="button" class="btn sumb--btn preview--btn" onclick="previewInvoice()"><i class="fa-solid fa-eye" ></i>Preview</button>
-                                    <button type="submit" name="save_invoice"  class="btn sumb--btn" value="Save Invoice"><i class="fa-solid fa-floppy-disk"></i>Save</button>
+                                    <button hidden type="submit" id="save_invoice_submit" name="save_invoice"  class="btn sumb--btn" value="Save Invoice"><i class="fa-solid fa-floppy-disk"></i>Save</button>
+
+                                    <button type="button" id="save_invoice"  class="btn sumb--btn" value="Save"><i class="fa-solid fa-floppy-disk"></i>Save</button>
                                 
                                     <!-- <div class="btn-group">
                                         <button type="submit" name="save_invoice"  class="btn sumb--btn" value="Save Invoice"><i class="fa-solid fa-floppy-disk"></i> Save</button>
@@ -916,6 +964,8 @@
         </div>
     </div>
 </div>
+
+
 
 
 
@@ -950,8 +1000,25 @@
         <?php }?>
     }
     $(function() {
-        
-        <?php if(!empty($invoice_details) && (isset($invoice_details['invoice_sent']) && $invoice_details['invoice_sent'] || $invoice_details['status'] == 'Voided' || $invoice_details['status'] == 'Paid') ){ ?>
+
+        $('#invoice_history_btn').on('click', function () {
+            $('#invoice_history_toggle_text').text() == "Show" ? $('#invoice_history_toggle_text').text('Hide') : $('#invoice_history_toggle_text').text('Show');
+        });
+
+        <?php if(!empty($invoice_details) && (!$invoice_details['invoice_sent'] && $invoice_details['status'] == 'Recalled') ){ ?>
+            $("#invoice_form :input").prop('disabled', true);
+
+            var rowIndex = $('#invoice_part_ids').val();
+            rowIndex = JSON.parse(rowIndex);
+            for(var i = 0; i<rowIndex.length; i++){
+                $("#invoice_parts_tax_rate_"+i).prop('disabled', false);
+                $("#invoice_parts_chart_accounts_"+i).prop('disabled', false);
+            }
+            $(".invoice_item").prop('disabled', false);
+            $("#save_invoice").prop('disabled', false);
+            $("#send_invoice").prop('disabled', false);
+        <?php }
+         else if(!empty($invoice_details) && (isset($invoice_details['invoice_sent']) && $invoice_details['invoice_sent'] || $invoice_details['status'] == 'Voided' || $invoice_details['status'] == 'Paid') ){ ?>
             $("#invoice_form :input").prop('disabled', true);
         <?php }?>
         $('#invoice_issue_date').datepicker().datepicker('setDate', 'today');
@@ -959,6 +1026,12 @@
         $( "#invoice_date" ).datepicker();
         $( "#invoice_duedate" ).datepicker();
       
+        
+        $('#save_invoice').on('click', function () {
+            $("#invoice_form :input").prop('disabled', false);
+            $("#save_invoice_submit").click();
+        });
+
         $('#part_save_button').on('click', function () {
 
             var myform = $('#partform');

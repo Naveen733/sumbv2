@@ -18,7 +18,7 @@ class ChartAccountController extends Controller
 
     }
 
-    public function InvoiceChartAccountForm(Request $request)
+    public function invoiceChartAccountForm(Request $request)
     {
         if ($request->ajax())
         {

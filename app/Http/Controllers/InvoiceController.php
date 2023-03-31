@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\InvoiceMail;
+use App\Mail\RecallInvoiceMail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use DB;
@@ -29,6 +30,8 @@ use App\Models\SumbChartAccountsType;
 use App\Models\SumbChartAccountsTypeParticulars;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SumbInvoiceTaxRates;
+use App\Models\InvoiceReports;
+use App\Models\InvoiceHistory;
 
 class InvoiceController extends Controller {
 
@@ -84,6 +87,7 @@ class InvoiceController extends Controller {
             $invoicedata = SumbInvoiceDetails::where('user_id', $userinfo[0])->where('is_active', 1)->paginate($itemsperpage)->toArray();  
             $ptype = $request->input('type');
         } else {
+            
             if($request->search_number_email_amount || $request->start_date || $request->end_date || $request->orderBy || $request->filterBy){
                 if($request->start_date){
                     $start_date = Carbon::createFromFormat('m/d/Y', $request->start_date)->format('Y-m-d');
@@ -145,6 +149,7 @@ class InvoiceController extends Controller {
                 $pagedata['filterBy'] = '';
                 $invoicedata = TransactionCollections::where('user_id', $userinfo[0])->where('is_active', 1)
                         ->orderBy('issue_date', 'DESC')
+                        // ->orderBy('issue_date', 'DESC')
                         ->paginate($itemsperpage)->toArray();
             }
         }
@@ -170,7 +175,7 @@ class InvoiceController extends Controller {
     public function store(Request $request) {
         $request->type = 'create';
         $request->invoice_id = '';
-        
+
         $pagedata = $this->invoiceForm($request);
        
         return view('invoice.invoicecreate', $pagedata);
@@ -179,7 +184,6 @@ class InvoiceController extends Controller {
     public function update(Request $request) {
         $request->type = 'edit';
         $pagedata = $this->invoiceForm($request);
-        // echo "<pre>"; var_dump($pagedata); echo "</pre>";die();
         return view('invoice.invoicecreate', $pagedata);
     }
 
@@ -194,32 +198,33 @@ class InvoiceController extends Controller {
         $pagedata['invoice_id'] = $request->id ? $request->id : '';
         $pagedata['type'] = $request->type;
         if($request->type == 'edit' && $request->id){
-            $invoice_details = TransactionCollections::with(['particulars', 'particulars.chartAccountsParticulars'])
-                                ->whereHas('particulars', function($query) use($userinfo) {
+            
+            $invoice_details = TransactionCollections::with(['transactions', 'transactions.chartAccountsParticulars'])
+                                ->whereHas('transactions', function($query) use($userinfo) {
                                     $query->where('user_id', $userinfo[0]);
                                 })
                                 ->where('id', $request->id)
                                 ->where('user_id', $userinfo[0])->first()->toArray();
             if (!empty($invoice_details)) {
-                $invoice_details['parts'] = $invoice_details['particulars'];
+                $invoice_details['parts'] = $invoice_details['transactions'];
                 $invoice_details['invoice_part_total_count'] = "[]";
-                unset($invoice_details['particulars']);
-                $pagedata['invoice_details'] = $invoice_details;                
-            }
-        }else{
-            $invoice_details = SumbInvoiceDetails::where('user_id', $userinfo[0])->orderBy('invoice_number', 'desc')->first();
-            if (!empty($invoice_details)) {
-                $pagedata['invoice_number'] = 000001 + $invoice_details->toArray()['invoice_number'];
-            }else{
-                $pagedata['invoice_number'] = 000001;
+                unset($invoice_details['transactions']);
+                $pagedata['invoice_details'] = $invoice_details;    
+                
             }
 
-            $invoice_details = TransactionCollections::where('user_id', $userinfo[0])->orderBy('transaction_number', 'desc')->first();
-            if (!empty($invoice_details)) {
-                $pagedata['transaction_number'] = 000001 + $invoice_details->toArray()['transaction_number'];
-            }else{
-                $pagedata['transaction_number'] = 000001;
+            $invoice_history = InvoiceHistory::where('user_id', $userinfo[0])->where('invoice_id', $request->id)->get();
+            if (!empty($invoice_history)) {
+                $pagedata['invoice_history'] = $invoice_history->toArray();
             }
+
+        }else{ 
+                $invoice_details = TransactionCollections::where('user_id', $userinfo[0])->orderBy('transaction_number', 'desc')->first();
+                if (!empty($invoice_details)) {
+                    $pagedata['transaction_number'] = 000001 + $invoice_details->toArray()['transaction_number'];
+                }else{
+                    $pagedata['transaction_number'] = 000001;
+                }
         }
         $get_clients = SumbClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
         if (!empty($get_clients)) {
@@ -241,7 +246,6 @@ class InvoiceController extends Controller {
                             $query->where('user_id', $userinfo[0]);
                         })
                         ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
-                            // $query->where('user_id', $userinfo[0]);
                         })
                     ->get();
         if (!empty($chart_account)) {
@@ -252,6 +256,11 @@ class InvoiceController extends Controller {
         if (!empty($tax_rates)) {
             $pagedata['tax_rates'] = $tax_rates->toArray();
         }
+
+        $invoice_settings = SumbInvoiceSettings::where('user_id', $userinfo[0])->first();
+        if (!empty($invoice_settings)) {
+            $pagedata['invoice_settings'] = $invoice_settings->toArray();
+        }
         return $pagedata;
     }
 
@@ -261,8 +270,8 @@ class InvoiceController extends Controller {
                 'userinfo'=>$userinfo,
                 'pagetitle' => 'Create Invoice'
             );
-
         if($request->save_invoice == 'Save Invoice'){
+            
             $validator = Validator::make($request->all(),[
                 'client_name' => 'bail|required|max:255',
                 'client_email' => 'bail|required|max:255',
@@ -288,6 +297,7 @@ class InvoiceController extends Controller {
                 "total_gst" => $request->invoice_total_gst,
                 "total_amount" => $request->invoice_total_amount,
                 "transaction_type" => 'invoice',
+                "invoice_ref_number" => trim($request->invoice_ref_number) ? : 0,
             );
             
             if(count(json_decode(trim($request->invoice_part_total_count), true)) >= 0){
@@ -321,7 +331,7 @@ class InvoiceController extends Controller {
                     // ]);
                 }
             }
-            // echo "<pre>"; var_dump($invoice_details['parts']); echo "</pre>";die();
+            
             $invoice_details['invoice_part_total_count'] = trim($request->input('invoice_part_total_count'));
             $invoice_details['status'] = $request->invoice_status;
             $pagedata['invoice_details'] = $invoice_details;
@@ -391,6 +401,7 @@ class InvoiceController extends Controller {
             unset($invoice_details['invoice_part_total_count']);
             $ids = [];
 
+            // var_dump($request->invoice_ref_number);die();
             // 
             if($request->invoice_id && $request->type=='edit'){
                 $invoice_update = TransactionCollections::where('user_id', trim($userinfo[0]))
@@ -409,6 +420,7 @@ class InvoiceController extends Controller {
                                         'total_gst' => trim($request->invoice_total_gst),
                                         'total_amount' => trim($request->invoice_total_amount),
                                         'transaction_type' => 'invoice',
+                                        // 'invoice_ref_number' => trim($request->invoice_ref_number) ? : '',
                                     ]
                                 );
                 if($invoice_update){
@@ -436,6 +448,20 @@ class InvoiceController extends Controller {
                                         ->where('user_id', trim($userinfo[0]))
                                         ->delete();
                     }
+                    $date = Carbon::now()->toDateString();
+                    $time = Carbon::now()->toTimeString();
+
+                    $invoice_history = array(
+                        "invoice_id" => trim($request->invoice_id),
+                        "invoice_number" => trim($invoice_details['transaction_number']),
+                        "user_id" => trim($userinfo[0]),
+                        "user_name" => trim($userinfo[1]),
+                        "action" => "Edited",
+                        "description" => "INV-".str_pad($invoice_details['transaction_number'], 6, '0', STR_PAD_LEFT).' to '.trim(ucfirst($request->client_name)).' for $ '.trim($request->invoice_total_amount),
+                        "date" => $date,
+                        "time" => $time
+                    );
+                    $this->createInvoiceHistory($invoice_history);
                     DB::commit();
                 }
             }else{
@@ -453,6 +479,7 @@ class InvoiceController extends Controller {
                         'total_gst' => trim($request->invoice_total_gst),
                         'total_amount' => trim($request->invoice_total_amount),
                         'transaction_type' => 'invoice',
+                        'invoice_ref_number' => trim($request->invoice_ref_number) ? : 0
                     ]
                 );
                 if($invoice->id){
@@ -474,10 +501,28 @@ class InvoiceController extends Controller {
                         ]);
                     }
                 }
+                
+                $date = Carbon::now()->toDateString();
+                $time = Carbon::now()->toTimeString();
+
+                $invoice_history = array(
+                    "invoice_id" => trim($invoice->id),
+                    "invoice_number" => trim($invoice_details['transaction_number']),
+                    "user_id" => trim($userinfo[0]),
+                    "user_name" => trim($userinfo[1]),
+                    "action" => !empty($request->invoice_ref_number) ? "Cloned" : "Created",
+                    "description" => "INV-".str_pad($invoice_details['transaction_number'], 6, '0', STR_PAD_LEFT).' to '.trim(ucfirst($request->client_name)).' for $ '.trim($request->invoice_total_amount),
+                    "date" => $date,
+                    "time" => $time
+                );
+
                 DB::commit();
+                $this->createInvoiceHistory($invoice_history);
             }
         }
+        // return view('invoice.invoicecreate', $pagedata);
         return redirect()->route('invoice');
+        
     }
 
     public function sendInvoice(Request $request)
@@ -487,25 +532,27 @@ class InvoiceController extends Controller {
             $invoice_settings = SumbInvoiceSettings::where('user_id', $userinfo[0])->first();
 
             // $invoice_exists = SumbInvoiceDetails::find($request->invoice_id);
-            $invoice_detail = SumbInvoiceDetails::with(['particulars'])
-                                ->whereHas('particulars', function($query) use($userinfo) {
+            $invoice_detail = TransactionCollections::with(['transactions', 'transactions.invoiceTaxRates'])
+                                ->whereHas('transactions', function($query) use($userinfo) {
                                     $query->where('user_id', $userinfo[0]);
                                 })
                                 ->where('id', $request->invoice_id)
-                                ->where('user_id', $userinfo[0])->first()->toArray();
+                                ->where('user_id', $userinfo[0])->first();
             if (!empty($invoice_detail)) {
-                $request->invoice_format = !empty($invoice_settings) ? $invoice_settings['business_invoice_format'] : 'format001';
+                $invoice_detail = $invoice_detail->toArray();
+
+                $request->invoice_format = !empty($invoice_settings) && $invoice_settings['business_invoice_format'] ? $invoice_settings['business_invoice_format'] : 'format002';
                 $logoimg = base64_encode(file_get_contents('uploads/a71ed73925a75dae44b71bc161131adb.png'));
                 $invpdf['inv'] = [
                     'logo' => 'a71ed73925a75dae44b71bc161131adb.png',
-                    'invoice_number' => $invoice_detail['invoice_number'],
+                    'invoice_number' => $invoice_detail['transaction_number'],
                     'client_name' => $invoice_detail['client_name'],
                     'client_email' => $invoice_detail['client_email'],
                     'client_address' => 'test',
                     'client_phone' => $invoice_detail['client_phone'],
-                    'invoice_sub_total' => $invoice_detail['invoice_sub_total'],
-                    'invoice_total_gst' => $invoice_detail['invoice_total_gst'],
-                    'invoice_total_amount' => $invoice_detail['invoice_total_amount'],
+                    'invoice_sub_total' => $invoice_detail['sub_total'],
+                    'invoice_total_gst' => $invoice_detail['total_gst'],
+                    'invoice_total_amount' => $invoice_detail['total_amount'],
                     'invoice_name' => !empty($invoice_settings) ? $invoice_settings['business_name'] : $userinfo[1], 
                     'invoice_email' => !empty($invoice_settings) ? $invoice_settings['business_email'] : $userinfo[2],
                     'invoice_phone' => !empty($invoice_settings) ? $invoice_settings['business_phone'] : '',
@@ -513,17 +560,17 @@ class InvoiceController extends Controller {
                     'invoice_abn' => !empty($invoice_settings) ? $invoice_settings['business_abn'] : '',
                     'invoice_terms' => !empty($invoice_settings) ? $invoice_settings['business_terms_conditions'] : '',
                     'invoice_format' => $request->invoice_format,
-                    'invoice_date' => $invoice_detail['invoice_issue_date'],
-                    'invoice_due_date' => $invoice_detail['invoice_due_date'],
-                    'inv_parts' => $invoice_detail['particulars']
+                    'invoice_date' => $invoice_detail['issue_date'],
+                    'invoice_due_date' => $invoice_detail['due_date'],
+                    'inv_parts' => $invoice_detail['transactions']
                 ];
                 $invpdf['inv']['logoimgdet'] = getimagesize('uploads/a71ed73925a75dae44b71bc161131adb.png');
                 $invpdf['inv']['logobase64'] = 'data:'.$invpdf['inv']['logoimgdet']['mime'].';charset=utf-8;base64,' . $logoimg;
-                $inv_filename = 'inv'.date('YmdHis')."-".$invoice_detail['invoice_number']."-".md5(date('YmdHis')).".pdf";
+                $inv_filename = 'inv'.date('YmdHis')."-".$invoice_detail['transaction_number']."-".md5(date('YmdHis')).".pdf";
                 
                 //$get_invoice_parts = SumbInvoiceParticularsTemp::where('user_id', $userinfo[0])->where('invoice_number', $get_settings['invoice_count'])->get();
-                $invpdf['inv']['image'] = public_path().env('APP_PUBLIC_DIRECTORY') . 'a71ed73925a75dae44b71bc161131adb.png';
-                
+                $invpdf['inv']['image'] = env('APP_PUBLIC_DIRECTORY') . 'a71ed73925a75dae44b71bc161131adb.png';
+               
                 $pdf = Pdf::loadView('pdf.'.$request->invoice_format, $invpdf);
                 $pdf->save(env('APP_PDF_DIRECTORY').$inv_filename);
                 $transactiondata['invoice_pdf'] = $inv_filename;
@@ -536,18 +583,42 @@ class InvoiceController extends Controller {
                 $invpdf['inv']['message'] = $request->send_invoice_message;
 
                 // $mesg = explode("<br>", $request->send_invoice_message);
-                
+
                 Mail::to($emails)->send(new InvoiceMail($pdf, $invpdf['inv']));
 
-                SumbInvoiceReports::create([
+                InvoiceReports::create([
                     'user_id' =>  $userinfo[0],
-                    'invoice_id' => $invoice_detail['id'],
+                    'transaction_collection_id' => $invoice_detail['id'],
                     'invoice_report_file' => $inv_filename
                 ]);
 
-                SumbInvoiceDetails::where('id', $invoice_detail['id'])
-                                ->where('user_id', $userinfo[0])
-                                ->update(['invoice_sent' => 1]);
+                if(!$invoice_detail['invoice_sent'] && $invoice_detail['status'] == 'Recalled'){
+                    TransactionCollections::where('id', $invoice_detail['id'])
+                    ->where('user_id', $userinfo[0])
+                    ->where('invoice_sent', 0)
+                    ->where('status', 'Recalled')
+                    ->update(['invoice_sent' => 1, 'status' => 'Unpaid']);
+                }else{
+                    TransactionCollections::where('id', $invoice_detail['id'])
+                    ->where('user_id', $userinfo[0])
+                    ->update(['invoice_sent' => 1]);
+                }
+
+
+                $date = Carbon::now()->toDateString();
+                $time = Carbon::now()->toTimeString();
+    
+                $invoice_history = array(
+                    "invoice_id" => trim($request->invoice_id),
+                    "invoice_number" => trim($invoice_detail['transaction_number']),
+                    "user_id" => trim($userinfo[0]),
+                    "user_name" => trim($userinfo[1]),
+                    "action" => "Invoice sent",
+                    "description" => "This invoice has been sent to ".$request->send_invoice_to_emails,
+                    "date" => $date,
+                    "time" => $time
+                );
+                $this->createInvoiceHistory($invoice_history);
 
                 return redirect()->route('invoice')->with('success', 'Invoice sent successfully');
             }
@@ -579,7 +650,7 @@ class InvoiceController extends Controller {
         }
     }
 
-    public function InvoiceItemForm(Request $request)
+    public function invoiceItemForm(Request $request)
     {
         if ($request->ajax())
         {
@@ -624,7 +695,7 @@ class InvoiceController extends Controller {
         }
     }
 
-    public function InvoiceItemFormList(Request $request)
+    public function invoiceItemFormList(Request $request)
     {
         if ($request->ajax())
         {
@@ -663,7 +734,7 @@ class InvoiceController extends Controller {
         }
     }
 
-    public function InvoiceItemFormListById(Request $request, $id)
+    public function invoiceItemFormListById(Request $request, $id)
     {
         if ($request->ajax())
         {
@@ -705,10 +776,38 @@ class InvoiceController extends Controller {
     {
         $userinfo = $request->get('userinfo');
         if($request->invoice_id && $request->status){
-            SumbInvoiceDetails::where('id', $request->invoice_id)
+            $status_updated = TransactionCollections::where('id', $request->invoice_id)
                     ->where('user_id', $userinfo[0])
-                    ->update(['invoice_status' => $request->status]);
-            return redirect()->route('invoice')->with('success', 'Invoice status updated successfully');;
+                    ->update(['status' => $request->status]);
+            if($status_updated){
+                $updated_invoice = TransactionCollections::where('id', $request->invoice_id)->where('user_id', $userinfo[0])->first()->toArray();
+
+                $date = Carbon::now()->toDateString();
+                $time = Carbon::now()->toTimeString();
+                
+                if($request->status == 'Voided'){
+                    $description = '';
+                }else if($request->status == 'Paid'){
+                    $description = 'Payment received on ' .$date. ' for '.trim($updated_invoice['total_amount']);
+                }
+                else if($request->status == 'Unpaid'){
+                    $description = "INV-".str_pad($updated_invoice['transaction_number'], 6, '0', STR_PAD_LEFT).' to '.trim(ucfirst($updated_invoice['client_name'])).' for $ '.trim($updated_invoice['total_amount']);
+                }
+
+                $invoice_history = array(
+                    "invoice_id" => trim($request->invoice_id),
+                    "invoice_number" => trim($updated_invoice['transaction_number']),
+                    "user_id" => trim($userinfo[0]),
+                    "user_name" => trim($userinfo[1]),
+                    "action" => $request->status,
+                    "description" => $description,
+                    "date" => $date,
+                    "time" => $time
+                );
+                $this->createInvoiceHistory($invoice_history);
+    
+                return redirect()->route('invoice')->with('success', 'Invoice status updated successfully');
+            }
         }
     }
     public function invoiceSearch(Request $request)
@@ -740,8 +839,26 @@ class InvoiceController extends Controller {
     public function delete(Request $request)
     {
         $userinfo = $request->get('userinfo');
-        $deleted = SumbInvoiceDetails::where('user_id', $userinfo[0])->where('id', $request->id)->update(['is_active'=> 0]);
+        $deleted = TransactionCollections::where('user_id', $userinfo[0])->where('id', $request->id)->whereIn('status', ['Unpaid', 'Voided'])->update(['is_active'=> 0]);
         if($deleted){
+            $deleted_invoice = TransactionCollections::where('user_id', $userinfo[0])->where('id', $request->id)->first()->toArray();
+            
+            $date = Carbon::now()->toDateString();
+            $time = Carbon::now()->toTimeString();
+
+            $invoice_history = array(
+                "invoice_id" => trim($request->id),
+                "invoice_number" => trim($deleted_invoice['transaction_number']),
+                "user_id" => trim($userinfo[0]),
+                "user_name" => trim($userinfo[1]),
+                "action" => 'Deleted',
+                "description" => '',
+                "date" => $date,
+                "time" => $time
+            );
+
+            $this->createInvoiceHistory($invoice_history);
+
             return redirect()->route('invoice')->with('success', 'Invoice deleted successfully');
         }
         return redirect()->route('invoice');
@@ -780,5 +897,143 @@ class InvoiceController extends Controller {
             ];
             echo json_encode($response);
         }
+    }
+    public function cloneInvoice(Request $request)
+    {
+        $userinfo = $request->get('userinfo');
+        $pagedata = array(
+            'userinfo'=>$userinfo,
+            'pagetitle' => 'Create Invoice'
+        );
+        $pagedata['invoice_details'] = $request->post();
+        $pagedata['invoice_id'] = '';
+        $pagedata['type'] = 'create';
+
+        $transaction_number = TransactionCollections::select('transaction_number')->where('user_id', $userinfo[0])->orderBy('transaction_number', 'desc')->first();
+
+        $invoice_details = TransactionCollections::with(['transactions', 'transactions.chartAccountsParticulars'])
+                                ->whereHas('transactions', function($query) use($userinfo) {
+                                    $query->where('user_id', $userinfo[0]);
+                                })
+                                ->where('id', $request->invoice_id)
+                                ->where('status', 'Voided')
+                                ->where('is_active', 1)
+                                ->where('user_id', $userinfo[0])->first();
+                
+            if (!empty($invoice_details)) {
+                $invoice_details = $invoice_details->toArray();
+                $invoice_details['invoice_ref_number'] = $invoice_details['transaction_number'];
+                $invoice_details['invoice_clone'] = true;
+                $invoice_details['status'] = 'Unpaid';
+                $invoice_details['transaction_number'] = 000001 + $transaction_number['transaction_number'];
+                $invoice_details['parts'] = $invoice_details['transactions'];
+                $invoice_details['invoice_part_total_count'] = "[]";
+                unset($invoice_details['transactions']);
+
+                $pagedata['invoice_details'] = $invoice_details;    
+            }
+            $get_clients = SumbClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
+        if (!empty($get_clients)) {
+            $pagedata['clients'] = $get_clients = $get_clients->toArray();
+        }
+        
+        $get_items = SumbInvoiceItems::where('user_id', $userinfo[0])->orderBy('invoice_item_name')->get();
+        if (!empty($get_items)) {
+            $pagedata['invoice_items'] = $get_items->toArray();
+        }
+
+        $chart_accounts_types = SumbChartAccounts::with(['chartAccountsTypes'])->get();
+        if (!empty($chart_accounts_types)) {
+            $pagedata['chart_accounts_types'] = $chart_accounts_types->toArray();
+        }
+
+        $chart_account = SumbChartAccounts::with(['chartAccountsParticulars', 'chartAccountsTypes'])
+                        ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
+                            $query->where('user_id', $userinfo[0]);
+                        })
+                        ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
+                        })
+                    ->get();
+        if (!empty($chart_account)) {
+            $pagedata['chart_account'] = $chart_account->toArray();
+        }
+
+        $tax_rates = SumbInvoiceTaxRates::get();
+        if (!empty($tax_rates)) {
+            $pagedata['tax_rates'] = $tax_rates->toArray();
+        }
+
+        $invoice_settings = SumbInvoiceSettings::where('user_id', $userinfo[0])->first();
+        if (!empty($invoice_settings)) {
+            $pagedata['invoice_settings'] = $invoice_settings->toArray();
+        }
+
+        $date = Carbon::now()->toDateString();
+        $time = Carbon::now()->toTimeString();
+
+        $invoice_history = array(
+            "invoice_number" => trim($invoice_details['transaction_number']),
+            "user_id" => trim($userinfo[0]),
+            "user_name" => trim($userinfo[1]),
+            "action" => "Cloned invoice from ". $invoice_details['invoice_ref_number'],
+            "date" => $date,
+            "time" => $time
+        );
+        $this->createInvoiceHistory($invoice_history);
+
+        return view('invoice.invoicecreate', $pagedata);
+    }
+
+    public function createInvoiceHistory($invoice_history){
+
+        InvoiceHistory::create($invoice_history);
+    }
+
+    public function recallInvoice(Request $request)
+    {
+        $userinfo = $request->get('userinfo');
+        $invoice_detail = TransactionCollections::where('id', $request->id)
+                                ->where('invoice_sent', 1)
+                                ->where('status', 'Unpaid')
+                                ->where('user_id', $userinfo[0])->first();
+            if (!empty($invoice_detail)) {
+                $invoice_detail = $invoice_detail->toArray();
+
+                // $request->invoice_format = !empty($invoice_settings) && $invoice_settings['business_invoice_format'] ? $invoice_settings['business_invoice_format'] : 'format002';
+                // $logoimg = base64_encode(file_get_contents('uploads/a71ed73925a75dae44b71bc161131adb.png'));
+                $invpdf['inv'] = [];
+
+                //$get_invoice_parts = SumbInvoiceParticularsTemp::where('user_id', $userinfo[0])->where('invoice_number', $get_settings['invoice_count'])->get();
+               
+                // $pdf = Pdf::loadView('pdf.'.$request->invoice_format, $invpdf);
+                // $pdf->save(env('APP_PDF_DIRECTORY').$inv_filename);
+                // $transactiondata['invoice_pdf'] = $inv_filename;
+                // $invpdf['inv']['file_name'] = $inv_filename;
+
+                $email = $invoice_detail['client_email'];
+
+                // $invpdf['inv']['from'] = $userinfo[1];
+                $invpdf['inv']['subject'] = 'Invoice INV-'.str_pad($invoice_detail['transaction_number'], 6, '0', STR_PAD_LEFT).' has been recalled.';
+                $invpdf['inv']['message'] = 'The invoice INV-'.str_pad($invoice_detail['transaction_number'], 6, '0', STR_PAD_LEFT).' sent to you on '.$invoice_detail['issue_date']. ' has been recalled. 
+                                            
+                                            A new invoice will be sent to you. 
+                                            
+                                            If you have paid the invoice, please reply to this message.';
+
+                // $mesg = explode("<br>", $request->send_invoice_message);
+
+                Mail::to($email)->send(new RecallInvoiceMail($invpdf['inv']));
+
+                $updated = TransactionCollections::where('id', $request->id)
+                            ->where('invoice_sent', 1)
+                            ->where('status', 'Unpaid')
+                            ->where('user_id', $userinfo[0])
+                            ->update(['invoice_sent' => 0, 'status' => 'Recalled']);
+                if($updated)
+                {
+                    return redirect("/invoice/$request->id/edit");
+                }
+            }
+        // return redirect()->route('invoice')->with(['email-sent'=> true, 'invoice_id' => 28]);
     }
 }

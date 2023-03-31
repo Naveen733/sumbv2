@@ -13,12 +13,12 @@ class TransactionCollections extends Model
      * The attributes that are mass assignable.
      *
      * 
-     */
+    */
     protected $table = 'transaction_collections';
 
-    protected $fillable = ['user_id', 'issue_date', 'due_date', 'transaction_number', 'transaction_type', 'client_name', 'client_email', 'client_phone', 'sub_total', 'total_gst', 'total_amount', 'default_tax', 'invoice_sent', 'status', 'is_active'];
+    protected $fillable = ['user_id', 'invoice_ref_number', 'issue_date', 'due_date', 'transaction_number', 'transaction_type', 'client_name', 'client_email', 'client_phone', 'sub_total', 'total_gst', 'total_amount', 'default_tax', 'logo', 'invoice_sent', 'status', 'is_active'];
 
-    public function particulars() {
+    public function transactions() {
         return $this->hasMany(Transactions::class, 'transaction_collection_id');
     }
 }

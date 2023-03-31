@@ -37,53 +37,32 @@ class ProfitAndLossController extends Controller
         $request->start_date = !empty($request->start_date) ? Carbon::createFromFormat('m/d/Y', $request->start_date)->format('Y-m-d') : ($start_date)->format('Y-m-d');
         $request->end_date = !empty($request->end_date) ? Carbon::createFromFormat('m/d/Y', $request->end_date)->format('Y-m-d') : ($end_date)->format('Y-m-d');
 
-        $transaction_dates = [];
-        $transaction_dates[0] = ['start_date' => $request->start_date, 'end_date' => $request->end_date];
-        $transaction_dates[1] = ['start_date' => '2023-02-01', 'end_date' => '2023-02-28'];
-        // $transaction_dates[2] = ['start_date' => $request->start_date, 'end_date' => $request->end_date];
-
-
-        $pagedata['items'] = [];
-        foreach($transaction_dates as $transaction_date){
-            $pagedata['items'][] = $this->getTransactions($request, $userinfo, $transaction_date['start_date'], $transaction_date['end_date']);
-        }
-     
-        $pagedata['start_date'] = $request->start_date ? Carbon::createFromFormat('Y-m-d', $request->start_date)->format('m/d/Y') : '';
-        $pagedata['end_date'] = $request->end_date ? Carbon::createFromFormat('Y-m-d', $request->end_date)->format('m/d/Y') : '';
-        
-        
-        // echo "<pre>"; var_dump($pagedata['items']);echo "</pre>"; die();
-
-        return view('reports.profitandloss', $pagedata); 
-    }
-
-    private function getTransactions($request, $userinfo, $start_date, $end_date)
-    {
-
-        $transactions = SumbChartAccountsTypeParticulars::selectRaw('sumb_chart_accounts_particulars.id as account_id, 
+        $datas = SumbChartAccountsTypeParticulars::selectRaw('sumb_chart_accounts_particulars.id as account_id, 
                 sumb_chart_accounts_particulars.*, transactions.id as particulars_id, transactions.*, 
                 transaction_collections.id as primary_invoice_id, transaction_collections.*')
                 ->leftJoin('transactions', 'transactions.parts_chart_accounts_id', '=', 'sumb_chart_accounts_particulars.id')
                 ->leftJoin('transaction_collections', 'transaction_collections.id', '=', 'transactions.transaction_collection_id')
                 ->where('transaction_collections.user_id', $userinfo[0])
                 ->whereIn('transaction_collections.status', ['Paid'])
-                ->whereBetween('transaction_collections.issue_date', [$start_date, $end_date])
+                ->whereBetween('transaction_collections.issue_date', [$request->start_date, $request->end_date])
                 ->where('transaction_collections.is_active', 1)
-                ->get()->toArray();
-       
-        $invoices = [];  
+                ->get();
+             
+        $datas = $datas->toArray();
+        
+        $invoice_details = [];  
         $invoice_total = 0;$expense_total = 0;$total_net_profit = 0;
-        foreach($transactions as $key => $val){
-            if(!isset($invoices[$val['transaction_type']])){
-                $invoices[$val['transaction_type']] = [
+        foreach($datas as $key => $val){
+            if(!isset($invoice_details[$val['transaction_type']])){
+                $invoice_details[$val['transaction_type']] = [
                     'transaction_type' => $val['transaction_type'],
                     'accounts' => [],
                 ];
             }
 
-            if(isset($invoices[$val['transaction_type']])){
-                if(!in_array($val['account_id'], array_column($invoices[$val['transaction_type']]['accounts'], 'account_id'))){
-                    $invoices[$val['transaction_type']]['accounts'][] = [
+            if(isset($invoice_details[$val['transaction_type']])){
+                if(!in_array($val['account_id'], array_column($invoice_details[$val['transaction_type']]['accounts'], 'account_id'))){
+                    $invoice_details[$val['transaction_type']]['accounts'][] = [
                         'account_id' => $val['account_id'],
                         'chart_accounts_particulars_code' => $val['chart_accounts_particulars_code'],
                         'chart_accounts_particulars_name' => $val['chart_accounts_particulars_name'],
@@ -92,9 +71,9 @@ class ProfitAndLossController extends Controller
                 }
             }
             
-            if(in_array($val['account_id'], array_column($invoices[$val['transaction_type']]['accounts'], 'account_id'))){
-                $particular_invoice_id_index = array_search($val['account_id'], array_column($invoices[$val['transaction_type']]['accounts'], 'account_id'));
-                if($particular_invoice_id_index !== false && isset($invoices[$val['transaction_type']]['accounts'][$particular_invoice_id_index]['particulars'])){
+            if(in_array($val['account_id'], array_column($invoice_details[$val['transaction_type']]['accounts'], 'account_id'))){
+                $particular_invoice_id_index = array_search($val['account_id'], array_column($invoice_details[$val['transaction_type']]['accounts'], 'account_id'));
+                if($particular_invoice_id_index !== false && isset($invoice_details[$val['transaction_type']]['accounts'][$particular_invoice_id_index]['particulars'])){
                     if($val['transaction_type'] == 'invoice'){
                         $invoice_total += $val['parts_amount'];
                     }
@@ -103,7 +82,7 @@ class ProfitAndLossController extends Controller
                     }
                     $total_net_profit = $invoice_total-$expense_total;
 
-                    $invoices[$val['transaction_type']]['accounts'][$particular_invoice_id_index]['particulars'][] = [
+                    $invoice_details[$val['transaction_type']]['accounts'][$particular_invoice_id_index]['particulars'][] = [
                         'particulars_id' => $val['particulars_id'],
                         'transaction_collection_id' => $val['transaction_collection_id'],
                         'parts_amount' => $val['parts_amount'],
@@ -111,17 +90,31 @@ class ProfitAndLossController extends Controller
                 }
             }
         }
-        sort($invoices);
+        sort($invoice_details);
+        $total_profit_loss = ['total_cost_of_sale' => $invoice_total, 'total_operating_expenses' => $expense_total, 'total_net_profit' => $total_net_profit ];
 
-        return ['start_date'=>$start_date, 'end_date'=>$end_date, 'transactions'=> $invoices, 'total_cost_of_sale' => $invoice_total, 'total_operating_expenses' => $expense_total, 'total_net_profit' => $total_net_profit ];
+
+
+        // $data = SumbChartAccountsTypeParticulars::with(['transactions', 'transactions.transactionCollection'])
+        //     ->whereHas('transactions', function($query) use($userinfo) {
+        //         $query->where('user_id', $userinfo[0]);
+        //     })
+        //     ->whereHas('transactions.transactionCollection', function($query) use($userinfo, $request) {
+        //         $query->where('user_id', $userinfo[0])
+        //         ->whereBetween('transaction_collections.issue_date', [$request->start_date, $request->end_date]);
+        //     })
+        //     ->groupBy('id')
+        //     ->where('user_id', $userinfo[0])->get();
+            
+        $pagedata['profit_loss_details'] = !empty($invoice_details) ? $invoice_details : '';
+        echo "<pre>"; var_dump($pagedata['profit_loss_details']); echo "</pre>";
+die();
+        $pagedata['total_profit_loss'] = $total_profit_loss;
+        $pagedata['start_date'] = $request->start_date ? Carbon::createFromFormat('Y-m-d', $request->start_date)->format('m/d/Y') : '';
+        $pagedata['end_date'] = $request->end_date ? Carbon::createFromFormat('Y-m-d', $request->end_date)->format('m/d/Y') : '';
+
+        return view('reports.profitandloss', $pagedata); 
     }
-
-
-
-
-
-
-
 
     public function reports(Request $request){
         $userinfo =$request->get('userinfo');

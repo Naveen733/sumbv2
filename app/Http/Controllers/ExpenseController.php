@@ -22,6 +22,7 @@ use App\Models\SumbChartAccounts;
 use App\Models\SumbInvoiceTaxRates;
 use App\Models\Transactions;
 use App\Models\TransactionCollections;
+use App\Models\SumbChartAccountsTypeParticulars;
 
 class ExpenseController extends Controller {
 
@@ -74,37 +75,39 @@ class ExpenseController extends Controller {
         //==== get all tranasactions
         $ptype = 'all';
         if (!empty($request->input('type'))) {
-            $expensedata = SumbExpenseDetails::where('user_id', $userinfo[0])->where('inactive_status', 0)->paginate($itemsperpage);
+            $expensedata = TransactionCollections::where('user_id', $userinfo[0])->where('transaction_type', 'expense')->where('is_active', 1)->paginate($itemsperpage);
             if(!empty($expensedata)){
                 $expensedata = $expensedata->toArray();
             }
+            
             $ptype = $request->input('type');
         } else {
-            if($request->search_number_name_amount || $request->start_date || $request->end_date || $request->orderBy){
-                
-                if($request->start_date){
-                    $start_date = Carbon::createFromFormat('m/d/Y', $request->start_date)->format('Y-m-d');
-                }
-                if($request->end_date){
-                    $end_date = Carbon::createFromFormat('m/d/Y', $request->end_date)->format('Y-m-d');
-                }
-                // var_dump($request->start_date);die();
-                $total_amount = $request->search_number_name_amount;
-                $expense_number = $request->search_number_name_amount;
-
-                if($request->search_number_name_amount){
-                    if(is_numeric(trim($request->search_number_name_amount))){
-                        $total_amount = trim($request->search_number_name_amount);
-                        $expense_number = $total_amount;
-                    } 
-                    else if(is_string(trim($request->search_number_name_amount))){
-                        $expense_number = trim(strtolower($request->search_number_name_amount));                        
+                if($request->search_number_name_amount || $request->start_date || $request->end_date || $request->orderBy)
+                {
+                    if($request->start_date){
+                        $start_date = Carbon::createFromFormat('m/d/Y', $request->start_date)->format('Y-m-d');
                     }
-                }
-                $userinfo = $request->get('userinfo');
-                $expensedata = SumbExpenseDetails::
+                    if($request->end_date){
+                        $end_date = Carbon::createFromFormat('m/d/Y', $request->end_date)->format('Y-m-d');
+                    }
+                    // var_dump($request->start_date);die();
+                    $total_amount = $request->search_number_name_amount;
+                    $expense_number = $request->search_number_name_amount;
+
+                    if($request->search_number_name_amount){
+                        if(is_numeric(trim($request->search_number_name_amount))){
+                            $total_amount = trim($request->search_number_name_amount);
+                            $expense_number = $total_amount;
+                        } 
+                        else if(is_string(trim($request->search_number_name_amount))){
+                            $expense_number = trim(strtolower($request->search_number_name_amount));                        
+                        }
+                    }
+                        $userinfo = $request->get('userinfo');
+                        $expensedata = TransactionCollections::
                                 where('user_id', $userinfo[0])
-                                ->where('inactive_status', 0);
+                                ->where('transaction_type', 'expense')
+                                ->where('is_active', 1);
                                 if($request->search_number_name_amount && $request->start_date && $request->end_date){
                                     // $expensedata->where('expense_date','>=',$start_date);
                                     // $expensedata->where('expense_date','<=',$end_date);
@@ -112,84 +115,78 @@ class ExpenseController extends Controller {
                                     // $expensedata->orWhere('client_name', 'LIKE', "%{$request->search_number_name_amount}%");
                                     // $expensedata->orWhere('expense_total_amount', 'LIKE', "{$total_amount}");
                                     
-                                    $expensedata->where('expense_date','>=',$start_date)
-                                    ->where('expense_date','<=',$end_date)
+                                    $expensedata->where('issue_date','>=',$start_date)
+                                    ->where('issue_date','<=',$end_date)
                                     ->where(function($query) use ($expense_number, $total_amount, $request) {
-                                        $query->where('expense_number', 'LIKE', "%{$expense_number}%")
+                                        $query->where('transaction_number', 'LIKE', "%{$expense_number}%")
                                               ->orWhere('client_name', 'LIKE', "%{$request->search_number_name_amount}%")
-                                              ->orWhere('expense_total_amount', 'LIKE', "{$total_amount}");
+                                              ->orWhere('total_amount', 'LIKE', "{$total_amount}");
                                     });
                                 }
                                 if($request->search_number_name_amount && !$request->start_date && !$request->end_date){
-                                    $expensedata->where('expense_number', 'LIKE', "%{$expense_number}%");
+                                    $expensedata->where('transaction_number', 'LIKE', "%{$expense_number}%");
                                     $expensedata->orWhere('client_name', 'LIKE', "%{$request->search_number_name_amount}%");
-                                    $expensedata->orWhere('expense_total_amount', 'LIKE', "{$total_amount}");
+                                    $expensedata->orWhere('total_amount', 'LIKE', "{$total_amount}");
                                 }
                                 if($request->start_date && $request->end_date && !($request->search_number_name_amount)){
-                                    $expensedata->whereBetween('expense_date',array($start_date, $end_date));
+                                    $expensedata->whereBetween('issue_date',array($start_date, $end_date));
                                 }
                                 if($request->start_date && !$request->search_number_name_amount && !$request->end_date){
-                                    $expensedata->where('expense_date','>=',$start_date);
+                                    $expensedata->where('issue_date','>=',$start_date);
                                 }
                                 if($request->end_date && !$request->search_number_name_amount && !$request->start_date){
-                                    $expensedata->where('expense_date','<=',$end_date);
+                                    $expensedata->where('issue_date','<=',$end_date);
                                 }
                                 if(!$request->start_date && $request->search_number_name_amount && $request->end_date){
-                                    $expensedata->where('expense_date','<=',$end_date)
+                                    $expensedata->where('issue_date','<=',$end_date)
                                     ->where(function($query) use ($expense_number, $total_amount, $request) {
-                                        $query->where('expense_number', 'LIKE', "%{$expense_number}%")
+                                        $query->where('transaction_number', 'LIKE', "%{$expense_number}%")
                                               ->orWhere('client_name', 'LIKE', "%{$request->search_number_name_amount}%")
-                                              ->orWhere('expense_total_amount', 'LIKE', "{$total_amount}");
+                                              ->orWhere('total_amount', 'LIKE', "{$total_amount}");
                                     });
                                 }
                                 if(!$request->end_date && $request->search_number_name_amount && $request->start_date){
-                                    $expensedata->where('expense_date','>=',$start_date)
+                                    $expensedata->where('issue_date','>=',$start_date)
                                     ->where(function($query) use ($expense_number, $total_amount, $request) {
-                                        $query->where('expense_number', 'LIKE', "%{$expense_number}%")
+                                        $query->where('transaction_number', 'LIKE', "%{$expense_number}%")
                                               ->orWhere('client_name', 'LIKE', "%{$request->search_number_name_amount}%")
-                                              ->orWhere('expense_total_amount', 'LIKE', "{$total_amount}");
+                                              ->orWhere('total_amount', 'LIKE', "{$total_amount}");
                                     });
                                 }
                                 if($request->orderBy){
                                     $expensedata->orderBy($request->orderBy, $request->direction);
                                 }
-                $expensedata = $expensedata->paginate($itemsperpage)->toArray();
+                    $expensedata = $expensedata->paginate($itemsperpage)->toArray();
 
-                $pagedata['search_number_name_amount'] = $request->search_number_name_amount;
-                $pagedata['start_date'] = $request->start_date;
-                $pagedata['end_date'] = $request->end_date;
-                $pagedata['orderBy'] = $request->orderBy;
-                if($request->direction == 'ASC')
-                {
-                    $pagedata['direction'] = 'DESC';
-                }
-                if($request->direction == 'DESC')
-                {
-                    $pagedata['direction'] = 'ASC';
-                }
+                    $pagedata['search_number_name_amount'] = $request->search_number_name_amount;
+                    $pagedata['start_date'] = $request->start_date;
+                    $pagedata['end_date'] = $request->end_date;
+                    $pagedata['orderBy'] = $request->orderBy;
+                    if($request->direction == 'ASC')
+                    {
+                        $pagedata['direction'] = 'DESC';
+                    }
+                    if($request->direction == 'DESC')
+                    {
+                        $pagedata['direction'] = 'ASC';
+                    }
                 
-            }else{
-                $pagedata['orderBy'] = 'expense_date';
-                $pagedata['direction'] = 'ASC';
-
-                $expensedata = SumbExpenseDetails::
-                // with(['particulars'])
-                // ->whereHas('particulars', function($query) use($userinfo) {
-                //     $query->where('user_id', $userinfo[0]);
-                // })
-                // ->
-                where('user_id', $userinfo[0])
-                ->where('inactive_status', 0)
-                ->orderBy('expense_date', 'DESC')
-                ->paginate($itemsperpage)->toArray();
-            }
+                }
+                else
+                {
+                    $pagedata['orderBy'] = 'issue_date';
+                    $pagedata['direction'] = 'ASC';
+                    
+                    $expensedata = TransactionCollections::where('user_id', $userinfo[0])
+                        ->where('transaction_type', 'expense')
+                        ->where('is_active', 1)
+                        ->orderBy('issue_date', 'DESC')
+                    ->paginate($itemsperpage)->toArray();
+                }
         }
-        //   echo "<pre>"; print_r($expensedata); echo "</pre>"; die();
-        $pagedata['expensedata'] = $expensedata;
         
-        //echo '<pre>';
-        //print_r($expensedata);
-        //paginghandler
+        $pagedata['expensedata'] = $expensedata;
+
         $allrequest = $request->all();
         $pfirst = $allrequest; $pfirst['page'] = 1;
         $pprev = $allrequest; $pprev['page'] = $expensedata['current_page']-1;
@@ -204,16 +201,7 @@ class ExpenseController extends Controller {
             'next' => ($expensedata['current_page'] >= $expensedata['last_page']) ? '' : url()->current().'?'.http_build_query($pnext),
             'last' => ($expensedata['current_page'] >= $expensedata['last_page']) ? '' : url()->current().'?'.http_build_query($plast),
         ];
-        //print_r($pagedata['paging']);
-        //die();
-        //echo "<pre>"; print_r($expensedata); die();
-        
-        
-        //echo "<pre>"; print_r(empty($expensedata)); echo "</pre>"; die();
-        
-        //echo "<pre>loggedin!";
-        //$value = $request->session()->get('keysumb');
-        //print_r($request->get('userinfo'));
+
         return view('invoice.expenselist', $pagedata); 
     }
     
@@ -242,15 +230,17 @@ class ExpenseController extends Controller {
         // );
         // $pagedata['errors'] = $errors;
         // if (!empty($request->input('err'))) { $pagedata['err'] = $request->input('err'); }
-        $chart_account = SumbChartAccounts::with(['chartAccountsParticulars', 'chartAccountsTypes'])
-                    ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
-                        $query->where('user_id', $userinfo[0]);
-                    })
-                    ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
-                        // $query->where('user_id', $userinfo[0]);
-                    })
-                    ->where('chart_accounts_name', 'Expenses')
-                ->get();
+
+        $chart_account = SumbChartAccountsTypeParticulars::where('user_id', $userinfo[0])
+        ->whereIn('chart_accounts_particulars_code', ['400','404','408','412','420','425','429','433','437','441','445',
+        '449','453','461','469','473','485','489','493','494','710','720'])->get();
+        // $chart_account = SumbChartAccounts::with(['chartAccountsParticulars'])
+        //             ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
+        //                 $query->where('user_id', $userinfo[0])
+        //                 ->whereIn('chart_accounts_particulars_code', ['400','404','408','412','420','425','429','433','437','441','445',
+        //                                                 '449','453','461','469','473','485','489','493','494','710','720']);
+        //             })
+        //         ->get();
         if (!empty($chart_account)) {
             $pagedata['chart_account'] = $chart_account->toArray();
         }
@@ -407,61 +397,37 @@ class ExpenseController extends Controller {
                 'transaction_number' => trim($get_exp_settings['expenses_count']),
                 'default_tax' => trim($request->tax_type) == "0" ? 'tax_inclusive' : 'tax_exclusive',
                 'sub_total' => trim($request->expense_total_amount),
-                'total_gst' => trim($request->total_gst),
+                'total_gst' => trim($request->total_gst ? $request->total_gst : 0),
                 'total_amount' => trim($request->total_amount),
+                'logo' => (isset($url) ? $url : ''),
                 'transaction_type' => 'expense',
             ]
-        );
-
-        // $transaction_id = SumbExpenseDetails::insertGetId($expense_transaction_collection);
-        
+        );        
        
-            for ($i = 0; $i < count($request->item_quantity); $i++) {
-               
-                Transactions::create(
-                [
-                    'user_id' => trim($userinfo[0]), 
-                    'transaction_collection_id' => $expense_transaction_collection->id,
-                    'parts_quantity' => trim($request->item_quantity[$i]),
-                    'parts_description' => trim($request->expense_description[$i]),
-                    'parts_unit_price' => trim($request->item_unit_price[$i]),
-                    'parts_amount' => trim($request->expense_amount[$i]),
-                    // 'parts_code' => (!empty($value['parts_code']) ? $value['parts_code'] : $value['parts_name']),
-                    // 'parts_name' => trim($value['parts_name']),
-                    // 'parts_tax_rate' => trim($value['invoice_parts_tax_rate']),
-                    'parts_chart_accounts_id' => trim($request->item_account[$i]),
-                    'parts_tax_rate_id' => trim($request->expense_tax[$i]),
-                    'parts_gst_amount' => 1,
-                ]);
-            }
-
-            $updatethis = SumbExpenseSettings::where('user_id', $userinfo[0])->first();
-            $updatethis->increment('expenses_count');
-
-            DB::commit();
+        for ($i = 0; $i < count($request->item_quantity); $i++) {
             
-            // $request->item_account[$i];
+            Transactions::create(
+            [
+                'user_id' => trim($userinfo[0]), 
+                'transaction_collection_id' => $expense_transaction_collection->id,
+                'parts_quantity' => trim($request->item_quantity[$i]),
+                'parts_description' => trim($request->expense_description[$i]),
+                'parts_unit_price' => trim($request->item_unit_price[$i]),
+                'parts_amount' => trim($request->expense_amount[$i]),
+                // 'parts_code' => (!empty($value['parts_code']) ? $value['parts_code'] : $value['parts_name']),
+                // 'parts_name' => trim($value['parts_name']),
+                // 'parts_tax_rate' => trim($value['invoice_parts_tax_rate']),
+                'parts_chart_accounts_id' => trim($request->item_account[$i]),
+                'parts_tax_rate_id' => trim($request->expense_tax[$i]),
+                'parts_gst_amount' => 1,
+            ]);
+        }
 
-            // $account_code_name = explode('-', $request->item_account[$i]);
+        $updatethis = SumbExpenseSettings::where('user_id', $userinfo[0])->first();
+        $updatethis->increment('expenses_count');
 
-            // $expense_details = array(
-            //     "user_id" => $userinfo[0],
-            //     "expense_description" => $request->expense_description[$i],
-            //     "item_quantity" => $request->item_quantity[$i],
-            //     "item_unit_price" => $request->item_unit_price[$i],
-            //     "expense_tax" => $request->expense_tax[$i],
-            //     "expense_amount" => $request->expense_amount[$i],
-            //     "expense_id" => $transaction_id,
-            //     "expense_number" => $get_exp_settings['expenses_count'],
-            //     'expense_account_code' => $account_code_name[0],
-            //     'expense_account_name' => $account_code_name[1],
-            //     'created_at'            => $dtnow,
-            //     'updated_at'            => $dtnow
-            // );
-            // SumbExpenseParticulars::insert($expense_details);
-        //};
+        DB::commit();
        
-        
         return redirect()->route('expense', ['err'=>1]); die();
     }
 
@@ -480,47 +446,38 @@ class ExpenseController extends Controller {
         );
         $expense_particulars = [];
        
-
-        $pagedata['expense_details'] = TransactionCollections::with(['particulars', 'particulars.chartAccountsParticulars'])
-                                ->whereHas('particulars', function($query) use($userinfo) {
-                                    $query->where('user_id', $userinfo[0]);
-                                })
-                                ->where('id', $id)
-                                ->where('status','Unpaid')->where('is_active', 1)
-                                ->where('user_id', $userinfo[0])->first()->toArray();
+        $pagedata['expense_details'] = TransactionCollections::with(['transactions', 'transactions.chartAccountsParticulars', 'transactions.invoiceTaxRates'])
+                            ->whereHas('transactions', function($query) use($userinfo) {
+                                $query->where('user_id', $userinfo[0]);
+                            })
+                            ->where('id', $id)
+                            ->where('status','Unpaid')->where('is_active', 1)
+                            ->where('transaction_type', 'expense')
+                            ->where('user_id', $userinfo[0])->first();
             if (!empty($pagedata['expense_details'])) {
-                $pagedata['expense_particulars'] = $pagedata['expense_details']['particulars'];
-                // echo "<pre>"; var_dump($pagedata['expense_details']); echo "</pre>";die();
-                // $invoice_details['invoice_part_total_count'] = "[]";
-                // unset($invoice_details['particulars']);
-                // $pagedata['invoice_details'] = $invoice_details;                
+                $pagedata['expense_particulars'] = $pagedata['expense_details']->toArray()['transactions'];
             }
-
-
-        // $pagedata['expense_details'] = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','unpaid')->where('inactive_status',0)->first();
-        // $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
         
         $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
        
-        // if(!empty($expense_particulars)){
-        //     $pagedata['expense_particulars'] = $expense_particulars->toArray();
-        // }
+        $chart_account = SumbChartAccountsTypeParticulars::where('user_id', $userinfo[0])
+                ->whereIn('chart_accounts_particulars_code', ['400','404','408','412','420','425','429','433','437','441','445',
+                '449','453','461','469','473','485','489','493','494','710','720'])->get();
 
-        $chart_account = SumbChartAccounts::with(['chartAccountsParticulars', 'chartAccountsTypes'])
-                ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
-                    $query->where('user_id', $userinfo[0]);
-                })
-                ->whereHas('chartAccountsTypes', function($query) use($userinfo) {
-                    // $query->where('user_id', $userinfo[0]);
-                })
-            ->get();
+        // $chart_account = SumbChartAccounts::with(['chartAccountsParticulars'])
+        //         ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
+        //             $query->where('user_id', $userinfo[0])
+        //             ->whereIn('chart_accounts_particulars_code', ['400','404','408','412','420','425','429','433','437','441','445',
+        //             '449','453','461','469','473','485','489','493','494','710','720']);
+        //         })
+        //     ->get();
         if (!empty($chart_account)) {
-        $pagedata['chart_account'] = $chart_account->toArray();
+            $pagedata['chart_account'] = $chart_account->toArray();
         }
 
         $tax_rates = SumbInvoiceTaxRates::get();
         if (!empty($tax_rates)) {
-        $pagedata['tax_rates'] = $tax_rates->toArray();
+            $pagedata['tax_rates'] = $tax_rates->toArray();
         }
 
         $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
@@ -528,6 +485,8 @@ class ExpenseController extends Controller {
             $pagedata['exp_clients'] = $get_expclients->toArray();
         }
         $pagedata['type'] = 'edit';
+        $pagedata['from'] = !empty($request->from) ? $request->from : '';
+       
         return view('invoice.expensescreate', $pagedata);
 
         //  echo "<pre>"; var_dump($pagedata['expense_details']); echo "</pre>";
@@ -547,26 +506,47 @@ class ExpenseController extends Controller {
             'userinfo' => $userinfo,
             'pagetitle' => 'Edit Expense'
         );
-        $expense_particulars = [];
-       
-        $pagedata['expense_details'] = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','!=','unpaid')->where('inactive_status',0)->first();
-        $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
-        $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
-       
-        if(!empty($expense_particulars)){
-            $pagedata['expense_particulars'] = $expense_particulars->toArray();
-        }
 
-        $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
-        if (!empty($get_expclients)) {
-            $pagedata['exp_clients'] = $get_expclients->toArray();
-        }
-        $pagedata['type'] = 'view';
-          return view('invoice.expensescreate', $pagedata);
+        $pagedata['expense_details'] = TransactionCollections::with(['transactions', 'transactions.chartAccountsParticulars'])
+                                ->whereHas('transactions', function($query) use($userinfo) {
+                                    $query->where('user_id', $userinfo[0]);
+                                })
+                                ->where('id', $id)
+                                ->where('status', '!=', 'Unpaid')->where('is_active', 1)
+                                ->where('transaction_type', 'expense')
+                                ->where('user_id', $userinfo[0])->first();
+            if (!empty($pagedata['expense_details'])) {
+                $pagedata['expense_particulars'] = $pagedata['expense_details']->toArray()['transactions'];
+            }
+            $pagedata['data'] = $get_settings = SumbExpenseSettings::where('user_id', $userinfo[0])->first()->toArray();
 
-        //  echo "<pre>"; var_dump($pagedata['expense_details']); echo "</pre>";
-        //  die();
-        
+            $chart_account = SumbChartAccountsTypeParticulars::where('user_id', $userinfo[0])
+                    ->whereIn('chart_accounts_particulars_code', ['400','404','408','412','420','425','429','433','437','441','445',
+                    '449','453','461','469','473','485','489','493','494','710','720'])->get();
+
+            // $chart_account = SumbChartAccounts::with(['chartAccountsParticulars'])
+            //     ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
+            //         $query->where('user_id', $userinfo[0])
+            //         ->whereIn('chart_accounts_particulars_code', ['400','404','408','412','420','425','429','433','437','441','445',
+            //                                             '449','453','461','469','473','485','489','493','494','710','720']);
+            //     })
+            //     ->get();
+
+            if (!empty($chart_account)) {
+                $pagedata['chart_account'] = $chart_account->toArray();
+            }
+
+            $tax_rates = SumbInvoiceTaxRates::get();
+            if (!empty($tax_rates)) {
+                $pagedata['tax_rates'] = $tax_rates->toArray();
+            }
+
+            $get_expclients = SumbExpensesClients::where('user_id', $userinfo[0])->orderBy('client_name')->get();
+            if (!empty($get_expclients)) {
+                $pagedata['exp_clients'] = $get_expclients->toArray();
+            }
+            $pagedata['type'] = 'view';
+        return view('invoice.expensescreate', $pagedata);
     }
 //***********************************************
     //*
@@ -581,25 +561,12 @@ class ExpenseController extends Controller {
             'userinfo' => $userinfo,
             'pagetitle' => 'Delete Expense'
         );
-        // $expense_particulars = [];
-        // $deleteExpenseParticulars = [];
+       
+        $expense_details = array("is_active" => 0);
 
-        // $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
-        // if(!empty($expense_particulars)){
-        //     $deleteExpenseParticulars = $expense_particulars->toArray();
-        // }
-        
-        // SumbExpenseDetails::where('user_id', $userinfo[0])->where('transaction_id', $id)->first()->delete();
-        
-        // for($i = 0; $i < count($deleteExpenseParticulars); $i++){
-        //     SumbExpenseParticulars::where('user_id', $userinfo[0])->where('id', $deleteExpenseParticulars[$i]['id'])->delete();
-        // }
-        $expense_details = array("inactive_status" => 1);
-
-        $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->first();
+        $updateExpenseDetails = TransactionCollections::where('user_id', $userinfo[0])->where('id', $id)->first();
         $updateExpenseDetails->update($expense_details);
         
-        //die();
         return redirect()->route('expense', ['err'=>2]); die();
     
     }
@@ -696,17 +663,7 @@ class ExpenseController extends Controller {
             "updated_at" => $dtnow,
            // "status_paid" => 'paid'
         );
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'message' => 'validation error',
-        //         'errors' => $validator->errors()
-        //     ], 401);
-        //     // echo "sds";
-        //     // die();
-        //    // return redirect()->route( 'expenses-create' )->withErrors($validator)->with('form_data',$pagedata);
-        // }
-        // var_dump($request->expense_number);die();
+        
         $ids = [];
         $updateExpenseDetails = TransactionCollections::where('user_id', trim($userinfo[0]))
             ->where('id', $id)->where('is_active', 1)
@@ -721,20 +678,13 @@ class ExpenseController extends Controller {
                     'transaction_number' => trim($request->expense_number),
                     'default_tax' => trim($request->tax_type) == "0" ? 'tax_inclusive' : 'tax_exclusive',
                     'sub_total' => trim($request->expense_total_amount),
-                    'total_gst' => trim($request->total_gst),
+                    'total_gst' => trim($request->total_gst ? $request->total_gst : 0),
                     'total_amount' => trim($request->total_amount),
+                    'logo' => (isset($url) ? $url : ''),
                     'transaction_type' => 'expense',
                 ]
             );
-        // $updateExpenseDetails = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','unpaid')->where('inactive_status',0)->first();;
-        // $updateExpenseDetails->update($expense_details);
-
-        // $expense_particulars = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->orderBy('id')->get();
-        // if(!empty($expense_particulars)){
-        //     $updateExpenseParticulars = $expense_particulars->toArray();
-        // }
-        //echo count($request->item_quantity);
-        //echo count($updateExpenseParticulars);
+      
         if($updateExpenseDetails){
             for ($i = 0; $i < count($request->item_quantity); $i++) {
                 $newParticulars = Transactions::create(
@@ -753,8 +703,6 @@ class ExpenseController extends Controller {
                         'parts_gst_amount' => 1,
                     ]);
                 array_push($ids,  $newParticulars->id);
-                // $expense_item = SumbExpenseParticulars::where('user_id', $userinfo[0])->where('expense_id', $id)->where('id',$updateExpenseParticulars[$i]['id'])->first();
-                // $expense_item->update($expense_particular_item);
             };
            
             if(!empty($ids)){
@@ -766,10 +714,6 @@ class ExpenseController extends Controller {
             DB::commit();
         }
         return redirect()->route('expense', ['err'=>6]); die();
-
-        //  echo "<pre>"; var_dump($updateExpenseParticulars); echo "</pre>";
-        //  die();
-        
     }
    
     //***********************************************
@@ -785,24 +729,11 @@ class ExpenseController extends Controller {
             'userinfo'=>$userinfo,
             'pagetitle' => 'Void Expense'
         );
-        //echo "<pre>"; print_r($request->all()); //echo "</pre>";
-        // $pagedata['oriform'] = $request->all();
-        // echo "<pre>"; print_r($pagedata);
-        // if (empty($pagedata['oriform']['invno'])) {
-        //     return redirect()->route('expense', ['err'=>3]); die();
-        // }
-
-        $chk_inv = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('inactive_status',0)->first();
-        if ($chk_inv->exists) {
-            $chk_inv = $chk_inv->toArray();
+       
+        $chk_inv = TransactionCollections::where('user_id', $userinfo[0])->where('id', $id)->where('is_active', 1)->update(['status'=>$type]);
+        if ($chk_inv) {
+            return redirect()->route('expense', ['err'=>4]); die();
         }
-        //print_r($chk_inv);
-        //die();
-        SumbExpenseDetails::where('id',$chk_inv['id'])->update(['status_paid'=>$type]);
-        //echo "<pre>"; print_r($chk_inv); //echo "</pre>";
-        //die();
-        return redirect()->route('expense', ['err'=>4]); die();
-        //return redirect()->route('expense'); die();
     }
     //***********************************************
     //*
@@ -818,15 +749,8 @@ class ExpenseController extends Controller {
             'pagetitle' => 'Status Change'
         );
       
-        $chk_inv = SumbExpenseDetails::where('user_id', $userinfo[0])->where('id', $id)->where('status_paid','!=','void')->where('inactive_status',0)->first();
-        if ($chk_inv->exists) {
-            $chk_inv = $chk_inv->toArray();
-        }
-        //print_r($chk_inv);
-        //die();
-        SumbExpenseDetails::where('id',$chk_inv['id'])->update(['status_paid'=>$type]);
-        //echo "<pre>"; print_r($chk_inv); //echo "</pre>";
-        //die();
+        $chk_inv = TransactionCollections::where('user_id', $userinfo[0])->where('id', $id)->where('status','!=','Voided')->where('is_active', 1)->update(['status' => $type]);
+        
         if($type == 'paid'){
             return redirect()->route('expense', ['err'=>3]); die();
         }else{
@@ -834,12 +758,12 @@ class ExpenseController extends Controller {
         }
     }
 
-    public function ExpenseTaxRates(Request $request)
+    public function expenseTaxRatesById(Request $request)
     {
         if ($request->ajax())
         {
             $userinfo = $request->get('userinfo');
-            $tax_rates = SumbInvoiceTaxRates::select('tax_rates')->whereIn('id', $request->tax_ids)
+            $tax_rates = SumbInvoiceTaxRates::select('tax_rates')->where('id', $request->id)
                 ->orderBy('id')
                 ->get();
 
@@ -854,6 +778,88 @@ class ExpenseController extends Controller {
             }
             else
             {
+                $response = [
+                    'status' => 'error',
+                    'err' => 'No items found',
+                    'data' => ''
+                ];
+                echo json_encode($response);
+            }
+        }
+        else
+        {
+            $response = [
+                'status' => 'error',
+                'err' => 'Something went wrong',
+                'data' => ''
+            ];
+            echo json_encode($response);
+        }
+    }
+
+    public function expenseTaxratesList(Request $request){
+        if ($request->ajax())
+        {
+            $userinfo = $request->get('userinfo');
+            $tax_rates = SumbInvoiceTaxRates::orderBy('id')
+                ->get();
+
+            if($tax_rates)
+            {
+                $response = [
+                    'status' => 'success',
+                    'err' => '',
+                    'data' => $tax_rates
+                ];
+                echo json_encode($response);
+            }
+            else
+            {
+                $response = [
+                    'status' => 'error',
+                    'err' => 'No items found',
+                    'data' => ''
+                ];
+                echo json_encode($response);
+            }
+        }
+        else
+        {
+            $response = [
+                'status' => 'error',
+                'err' => 'Something went wrong',
+                'data' => ''
+            ];
+            echo json_encode($response);
+        }
+    }
+
+    public function expenseChartAccounts(Request $request)
+    {
+        if ($request->ajax())
+        { 
+            $userinfo = $request->get('userinfo');
+
+            $chart_account_parts = SumbChartAccountsTypeParticulars::where('user_id', $userinfo[0])
+                    ->whereIn('chart_accounts_particulars_code', ['400','404','408','412','420','425','429','433','437','441','445',
+                    '449','453','461','469','473','485','489','493','494','710','720'])->get();
+            
+            // $chart_account_parts = SumbChartAccounts::with(['chartAccountsParticulars'])
+            //             ->whereHas('chartAccountsParticulars', function($query) use($userinfo) {
+            //                 $query->whereIn('chart_accounts_particulars_code', ['400','404','408','412','420','425','429','433','437','441','445',
+            //                                             '449','453','461','469','473','485','489','493','494','710','720'])
+            //                 ->where('user_id', $userinfo[0]);
+            //             })
+            //             ->get();
+            if($chart_account_parts){
+                $response = [
+                    'status' => 'success',
+                    'err' => '',
+                    'data' => $chart_account_parts
+                ];
+                echo json_encode($response);
+            }
+            else{
                 $response = [
                     'status' => 'error',
                     'err' => 'No items found',

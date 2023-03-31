@@ -27,6 +27,9 @@
 <!-- Main JS-->
 <script src="/js/main.js?v1.0.11"></script>
 
+<link  href="/css/multiselect.css" rel="stylesheet" />
+<script src="/js/multiselect.min.js"></script>
+
 <script type="text/javascript">
 $(function() {
   // for now, there is something adding a click handler to 'a'
